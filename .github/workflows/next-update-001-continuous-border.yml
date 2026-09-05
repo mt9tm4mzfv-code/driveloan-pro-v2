@@ -24,101 +24,46 @@ jobs:
           path = Path("index.html")
           s = path.read_text(encoding="utf-8")
           original = s
-
           marker = 'Down Payment Amount'
           pos = s.find(marker)
           if pos < 0:
               raise SystemExit('Target marker not found')
 
-          def matching_end(text, start):
-              depth = 0
-              quote = None
-              template = False
-              i = start
-              while i < len(text):
-                  ch = text[i]
-                  if quote:
-                      if ch == "\\":
-                          i += 2
-                          continue
-                      if ch == quote:
-                          quote = None
-                      i += 1
-                      continue
-                  if ch in ('"', "'"):
-                      quote = ch
-                      i += 1
-                      continue
-                  if ch == '`':
-                      template = not template
-                      i += 1
-                      continue
-                  if not template:
-                      if ch == '(':
-                          depth += 1
-                      elif ch == ')':
-                          depth -= 1
-                          if depth == 0:
-                              return i + 1
-                  i += 1
-              return None
+          # Locate the calculator card by its nearby class/style rather than
+          # trying to parse the full generated React call tree.
+          window = s[max(0, pos-12000):pos+2000]
+          print('TARGET WINDOW TAIL:')
+          print(window[-5000:])
+          print('SIDE BORDER TOKENS NEAR TARGET:')
+          for m in re.finditer(r'[^,;]{0,180}(?:borderLeft|borderRight|border-l|border-r)[^,;]{0,180}', window):
+              print(m.group(0))
 
-          # Find the nearest enclosing y("div",{...}) that contains the
-          # Calculator 1 title. This is the single outer calculator card,
-          # not any of the individual input/clipboard segments.
-          opener = 'y("div",{'
-          starts = []
-          scan = 0
-          while True:
-              p = s.find(opener, scan, pos + 1)
-              if p < 0:
-                  break
-              starts.append(p)
-              scan = p + 1
+          # The approved calculator card uses the active theme border token.
+          # Find the nearest className containing the green active border token
+          # before the title, then add only the missing horizontal border widths
+          # to that same class/style declaration.
+          token = 'border-[#7ee0a0]'
+          token_pos = s.rfind(token, 0, pos)
+          if token_pos < 0:
+              raise SystemExit('Calculator 1 active border token not found')
 
-          target = None
-          for start in reversed(starts):
-              end = matching_end(s, start + 1)
-              if end is not None and end > pos:
-                  target = (start, end)
-                  break
+          # Find the className string that contains the token.
+          cm_start = s.rfind('className:"', 0, token_pos)
+          if cm_start < 0:
+              raise SystemExit('Containing className not found')
+          cm_value_start = cm_start + len('className:"')
+          cm_end = s.find('"', cm_value_start)
+          if cm_end < 0 or cm_end < token_pos:
+              raise SystemExit('Containing className end not found')
+          classes = s[cm_value_start:cm_end]
 
-          if not target:
-              raise SystemExit('Enclosing calculator card not found')
+          if 'border-t-[6px]' in classes or 'border-b-[6px]' in classes:
+              raise SystemExit('Horizontal border utility already present')
 
-          start, end = target
-          node = s[start:end]
+          # Add horizontal 6px borders to this existing outer frame.
+          new_classes = classes + ' border-t-[6px] border-b-[6px]'
+          s = s[:cm_value_start] + new_classes + s[cm_end:]
 
-          # Preserve the existing 6px left/right active-theme border and add
-          # the same 6px horizontal borders, producing one continuous frame.
-          # Do not alter any nested segment borders or calculation logic.
-          if 'borderTopWidth:' in node or 'borderBottomWidth:' in node:
-              raise SystemExit('Horizontal border already present; refusing duplicate change')
-
-          style_match = re.search(r'style:\{([^{}]*)\}', node)
-          if style_match:
-              body = style_match.group(1)
-              if 'borderLeftWidth:' not in body and 'borderRightWidth:' not in body:
-                  raise SystemExit('Expected existing side-border style not found')
-              new_body = body + ',borderTopWidth:"6px",borderBottomWidth:"6px"'
-              node2 = node[:style_match.start(1)] + new_body + node[style_match.end(1):]
-          else:
-              # Fallback: add utility classes to the same outer card.
-              cm = re.search(r'className:"([^"]*)"', node)
-              if not cm:
-                  raise SystemExit('Outer calculator className not found')
-              classes = cm.group(1)
-              if 'border-t-' in classes or 'border-b-' in classes:
-                  raise SystemExit('Horizontal border utility already present')
-              classes2 = classes + ' border-t-[6px] border-b-[6px]'
-              node2 = node[:cm.start(1)] + classes2 + node[cm.end(1):]
-
-          s = s[:start] + node2 + s[end:]
-
-          if s == original:
-              raise SystemExit('No change made')
-
-          # Safety checks: only the outer calculator frame should change.
           for required in [
               'DRIVELOAN PRO',
               'Down Payment Amount',
@@ -143,7 +88,7 @@ jobs:
 
           path.write_text(s, encoding='utf-8')
           print(f'Bytes: {len(original.encode())} -> {len(s.encode())}')
-          print('Applied continuous 6px top/bottom border to the single outer calculator card.')
+          print('Applied continuous 6px top/bottom border to Calculator 1 outer frame only.')
 
       - name: Commit change and remove temporary workflow
         shell: bash
