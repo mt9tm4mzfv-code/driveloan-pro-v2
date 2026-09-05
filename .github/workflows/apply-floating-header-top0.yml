@@ -1,0 +1,44 @@
+name: Apply floating header top0
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Remove top gap from floating header
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = 'fixed top-3 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[980px] z-50 rounded-[22px] p-3 flex flex-col gap-3 shadow-[0_8px_30px_rgba(0,0,0,0.35)]'
+          new = 'fixed top-0 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[980px] z-50 rounded-[22px] p-3 flex flex-col gap-3 shadow-[0_8px_30px_rgba(0,0,0,0.35)]'
+          count = s.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected exactly 1 floating-header class match, found {count}')
+          p.write_text(s.replace(old, new, 1))
+          PY
+
+      - name: Commit UI change and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'UI: Remove top gap from floating header'
+          git push origin main
+          git rm .github/workflows/apply-floating-header-top0.yml
+          git commit -m 'Remove temporary floating header top0 workflow'
+          git push origin main
