@@ -1,0 +1,120 @@
+name: Remove engine debug UI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remove engine debug line safely
+        shell: python
+        run: |
+          from pathlib import Path
+          import subprocess
+
+          path = Path('index.html')
+          s = path.read_text(encoding='utf-8')
+          marker = 'Engine V62.40 GOLD Logic'
+          if marker not in s:
+              raise SystemExit('Target marker not found; refusing to modify file.')
+
+          def find_balanced_call(text, marker):
+              m = text.find(marker)
+              if m < 0:
+                  raise ValueError('marker not found')
+              # Find the nearest preceding y("...",{ call start.
+              start = text.rfind('y("', 0, m)
+              if start < 0:
+                  raise ValueError('call start not found')
+              brace = text.find('{', start, m)
+              if brace < 0:
+                  raise ValueError('object start not found')
+
+              depth = 0
+              in_str = False
+              quote = ''
+              esc = False
+              in_template = False
+              i = brace
+              while i < len(text):
+                  c = text[i]
+                  if in_str:
+                      if esc:
+                          esc = False
+                      elif c == '\\':
+                          esc = True
+                      elif c == quote:
+                          in_str = False
+                  elif in_template:
+                      if esc:
+                          esc = False
+                      elif c == '\\':
+                          esc = True
+                      elif c == '`':
+                          in_template = False
+                  else:
+                      if c in ('"', "'"):
+                          in_str = True
+                          quote = c
+                      elif c == '`':
+                          in_template = True
+                      elif c == '{':
+                          depth += 1
+                      elif c == '}':
+                          depth -= 1
+                          if depth == 0:
+                              j = i + 1
+                              while j < len(text) and text[j].isspace():
+                                  j += 1
+                              if text.startswith(')', j):
+                                  return start, j + 1
+                              raise ValueError('closing parenthesis not found')
+                  i += 1
+              raise ValueError('unbalanced object')
+
+          start, end = find_balanced_call(s, marker)
+          # Remove only the target call plus one adjacent comma where appropriate.
+          a, b = start, end
+          if b < len(s) and s[b] == ',':
+              b += 1
+          elif a > 0 and s[a-1] == ',':
+              a -= 1
+          new_s = s[:a] + s[b:]
+
+          if marker in new_s:
+              raise SystemExit('Marker still present after cleanup.')
+          if 'DRIVELOAN PRO' not in new_s:
+              raise SystemExit('Critical UI marker missing after cleanup.')
+          path.write_text(new_s, encoding='utf-8')
+
+      - name: Validate JavaScript syntax
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', s, flags=re.S)
+          if not scripts:
+              raise SystemExit('No script blocks found')
+          Path('/tmp/app.js').write_text('\n'.join(scripts), encoding='utf-8')
+          PY
+          node --check /tmp/app.js
+
+      - name: Commit cleanup and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .github/workflows/remove-engine-debug.yml
+          git add index.html .github/workflows/remove-engine-debug.yml
+          git diff --cached --quiet && { echo "No changes to commit"; exit 0; }
+          git commit -m "ui: remove engine debug line"
+          git push
