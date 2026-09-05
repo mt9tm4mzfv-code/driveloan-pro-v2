@@ -24,30 +24,24 @@ jobs:
           path = Path("index.html")
           s = path.read_text(encoding="utf-8")
           original = s
+
+          # The first occurrence is the qf label definition. Target the
+          # rendered Calculator 1 title after the main return statement.
+          return_pos = s.find('return y("div"')
+          if return_pos < 0:
+              raise SystemExit('Main render return not found')
           marker = 'Down Payment Amount'
-          pos = s.find(marker)
+          pos = s.find(marker, return_pos)
           if pos < 0:
-              raise SystemExit('Target marker not found')
+              raise SystemExit('Rendered calculator title not found')
 
-          # Locate the calculator card by its nearby class/style rather than
-          # trying to parse the full generated React call tree.
-          window = s[max(0, pos-12000):pos+2000]
-          print('TARGET WINDOW TAIL:')
-          print(window[-5000:])
-          print('SIDE BORDER TOKENS NEAR TARGET:')
-          for m in re.finditer(r'[^,;]{0,180}(?:borderLeft|borderRight|border-l|border-r)[^,;]{0,180}', window):
-              print(m.group(0))
-
-          # The approved calculator card uses the active theme border token.
-          # Find the nearest className containing the green active border token
-          # before the title, then add only the missing horizontal border widths
-          # to that same class/style declaration.
           token = 'border-[#7ee0a0]'
           token_pos = s.rfind(token, 0, pos)
           if token_pos < 0:
-              raise SystemExit('Calculator 1 active border token not found')
+              raise SystemExit('Calculator 1 active border token not found before rendered title')
 
-          # Find the className string that contains the token.
+          # Find the className string that actually contains the active green
+          # border token. This is the single outer Calculator 1 frame.
           cm_start = s.rfind('className:"', 0, token_pos)
           if cm_start < 0:
               raise SystemExit('Containing className not found')
@@ -58,9 +52,10 @@ jobs:
           classes = s[cm_value_start:cm_end]
 
           if 'border-t-[6px]' in classes or 'border-b-[6px]' in classes:
-              raise SystemExit('Horizontal border utility already present')
+              raise SystemExit('Horizontal border utility already present; refusing duplicate change')
 
-          # Add horizontal 6px borders to this existing outer frame.
+          # Add the same 6px horizontal border to the existing outer frame.
+          # Existing side border/theme behavior is untouched.
           new_classes = classes + ' border-t-[6px] border-b-[6px]'
           s = s[:cm_value_start] + new_classes + s[cm_end:]
 
