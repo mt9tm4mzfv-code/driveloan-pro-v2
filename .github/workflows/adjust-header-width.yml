@@ -21,21 +21,25 @@ jobs:
           from pathlib import Path
           p = Path('index.html')
           s = p.read_text()
-          old = 'calc(100%-80px)'
-          new = 'calc(100%-40px)'
-          if s.count(old) != 2:
-              raise SystemExit(f'Expected exactly 2 occurrences of {old!r}, found {s.count(old)}')
-          s = s.replace(old, new)
+          old_class = 'calc(100%-80px)'
+          new_class = 'calc(100%-40px)'
+          old_inline = 'calc(100% - 80px)'
+          new_inline = 'calc(100% - 40px)'
+          if s.count(old_class) != 1 or s.count(old_inline) != 1:
+              raise SystemExit(f'Unexpected signature counts: class={s.count(old_class)}, inline={s.count(old_inline)}')
+          s = s.replace(old_class, new_class).replace(old_inline, new_inline)
           p.write_text(s)
-          print('Replaced exactly 2 header width occurrences: -80px -> -40px')
+          print('Replaced header class and inline width: -80px -> -40px')
           PY
 
       - name: Verify exact change
         shell: bash
         run: |
-          test "$(grep -o 'calc(100%-40px)' index.html | wc -l)" -eq 2
+          test "$(grep -o 'calc(100%-40px)' index.html | wc -l)" -eq 1
+          test "$(grep -o 'calc(100% - 40px)' index.html | wc -l)" -eq 1
           test "$(grep -o 'calc(100%-80px)' index.html | wc -l)" -eq 0
-          echo 'Verification passed: header width is calc(100%-40px) in class and inline style.'
+          test "$(grep -o 'calc(100% - 80px)' index.html | wc -l)" -eq 0
+          echo 'Verification passed: both header width controls are now -40px.'
 
       - name: Commit UI change
         shell: bash
@@ -43,7 +47,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m 'Adjust floating header width to -40px' || exit 0
+          git commit -m 'Adjust floating header width to -40px'
           git push
 
       - name: Remove temporary workflow
