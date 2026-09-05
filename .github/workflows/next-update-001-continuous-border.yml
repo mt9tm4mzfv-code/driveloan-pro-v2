@@ -9,17 +9,69 @@ permissions:
   contents: write
 
 jobs:
-  inspect:
+  update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Inspect rendered calculator container
+
+      - name: Apply one continuous color-coded calculator frame
         shell: python
         run: |
           from pathlib import Path
-          s=Path('index.html').read_text(encoding='utf-8')
-          ret=s.find('return y("div"')
-          print('return=',ret)
-          print('--- first 14000 chars after return ---')
-          print(s[ret:ret+14000])
+          import re, subprocess, tempfile
+
+          path = Path('index.html')
+          s = path.read_text(encoding='utf-8')
+          original = s
+
+          old = 'style:{borderLeftWidth:6,borderLeftColor:Zf,borderRightWidth:6,borderRightColor:Zf}'
+          new = 'style:{borderLeftWidth:6,borderLeftColor:Zf,borderRightWidth:6,borderRightColor:Zf,borderTopWidth:6,borderTopColor:Zf,borderBottomWidth:6,borderBottomColor:Zf}'
+
+          count = s.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected exactly 1 Calculator outer-frame style, found {count}')
+
+          s = s.replace(old, new, 1)
+
+          # Safety: preserve core UI/calculation markers and ensure the old
+          # side-only style is gone while the new full frame exists exactly once.
+          for required in [
+              'DRIVELOAN PRO',
+              'PREMIUM COLOR?',
+              'OFFICIAL PROMO DP',
+              'RESET ENTRY',
+              'navigator.clipboard',
+              'borderTopWidth:6',
+              'borderBottomWidth:6',
+          ]:
+              if required not in s:
+                  raise SystemExit(f'Safety check failed: {required} missing')
+
+          if old in s:
+              raise SystemExit('Old side-only frame style still present')
+
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', s, flags=re.S|re.I)
+          for idx, script in enumerate(scripts):
+              if not script.strip():
+                  continue
+              with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8') as f:
+                  f.write(script)
+                  name = f.name
+              r = subprocess.run(['node','--check',name], capture_output=True, text=True)
+              if r.returncode != 0:
+                  raise SystemExit(f'JavaScript syntax failed in script {idx}: {r.stderr}')
+
+          path.write_text(s, encoding='utf-8')
+          print(f'Bytes: {len(original.encode())} -> {len(s.encode())}')
+          print('Applied one continuous 6px color-coded outer frame: left + right + top + bottom.')
+
+      - name: Commit change and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git rm .github/workflows/next-update-001-continuous-border.yml
+          git commit -m "ui: wrap calculator in continuous color border"
+          git push origin ui/next-update-001
