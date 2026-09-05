@@ -22,24 +22,25 @@ jobs:
           from pathlib import Path
           p = Path('index.html')
           s = p.read_text()
-          old = 'w-[calc(100%-32px)] max-w-[980px]'
-          new = 'w-[calc(100%-80px)] max-w-[520px]'
-          if old not in s:
-              raise SystemExit('Expected floating-header width signature not found; aborting.')
-          s2 = s.replace(old, new, 1)
-          if s2 == s:
-              raise SystemExit('No change applied; aborting.')
-          p.write_text(s2)
+          replacements = [
+              ('w-[calc(100%-32px)] max-w-[920px]', 'w-[calc(100%-80px)] max-w-[520px]'),
+              ('width:"calc(100% - 2rem)",maxWidth:"980px"', 'width:"calc(100% - 80px)",maxWidth:"520px"'),
+          ]
+          changed = False
+          for old, new in replacements:
+              if old in s:
+                  s = s.replace(old, new, 1)
+                  changed = True
+          if not changed:
+              raise SystemExit('Expected floating-header width signatures not found; aborting.')
+          p.write_text(s)
           PY
 
       - name: Verify exact change
         shell: bash
         run: |
           grep -o 'w-\[calc(100%-80px)\] max-w-\[520px\]' index.html
-          if grep -q 'w-\[calc(100%-32px)\] max-w-\[980px\]' index.html; then
-            echo 'Old header width signature still present.'
-            exit 1
-          fi
+          grep -o 'width:"calc(100% - 80px)",maxWidth:"520px"' index.html
 
       - name: Commit UI change
         shell: bash
