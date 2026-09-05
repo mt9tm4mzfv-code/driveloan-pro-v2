@@ -1,0 +1,29 @@
+name: Inspect horizontal line colors
+on:
+  push:
+    branches: [ui/next-update-001]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect likely line styles
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          needles=['red','Red','#ff','#f00','#ef','#dc','#e11','bg-[#','borderTop','borderBottom','height:6','height:5','h-[6','h-1']
+          for n in needles:
+              print(f'=== {n} ===')
+              start=0
+              count=0
+              while True:
+                  i=s.lower().find(n.lower(),start)
+                  if i<0 or count>=30: break
+                  a=max(0,i-180); b=min(len(s),i+260)
+                  print(s[a:b].replace('\\n',' ')[:500])
+                  print()
+                  start=i+len(n); count+=1
+          PY
