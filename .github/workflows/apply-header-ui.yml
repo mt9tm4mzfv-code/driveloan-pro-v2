@@ -1,0 +1,43 @@
+name: Apply approved header UI change
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  apply-header:
+    if: ${{ !contains(github.event.head_commit.message, 'UI: Header redesign') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply header-only UI change
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          old = '''y("div",{className:"bg-[#162a1a] border border-[#1f3a28] rounded-[22px] p-3 flex flex-col gap-3 shadow-[0_4px_20px_rgba(0,0,0,0.3)]",children:[y("div",{className:"flex items-center justify-between",children:[y("div",{className:"flex items-center gap-2.5",children:[p("div",{className:"w-8 h-8 rounded-full bg-[#7ee0a0] flex items-center justify-center text-black font-black text-[11px] tracking-wide",children:"DP"}),p("div",{className:"font-black tracking-[0.14em] text-[13px]",children:"DRIVELOAN PRO"})]}),y("div",{className:"bg-[#8af5b0] text-black font-black text-[11px] px-3.5 py-1.5 rounded-full tracking-wide",children:["CALCULATOR — ",e]})]}),y("div",{className:"bg-[#0e1525]/70 rounded-full px-3 py-2 flex items-center justify-between border border-[#1e2f23]",children:[y("div",{className:"flex items-center gap-2",children:[p("div",{className:"w-6 h-6 rounded-full bg-[#7ee0a0] flex items-center justify-center text-black text-[11px] font-black",children:e}),y("div",{className:"text-[12px] font-bold tracking-wide",children:["CALCULATOR — ",e]})]}),p("div",{className:"flex items-center gap-1.5",children:[1,2,3].map((L)=>p("button",{onClick:()=>{n(L),E(`Calculator ${L} active — ${L===1?"DP Amount→Monthly":L===2?"DP %→Monthly":"Monthly→DP"}`),setTimeout(()=>E(null),2500)},className:`w-7 h-7 rounded-full text-[12px] font-bold flex items-center justify-center transition-all ${e===L?"bg-[#7ee0a0] text-black":"bg-[#2a3552] text-[#8a96b5]"}`,children:L},L))})]})]}),'''
+
+          new = '''y("div",{className:`sticky top-3 z-50 rounded-[22px] p-3 flex flex-col gap-3 shadow-[0_8px_30px_rgba(0,0,0,0.35)] border transition-all ${e===1?"bg-[#12261a] border-[#1f6b3d]":e===2?"bg-[#0d2138] border-[#2563eb]":"bg-[#2a1b10] border-[#f59e0b]"}`,children:[p("div",{className:"text-center font-black tracking-[0.14em] text-[16px]",style:{color:e===1?"#7ee0a0":e===2?"#5aa8ff":"#f59e0b"},children:"DRIVELOAN PRO"}),y("div",{className:"w-fit mx-auto bg-[#0e1525]/80 rounded-full px-3 py-2 flex items-center justify-center border",style:{borderColor:e===1?"#1f6b3d":e===2?"#2563eb":"#f59e0b"},children:[y("div",{className:"flex items-center gap-2.5",children:[y("div",{className:"text-[12px] font-bold tracking-wide whitespace-nowrap",children:["CALCULATOR — ",e]}),p("div",{className:"h-5 w-px bg-[#475569]",children:null}),p("div",{className:"flex items-center gap-1.5",children:[1,2,3].map((L)=>p("button",{onClick:()=>{n(L),E(`Calculator ${L} active — ${L===1?"DP Amount→Monthly":L===2?"DP %→Monthly":"Monthly→DP"}`),setTimeout(()=>E(null),2500)},className:`w-7 h-7 rounded-full text-[12px] font-bold flex items-center justify-center transition-all ${e===L?(e===1?"bg-[#7ee0a0] text-black":e===2?"bg-[#5aa8ff] text-black":"bg-[#f59e0b] text-black"):"bg-[#2a3552] text-[#8a96b5]"}`,children:L},L))})]})]})]}),'''
+
+          if old not in text:
+              raise SystemExit('TARGET HEADER BLOCK NOT FOUND; NO CHANGE MADE')
+          text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
+          print('Header block replaced successfully.')
+
+      - name: Commit approved UI change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "UI: Header redesign"
+          git push
