@@ -1,0 +1,46 @@
+name: apply approved floating header cleanup
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, 'Apply floating header cleanup') && !contains(github.event.head_commit.message, 'Remove temporary floating header cleanup workflow') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update approved header
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = 'fixed top-3 z-50 rounded-[22px] p-3 flex flex-col gap-3 shadow-[0_8px_30px_rgba(0,0,0,0.35)] border transition-all'
+          new = 'fixed top-3 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[980px] z-50 rounded-[22px] p-3 flex flex-col gap-3 shadow-[0_8px_30px_rgba(0,0,0,0.35)]'
+          if old not in s:
+              raise SystemExit('Expected header signature not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+      - name: Commit UI change
+        shell: bash
+        run: |
+          git config user.name 'Jude@Github2026'
+          git config user.email 'jude.dante@gmail.com'
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Apply floating header cleanup'
+          git push
+      - name: Remove temporary workflow
+        if: ${{ success() }}
+        shell: bash
+        run: |
+          rm -f .github/workflows/apply-floating-header-cleanup.yml
+          git config user.name 'Jude@Github2026'
+          git config user.email 'jude.dante@gmail.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'Remove temporary floating header cleanup workflow'
+          git push
