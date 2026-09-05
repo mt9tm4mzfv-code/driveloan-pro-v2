@@ -14,31 +14,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Inspect calculator frame tokens
+      - name: Inspect rendered calculator container
         shell: python
         run: |
           from pathlib import Path
-          s = Path('index.html').read_text(encoding='utf-8')
-          marker = 'Down Payment Amount'
-          ret = s.find('return y("div"')
-          pos = s.find(marker, ret)
-          print('return_pos=', ret, 'rendered_marker=', pos)
-          if pos < 0: raise SystemExit('rendered marker missing')
-          print('--- borderLeftWidth contexts ---')
-          start=0; n=0
-          while True:
-              p=s.find('borderLeftWidth', start)
-              if p<0: break
-              print(s[max(0,p-500):p+700])
-              print('---')
-              start=p+1; n+=1
-          print('count=',n)
-          print('--- borderRightWidth contexts ---')
-          start=0; n=0
-          while True:
-              p=s.find('borderRightWidth', start)
-              if p<0: break
-              print(s[max(0,p-500):p+700])
-              print('---')
-              start=p+1; n+=1
-          print('count=',n)
+          s=Path('index.html').read_text(encoding='utf-8')
+          ret=s.find('return y("div"')
+          print('return=',ret)
+          print('--- first 14000 chars after return ---')
+          print(s[ret:ret+14000])
