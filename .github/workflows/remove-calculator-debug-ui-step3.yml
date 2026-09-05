@@ -1,0 +1,181 @@
+name: Remove calculator debug UI Step 3
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remove requested presentation-only debug UI
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path("index.html")
+          s = path.read_text(encoding="utf-8")
+          original = s
+
+          markers = [
+              'N(l)," muted"',
+              '57.00% • step 0.01 • editable to 2 decimals',
+              'Base amount:',
+              'Incentive amount:',
+              'PRIMARY',
+              'children:["₱",N(I)]',
+              'AF ₱',
+          ]
+
+          def is_quote(c, i):
+              if c[i] != '"':
+                  return False
+              bs = 0
+              j = i - 1
+              while j >= 0 and c[j] == '\\':
+                  bs += 1
+                  j -= 1
+              return bs % 2 == 0
+
+          def matching_end(text, start):
+              depth = 0
+              quote = None
+              template = False
+              i = start
+              while i < len(text):
+                  ch = text[i]
+                  if quote:
+                      if ch == '\\':
+                          i += 2
+                          continue
+                      if ch == quote:
+                          quote = None
+                      i += 1
+                      continue
+                  if ch in ('"', "'"):
+                      quote = ch
+                      i += 1
+                      continue
+                  if ch == '`':
+                      template = not template
+                      i += 1
+                      continue
+                  if not template:
+                      if ch == '(':
+                          depth += 1
+                      elif ch == ')':
+                          depth -= 1
+                          if depth == 0:
+                              return i + 1
+                  i += 1
+              return None
+
+          def enclosing_calls(text, pos):
+              calls = []
+              quote = None
+              template = False
+              i = 0
+              while i < pos:
+                  ch = text[i]
+                  if quote:
+                      if ch == '\\':
+                          i += 2
+                          continue
+                      if ch == quote:
+                          quote = None
+                      i += 1
+                      continue
+                  if ch in ('"', "'"):
+                      quote = ch
+                      i += 1
+                      continue
+                  if ch == '`':
+                      template = not template
+                      i += 1
+                      continue
+                  if not template and (text.startswith('p(', i) or text.startswith('y(', i)):
+                      end = matching_end(text, i + 1)
+                      if end is not None and end > pos:
+                          calls.append((i, end))
+                      i += 2
+                      continue
+                  i += 1
+              return calls
+
+          def remove_call(text, start, end):
+              a = start
+              while a > 0 and text[a-1].isspace():
+                  a -= 1
+              b = end
+              while b < len(text) and text[b].isspace():
+                  b += 1
+              if a > 0 and text[a-1] == ',':
+                  return text[:a-1] + text[end:]
+              if b < len(text) and text[b] == ',':
+                  return text[:start] + text[b+1:]
+              return text[:start] + text[end:]
+
+          removed = []
+          for marker in markers:
+              while True:
+                  pos = s.find(marker)
+                  if pos < 0:
+                      break
+                  calls = enclosing_calls(s, pos)
+                  if not calls:
+                      raise SystemExit(f'No enclosing React call found for marker: {marker}')
+                  start, end = min(calls, key=lambda x: x[1] - x[0])
+                  before = s
+                  s = remove_call(s, start, end)
+                  if s == before:
+                      raise SystemExit(f'Failed to remove marker: {marker}')
+                  removed.append(marker)
+
+          for marker in markers:
+              if marker in s:
+                  raise SystemExit(f'Marker still present after cleanup: {marker}')
+
+          if 'DRIVELOAN PRO' not in s:
+              raise SystemExit('Safety check failed: DRIVELOAN PRO missing')
+          if 'Down Payment Amount' not in s:
+              raise SystemExit('Safety check failed: calculator UI missing')
+          if 'PREMIUM COLOR?' not in s:
+              raise SystemExit('Safety check failed: premium color UI missing')
+          if 'OFFICIAL PROMO DP' not in s:
+              raise SystemExit('Safety check failed: promo DP UI missing')
+          if 'X P A N D E R' in s:
+              raise SystemExit('Unexpected corruption marker detected')
+
+          # Verify all script blocks remain syntactically valid JavaScript.
+          import subprocess, tempfile
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', s, flags=re.S|re.I)
+          for idx, script in enumerate(scripts):
+              if not script.strip():
+                  continue
+              with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8') as f:
+                  f.write(script)
+                  name = f.name
+              r = subprocess.run(['node', '--check', name], capture_output=True, text=True)
+              if r.returncode != 0:
+                  print(r.stdout)
+                  print(r.stderr)
+                  raise SystemExit(f'JavaScript syntax validation failed in script {idx}')
+
+          path.write_text(s, encoding='utf-8')
+          print(f'Removed {len(removed)} presentation-only UI nodes')
+          print('\n'.join(removed))
+          print(f'Bytes: {len(original.encode())} -> {len(s.encode())}')
+
+      - name: Commit cleanup and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/remove-calculator-debug-step3.yml
+          git rm .github/workflows/remove-calculator-debug-ui-step3.yml
+          git commit -m "ui: remove calculator debug helper display"
+          git push origin main
