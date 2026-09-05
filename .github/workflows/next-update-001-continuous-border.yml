@@ -9,88 +9,36 @@ permissions:
   contents: write
 
 jobs:
-  update:
+  inspect:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Add continuous top and bottom calculator border
+      - name: Inspect calculator frame tokens
         shell: python
         run: |
           from pathlib import Path
-          import re, subprocess, tempfile
-
-          path = Path("index.html")
-          s = path.read_text(encoding="utf-8")
-          original = s
-
-          # The first occurrence is the qf label definition. Target the
-          # rendered Calculator 1 title after the main return statement.
-          return_pos = s.find('return y("div"')
-          if return_pos < 0:
-              raise SystemExit('Main render return not found')
+          s = Path('index.html').read_text(encoding='utf-8')
           marker = 'Down Payment Amount'
-          pos = s.find(marker, return_pos)
-          if pos < 0:
-              raise SystemExit('Rendered calculator title not found')
-
-          token = 'border-[#7ee0a0]'
-          token_pos = s.rfind(token, 0, pos)
-          if token_pos < 0:
-              raise SystemExit('Calculator 1 active border token not found before rendered title')
-
-          # Find the className string that actually contains the active green
-          # border token. This is the single outer Calculator 1 frame.
-          cm_start = s.rfind('className:"', 0, token_pos)
-          if cm_start < 0:
-              raise SystemExit('Containing className not found')
-          cm_value_start = cm_start + len('className:"')
-          cm_end = s.find('"', cm_value_start)
-          if cm_end < 0 or cm_end < token_pos:
-              raise SystemExit('Containing className end not found')
-          classes = s[cm_value_start:cm_end]
-
-          if 'border-t-[6px]' in classes or 'border-b-[6px]' in classes:
-              raise SystemExit('Horizontal border utility already present; refusing duplicate change')
-
-          # Add the same 6px horizontal border to the existing outer frame.
-          # Existing side border/theme behavior is untouched.
-          new_classes = classes + ' border-t-[6px] border-b-[6px]'
-          s = s[:cm_value_start] + new_classes + s[cm_end:]
-
-          for required in [
-              'DRIVELOAN PRO',
-              'Down Payment Amount',
-              'PREMIUM COLOR?',
-              'OFFICIAL PROMO DP',
-              'RESET ENTRY',
-              'navigator.clipboard',
-          ]:
-              if required not in s:
-                  raise SystemExit(f'Safety check failed: {required} missing')
-
-          scripts = re.findall(r'<script[^>]*>(.*?)</script>', s, flags=re.S|re.I)
-          for idx, script in enumerate(scripts):
-              if not script.strip():
-                  continue
-              with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8') as f:
-                  f.write(script)
-                  name = f.name
-              r = subprocess.run(['node','--check',name], capture_output=True, text=True)
-              if r.returncode != 0:
-                  raise SystemExit(f'JavaScript syntax failed in script {idx}: {r.stderr}')
-
-          path.write_text(s, encoding='utf-8')
-          print(f'Bytes: {len(original.encode())} -> {len(s.encode())}')
-          print('Applied continuous 6px top/bottom border to Calculator 1 outer frame only.')
-
-      - name: Commit change and remove temporary workflow
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          git rm .github/workflows/next-update-001-continuous-border.yml
-          git commit -m "ui: wrap calculator in continuous color border"
-          git push origin ui/next-update-001
+          ret = s.find('return y("div"')
+          pos = s.find(marker, ret)
+          print('return_pos=', ret, 'rendered_marker=', pos)
+          if pos < 0: raise SystemExit('rendered marker missing')
+          print('--- borderLeftWidth contexts ---')
+          start=0; n=0
+          while True:
+              p=s.find('borderLeftWidth', start)
+              if p<0: break
+              print(s[max(0,p-500):p+700])
+              print('---')
+              start=p+1; n+=1
+          print('count=',n)
+          print('--- borderRightWidth contexts ---')
+          start=0; n=0
+          while True:
+              p=s.find('borderRightWidth', start)
+              if p<0: break
+              print(s[max(0,p-500):p+700])
+              print('---')
+              start=p+1; n+=1
+          print('count=',n)
