@@ -1,0 +1,97 @@
+name: Remove top expiry debug UI
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remove only top expiry/debug card
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          import subprocess
+
+          path = Path("index.html")
+          s = path.read_text(encoding="utf-8")
+          marker = "offline_grace_days 30"
+          if marker not in s:
+              raise SystemExit("TARGET_NOT_FOUND: top expiry debug marker")
+
+          def find_close(text, start):
+              stack = []
+              quote = None
+              esc = False
+              pairs = {'(': ')', '[': ']', '{': '}'}
+              for i in range(start, len(text)):
+                  c = text[i]
+                  if quote:
+                      if esc:
+                          esc = False
+                      elif c == '\\':
+                          esc = True
+                      elif c == quote:
+                          quote = None
+                      continue
+                  if c in ('"', "'"):
+                      quote = c
+                  elif c == '`':
+                      quote = c
+                  elif c in pairs:
+                      stack.append(c)
+                  elif c in ')]}':
+                      if not stack or pairs[stack.pop()] != c:
+                          return None
+                      if not stack:
+                          return i
+              return None
+
+          def remove_enclosing_div(text, marker):
+              m = text.find(marker)
+              cand = text.rfind('y("div",{', 0, m + 1)
+              while cand >= 0:
+                  op = text.find('(', cand, m + 1)
+                  close = find_close(text, op)
+                  if close is not None and close > m:
+                      a, b = cand, close + 1
+                      if b < len(text) and text[b] == ',':
+                          b += 1
+                      elif a > 0 and text[a - 1] == ',':
+                          a -= 1
+                      return text[:a] + text[b:]
+                  cand = text.rfind('y("div",{', 0, cand)
+              raise SystemExit("ENCLOSING_DIV_NOT_FOUND")
+
+          s2 = remove_enclosing_div(s, marker)
+          if s2 == s:
+              raise SystemExit("NO_CHANGE")
+          if marker in s2:
+              raise SystemExit("MARKER_STILL_PRESENT")
+          if "DRIVELOAN PRO" not in s2:
+              raise SystemExit("APP_CONTENT_MISSING")
+
+          path.write_text(s2, encoding="utf-8")
+
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', s2, re.S)
+          Path("/tmp/driveloan-check.js").write_text("\n".join(scripts), encoding="utf-8")
+          r = subprocess.run(["node", "--check", "/tmp/driveloan-check.js"], capture_output=True, text=True)
+          if r.returncode != 0:
+              raise SystemExit("JAVASCRIPT_SYNTAX_ERROR: " + r.stderr)
+
+      - name: Commit and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/remove-top-expiry-debug.yml
+          git commit -m "ui: remove top expiry debug card"
+          git push origin HEAD:main
