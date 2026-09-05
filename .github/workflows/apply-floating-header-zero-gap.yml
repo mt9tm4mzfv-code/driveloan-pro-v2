@@ -1,0 +1,43 @@
+name: Apply floating header zero-gap fix
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Force floating header to viewport top
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          pat = r'fixed top-(?:0|3) left-1/2 -translate-x-1/2 w-\[calc\(100%-24px\)\] max-w-\[980px\] z-50'
+          repl = 'fixed top-0 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[980px] z-50'
+          s2, n = re.subn(pat, repl, s, count=1)
+          if n == 1 and 'style:{top:0}' not in s2:
+              s2 = s2.replace(repl, repl + ' style:{top:0}', 1)
+          if n != 1:
+              raise SystemExit(f'Expected exactly one approved floating header target, found {n}')
+          p.write_text(s2, encoding='utf-8')
+          print('Applied zero-gap floating header fix; target count:', n)
+          PY
+
+      - name: Commit UI change and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/apply-floating-header-zero-gap.yml
+          git commit -m "UI: Force floating header to viewport top"
+          git push
+          git rm .github/workflows/apply-floating-header-zero-gap.yml
+          git commit -m "Remove temporary floating header zero-gap workflow"
+          git push
