@@ -1,0 +1,55 @@
+name: Adjust floating header width
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  adjust-header-width:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Widen floating header slightly
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = 'calc(100%-80px)'
+          new = 'calc(100%-40px)'
+          if s.count(old) != 2:
+              raise SystemExit(f'Expected exactly 2 occurrences of {old!r}, found {s.count(old)}')
+          s = s.replace(old, new)
+          p.write_text(s)
+          print('Replaced exactly 2 header width occurrences: -80px -> -40px')
+          PY
+
+      - name: Verify exact change
+        shell: bash
+        run: |
+          test "$(grep -o 'calc(100%-40px)' index.html | wc -l)" -eq 2
+          test "$(grep -o 'calc(100%-80px)' index.html | wc -l)" -eq 0
+          echo 'Verification passed: header width is calc(100%-40px) in class and inline style.'
+
+      - name: Commit UI change
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Adjust floating header width to -40px' || exit 0
+          git push
+
+      - name: Remove temporary workflow
+        shell: bash
+        run: |
+          rm .github/workflows/adjust-header-width.yml
+          git add .github/workflows/adjust-header-width.yml
+          git commit -m 'Remove temporary header width workflow'
+          git push
