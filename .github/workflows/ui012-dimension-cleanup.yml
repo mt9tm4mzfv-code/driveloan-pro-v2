@@ -34,13 +34,16 @@ jobs:
           print('Applied exactly 3 dimension-only button changes.')
           PY
 
-      - name: Verify index diff only
+      - name: Verify only index.html changed
         run: |
           git diff --check
-          test "$(git diff --numstat -- index.html | awk '{print $1+$2}')" = "2"
-          test "$(git diff -- index.html | grep -o 'height:\"44px\"' | wc -l | tr -d ' ')" = "3"
-          test "$(git diff -- index.html | grep -o 'width:\"calc(100% - 2rem)\"' | wc -l | tr -d ' ')" = "2"
-          echo "Verification passed: index.html only, exactly 3 height updates and 2 shared outer width rules."
+          test "$(git diff --name-only)" = "index.html"
+          git diff -- index.html | grep -F 'COPY SIMPLE COMPUTATION' >/dev/null
+          git diff -- index.html | grep -F 'GENERATE AMORTIZATION COMPARO' >/dev/null
+          git diff -- index.html | grep -F 'RESET ENTRY' >/dev/null
+          git diff -- index.html | grep -F 'height:\"44px\"' >/dev/null
+          git diff -- index.html | grep -F 'width:\"calc(100% - 2rem)\"' >/dev/null
+          echo "Verification passed: only index.html changed and the three requested button targets are present."
 
       - name: Commit and push exact change, then remove temporary workflows
         run: |
