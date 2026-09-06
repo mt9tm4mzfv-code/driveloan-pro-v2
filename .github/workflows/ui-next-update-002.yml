@@ -20,15 +20,17 @@ jobs:
           from pathlib import Path
           import re
           s=Path('index.html').read_text(encoding='utf-8')
-          for label, pat in [
-            ('DOWN150', r'.{0,300}150.{0,500}'),
-            ('DOWN10', r'.{0,300}10\.00%.{0,500}'),
-            ('DOWN25', r'.{0,300}25,000.{0,500}'),
-            ('PREMIUM', r'.{0,300}Premium enabled.{0,500}'),
-            ('RESET', r'.{0,300}RESET ENTRY.{0,300}'),
-          ]:
-            print('\n===',label,'===')
-            m=re.search(pat,s,re.S)
-            print(m.group(0) if m else 'NOT FOUND')
+          print('=== EXAMPLES ===')
+          for m in re.finditer(r'example.{0,500}',s,re.I):
+              print(m.group(0))
+              print('---')
+              if s[:m.start()].count('example') >= 6:
+                  break
+          print('=== RESET BLOCK ===')
+          m=re.search(r'GENERATE AMORTIZATION COMPARISON.{0,1200}RESET ENTRY',s,re.S)
+          print(m.group(0) if m else 'NOT FOUND')
+          print('=== HELPER COMPONENT ===')
+          m=re.search(r'italic.{0,250}children:jf',s,re.S)
+          print(m.group(0) if m else 'NOT FOUND')
           PY
           exit 1
