@@ -1,0 +1,47 @@
+name: UI-012 apply dimension cleanup
+
+on:
+  push:
+    branches:
+      - ui/next-update-012
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply and verify
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('index.html')
+          s = path.read_text(encoding='utf-8')
+          replacements = [
+          ('className:"w-full font-bold rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3",style:{backgroundColor:Zf,color:"#000",borderColor:Zf}', 'className:"w-full font-bold rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3",style:{backgroundColor:Zf,color:"#000",borderColor:Zf,width:"100%",height:"44px",boxSizing:"border-box"}'),
+          ('style:{backgroundColor:Zf,color:"#000",width:"calc(100% - 2rem)",marginLeft:"1rem",marginRight:"1rem",marginTop:"0"}', 'style:{backgroundColor:Zf,color:"#000",width:"calc(100% - 2rem)",height:"44px",boxSizing:"border-box",marginLeft:"1rem",marginRight:"1rem",marginTop:"0"}'),
+          ('style:{borderWidth:2,borderColor:resetWasClicked?"#ef4444":Zf,color:resetWasClicked?"#f87171":Zf,boxShadow:resetWasClicked?"0 3px 0 #991b1b, 0 0 16px rgba(239,68,68,0.35)":`0 3px 0 ${Zf}, 0 0 12px ${Zf}55`}', 'style:{borderWidth:2,borderColor:resetWasClicked?"#ef4444":Zf,color:resetWasClicked?"#f87171":Zf,boxShadow:resetWasClicked?"0 3px 0 #991b1b, 0 0 16px rgba(239,68,68,0.35)":`0 3px 0 ${Zf}, 0 0 12px ${Zf}55`,width:"calc(100% - 2rem)",height:"44px",boxSizing:"border-box",marginLeft:"1rem",marginRight:"1rem"}')]
+          for old,new in replacements:
+              if s.count(old) != 1:
+                  raise SystemExit(f'Expected exactly 1 match, found {s.count(old)}: {old[:120]}')
+              s=s.replace(old,new,1)
+          if s.count('height:"44px"') != 3:
+              raise SystemExit('Expected exactly three 44px dimension updates')
+          path.write_text(s,encoding='utf-8')
+          print('Applied exactly 3 dimension-only button changes.')
+          PY
+          git diff --check
+          git diff --stat
+          git diff -- index.html
+      - name: Commit and remove temporary workflows
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/ui012-dimension-cleanup.yml .github/workflows/ui012-apply.yml
+          git add index.html
+          git diff --cached --check
+          git commit -m "UI-012: make action button dimensions uniform"
+          git push origin HEAD:ui/next-update-012
