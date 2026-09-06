@@ -1,43 +1,30 @@
-name: UI-010 Syntax Fix
+name: UI-010 Inspect
 
 on:
   push:
     branches:
       - ui/next-update-010-fix
 
-permissions:
-  contents: write
-
 jobs:
-  patch:
-    if: github.actor != 'github-actions[bot]'
+  inspect:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace action block with syntax-safe UI-010 version
-        shell: python
+      - shell: bash
         run: |
+          git fetch --no-tags origin cc61a126840a5cfcfe147cb88042b717a6e5357a --depth=1
+          git show cc61a126840a5cfcfe147cb88042b717a6e5357a:index.html > /tmp/base.html
+          python - <<'PY'
           from pathlib import Path
-          import re, subprocess
-          path=Path('index.html')
-          text=path.read_text(encoding='utf-8')
-          start=text.find('y("div",{className:"flex flex-col gap-4 pt-0",children:')
-          end=text.find(',y("div",{className:"mt-6 bg-[#080c18]',start)
-          if start<0 or end<0: raise SystemExit(f'action block markers missing: {start} {end}')
-          block='''y("div",{className:"flex flex-col gap-4 pt-0",children:[y("button",{onClick:()=>ru(!0),className:"w-full font-bold rounded-2xl py-2.5 text-[11px] tracking-[0.12em]",style:{backgroundColor:Zf,color:"#000",width:"calc(100% - 2rem)",marginLeft:"1rem",marginRight:"1rem",marginTop:"0"},children:"GENERATE AMORTIZATION COMPARO"}),y("button",{onClick:()=>{Gf();setResetWasClicked(!0)},className:`w-full rounded-full py-2.5 px-5 text-[11px] font-black tracking-[0.12em] transition-all active:translate-y-[2px] ${resetWasClicked?"bg-[#2a0f12]":"bg-[#0f172a]"}`,style:{borderWidth:2,borderColor:resetWasClicked?"#ef4444":Zf,color:resetWasClicked?"#f87171":Zf,boxShadow:resetWasClicked?"0 3px 0 #991b1b, 0 0 16px rgba(239,68,68,0.35)":`0 3px 0 ${Zf}, 0 0 12px ${Zf}55`},children:resetWasClicked?"✓  ENTRY WAS RESET..":"↻  RESET ENTRY"})]})'''
-          text=text[:start]+block+text[end:]
-          scripts=re.findall(r'<script type="module">(.*?)</script>',text,re.S)
-          assert len(scripts)==1
-          Path('/tmp/app.js').write_text(scripts[0],encoding='utf-8')
-          subprocess.run(['node','--check','/tmp/app.js'],check=True)
-          assert '[resetWasClicked,setResetWasClicked]=V.useState(!1)' in text
-          assert 'resetWasClicked?"✓  ENTRY WAS RESET..":"↻  RESET ENTRY"' in text
-          assert 'className:"flex flex-col gap-4 pt-0"' in text
-          path.write_text(text,encoding='utf-8')
-          subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
-          subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
-          subprocess.run(['git','add','index.html'])
-          subprocess.run(['git','rm','.github/workflows/ui-010-fix-syntax.yml'])
-          subprocess.run(['git','rm','UI-010-SYNTAX-TRIGGER.txt'])
-          subprocess.run(['git','commit','-m','UI-010 DEBUG: replace action block with syntax-safe version'],check=True)
-          subprocess.run(['git','push','origin','HEAD:ui/next-update-010-fix'],check=True)
+          import re
+          cur=re.findall(r'<script type="module">(.*?)</script>',Path('index.html').read_text(),re.S)[0]
+          base=re.findall(r'<script type="module">(.*?)</script>',Path('/tmp/base.html').read_text(),re.S)[0]
+          a=cur.find('y("div",{className:"flex flex-col gap-4 pt-0",children:')
+          b=cur.find(',y("div",{className:"mt-6 bg-[#080c18]',a)
+          ba=base.find('y("div",{className:"flex flex-col gap-0 pt-0",children:')
+          bb=base.find(',y("div",{className:"mt-6 bg-[#080c18]',ba)
+          print('CURRENT TAIL',repr(cur[max(a,b-120):b]))
+          print('BASELINE TAIL',repr(base[max(ba,bb-120):bb]))
+          print('CURRENT HEAD',repr(cur[a:a+120]))
+          print('BASELINE HEAD',repr(base[ba:ba+120]))
+          PY
