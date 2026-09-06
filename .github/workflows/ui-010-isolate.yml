@@ -1,0 +1,54 @@
+name: UI-010 Isolate
+
+on:
+  push:
+    branches:
+      - ui/next-update-010-fix
+
+permissions:
+  contents: write
+
+jobs:
+  isolate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Isolate syntax-breaking UI-010 change
+        shell: bash
+        run: |
+          set -e
+          git fetch --no-tags origin cc61a126840a5cfcfe147cb88042b717a6e5357a --depth=1
+          git show cc61a126840a5cfcfe147cb88042b717a6e5357a:index.html > /tmp/base.html
+          python - <<'PY'
+          from pathlib import Path
+          import re, subprocess
+          base=Path('/tmp/base.html').read_text(encoding='utf-8')
+          cur=Path('index.html').read_text(encoding='utf-8')
+          def js(t): return re.findall(r'<script type="module">(.*?)</script>',t,re.S)[0]
+          b=js(base); c=js(cur)
+          state='[resetWasClicked,setResetWasClicked]=V.useState(!1),'
+          variants={'current':c,'no_state':c.replace(state,'',1)}
+          bwrap=re.search(r'p\("div",\{className:"mt-4 bg\[#131c31\].*?children:y\("div"',b).group(0)
+          cwrap=re.search(r'p\("div",\{className:"mt-4 bg\[#131c31\].*?children:y\("div"',c).group(0)
+          variants['no_wrapper']=c.replace(cwrap,bwrap,1)
+          am=re.search(r'y\("div",\{className:"flex flex-col gap-4 pt-0",children:.*?\}\),y\("div",\{className:"mt-6 bg\[#080c18\]',c)
+          bm=re.search(r'y\("div",\{className:"flex flex-col gap-0 pt-0",children:.*?\}\),y\("div",\{className:"mt-6 bg\[#080c18\]',b)
+          if not am or not bm: raise SystemExit('action block anchors not found')
+          variants['no_actions']=c[:am.start()]+bm.group(0)+c[am.end():]
+          for name,text in variants.items():
+              Path('/tmp/test.js').write_text(text,encoding='utf-8')
+              r=subprocess.run(['node','--check','/tmp/test.js'],capture_output=True,text=True)
+              print(name, 'RETURN', r.returncode)
+              if r.returncode: print(r.stderr[:1200])
+          PY
+      - name: Clean isolation workflow
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm .github/workflows/ui-010-isolate.yml
+          git commit -m "UI-010 DEBUG: isolate syntax change"
+          git push origin HEAD:ui/next-update-010-fix
