@@ -29,20 +29,24 @@ jobs:
           cur=Path('index.html').read_text(encoding='utf-8')
           def js(t): return re.findall(r'<script type="module">(.*?)</script>',t,re.S)[0]
           b=js(base); c=js(cur)
+          variants={'current':c}
           state='[resetWasClicked,setResetWasClicked]=V.useState(!1),'
-          variants={'current':c,'no_state':c.replace(state,'',1)}
-          bwrap=re.search(r'p\("div",\{className:"mt-4 bg\[#131c31\].*?children:y\("div"',b).group(0)
-          cwrap=re.search(r'p\("div",\{className:"mt-4 bg\[#131c31\].*?children:y\("div"',c).group(0)
-          variants['no_wrapper']=c.replace(cwrap,bwrap,1)
-          am=re.search(r'y\("div",\{className:"flex flex-col gap-4 pt-0",children:.*?\}\),y\("div",\{className:"mt-6 bg\[#080c18\]',c)
-          bm=re.search(r'y\("div",\{className:"flex flex-col gap-0 pt-0",children:.*?\}\),y\("div",\{className:"mt-6 bg\[#080c18\]',b)
-          if not am or not bm: raise SystemExit('action block anchors not found')
-          variants['no_actions']=c[:am.start()]+bm.group(0)+c[am.end():]
+          variants['no_state']=c.replace(state,'',1)
+          bs='p("div",{className:"mt-4 bg-[#131c31] border border-[#2a3655] rounded-[20px] p-4",'
+          cs='p("div",{className:"mt-4 bg-[#131c31] border border-[#2a3655] rounded-[20px] overflow-hidden",onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},'
+          variants['no_wrapper']=c.replace(cs,bs,1)
+          astart=c.find('y("div",{className:"flex flex-col gap-4 pt-0",children:')
+          aend=c.find('}),y("div",{className:"mt-6 bg-[#080c18]',astart)
+          bstart=b.find('y("div",{className:"flex flex-col gap-0 pt-0",children:')
+          bend=b.find('}),y("div",{className:"mt-6 bg-[#080c18]',bstart)
+          if min(astart,aend,bstart,bend)<0: raise SystemExit('action block anchors not found')
+          baseline_action=b[bstart:bend+2]
+          variants['no_actions']=c[:astart]+baseline_action+c[aend+2:]
           for name,text in variants.items():
               Path('/tmp/test.js').write_text(text,encoding='utf-8')
               r=subprocess.run(['node','--check','/tmp/test.js'],capture_output=True,text=True)
               print(name, 'RETURN', r.returncode)
-              if r.returncode: print(r.stderr[:1200])
+              if r.returncode: print(r.stderr[:900])
           PY
       - name: Clean isolation workflow
         shell: bash
