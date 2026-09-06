@@ -23,8 +23,8 @@ jobs:
           import subprocess
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
-          old = 'className:"mt-4 bg-[#131c31] border border-[#2a3655] rounded-[20px] overflow-hidden,onChange:()=>{resetWasClicked&&setResetWasClicked(!1)}",style:'
-          new = 'className:"mt-4 bg-[#131c31] border border-[#2a3655] rounded-[20px] overflow-hidden",onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},style:'
+          old = 'overflow-hidden,onChange:()=>{resetWasClicked&&setResetWasClicked(!1)}",style:'
+          new = 'overflow-hidden",onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},style:'
           if old not in text:
               raise SystemExit('expected malformed UI-010 wrapper not found')
           text = text.replace(old, new, 1)
@@ -37,5 +37,6 @@ jobs:
           subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'], check=True)
           subprocess.run(['git','add','index.html'])
           subprocess.run(['git','rm','.github/workflows/ui-010-fix.yml'])
+          subprocess.run(['git','rm','UI-010-FIX-TRIGGER.txt'])
           subprocess.run(['git','commit','-m','UI-010 DEBUG: correct reset wrapper binding'], check=True)
           subprocess.run(['git','push','origin','HEAD:ui/next-update-010-fix'], check=True)
