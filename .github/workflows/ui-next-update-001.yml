@@ -18,38 +18,14 @@ jobs:
           s = p.read_text()
           original = s
           replacements = [
-            (
-              'className:`relative w-[56px] h-[32px] rounded-full flex items-center p-1 transition-colors duration-200 shrink-0 border border-transparent ${s?"bg-[#5aa8ff]":"bg-[#334155]"}`,children:p("div",{className:',
-              'className:`relative w-[56px] h-[32px] rounded-full flex items-center p-1 transition-colors duration-200 shrink-0 border border-transparent ${s?"":"bg-[#334155]"}`,style:{backgroundColor:s?Zf:"#334155"},children:p("div",{className:'
-            ),
-            (
-              'className:"w-full bg-[#a7f3d0] text-black font-black rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3 hover:bg-[#8af5b0] transition",children:',
-              'className:"w-full text-black font-black rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3 transition",style:{backgroundColor:Zf},children:'
-            ),
-            (
-              'className:"w-full bg-[#1e293b] text-white font-bold rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3 border border-[#2a3655]",children:',
-              'className:"w-full font-bold rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3",style:{backgroundColor:Zf,color:"#000",borderColor:Zf},children:'
-            ),
-            (
-              'className:"bg-white text-black font-bold rounded-2xl py-3.5 text-[12px] tracking-wide flex items-center justify-center gap-2",children:',
-              'className:"font-bold rounded-2xl py-3.5 text-[12px] tracking-wide flex items-center justify-center gap-2",style:{backgroundColor:Zf,color:"#000"},children:'
-            ),
-            (
-              'className:"bg-[#0f172a] border border-[#2a3655] text-[#8a96b5] rounded-2xl py-3.5 text-[12px] tracking-wide",children:"RESET ENTRY"',
-              'className:"bg-[#0f172a] rounded-2xl py-3.5 text-[12px] tracking-wide",style:{borderWidth:1,borderColor:Zf,color:Zf},children:"RESET ENTRY"'
-            ),
-            (
-              'className:"mt-3 text-center text-[9px] text-[#3a455f] tracking-[0.2em]",children:"V62.41 Bullshit UI V3.2 Cal2 Fixed • GOLD d6ca46fa63d0"',
-              ''
-            ),
-            (
-              'className:"max-w-[920px] mx-auto px-3 py-3 pb-[88px]"',
-              'className:"max-w-[920px] mx-auto px-3 py-3"'
-            ),
-            (
-              'className:"bg-[#0f172a] border border-[#3b82f6] rounded-[16px] px-4 py-3 flex items-center justify-between gap-2 shadow-[0_0_0_2px_rgba(59,130,246,0.15)]",children:[p("span",{className:"text-[#3b82f6] text-[13px]",children:"₱"}),p("input",',
-              'className:"bg-[#0f172a] border border-[#86efac] rounded-[16px] px-4 py-3 flex items-center justify-between gap-2 shadow-[0_0_0_2px_rgba(134,239,172,0.15)]",children:[p("span",{className:"text-[#86efac] text-[13px]",children:"₱"}),p("input",'
-            ),
+            ('className:`relative w-[56px] h-[32px] rounded-full flex items-center p-1 transition-colors duration-200 shrink-0 border border-transparent ${s?"bg-[#5aa8ff]":"bg-[#334155]"}`,children:p("div",{className:', 'className:`relative w-[56px] h-[32px] rounded-full flex items-center p-1 transition-colors duration-200 shrink-0 border border-transparent ${s?"":"bg-[#334155]"}`,style:{backgroundColor:s?Zf:"#334155"},children:p("div",{className:'),
+            ('className:"w-full bg-[#a7f3d0] text-black font-black rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3 hover:bg-[#8af5b0] transition",children:', 'className:"w-full text-black font-black rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3 transition",style:{backgroundColor:Zf},children:'),
+            ('className:"w-full bg-[#1e293b] text-white font-bold rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3 border border-[#2a3655]",children:', 'className:"w-full font-bold rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3",style:{backgroundColor:Zf,color:"#000",borderColor:Zf},children:'),
+            ('className:"bg-white text-black font-bold rounded-2xl py-3.5 text-[12px] tracking-wide flex items-center justify-center gap-2",children:', 'className:"font-bold rounded-2xl py-3.5 text-[12px] tracking-wide flex items-center justify-center gap-2",style:{backgroundColor:Zf,color:"#000"},children:'),
+            ('className:"bg-[#0f172a] border border-[#2a3655] text-[#8a96b5] rounded-2xl py-3.5 text-[12px] tracking-wide",children:"RESET ENTRY"', 'className:"bg-[#0f172a] rounded-2xl py-3.5 text-[12px] tracking-wide",style:{borderWidth:1,borderColor:Zf,color:Zf},children:"RESET ENTRY"'),
+            ('className:"mt-3 text-center text-[9px] text-[#3a455f] tracking-[0.2em]",children:"V62.41 Bullshit UI V3.2 Cal2 Fixed • GOLD d6ca46fa63d0"', ''),
+            ('className:"max-w-[920px] mx-auto px-3 py-3 pb-[88px]"', 'className:"max-w-[920px] mx-auto px-3 py-3"'),
+            ('className:"bg-[#0f172a] border border-[#3b82f6] rounded-[16px] px-4 py-3 flex items-center justify-between gap-2 shadow-[0_0_0_2px_rgba(59,130,246,0.15)]",children:[p("span",{className:"text-[#3b82f6] text-[13px]",children:"₱"}),p("input",', 'className:"bg-[#0f172a] border border-[#86efac] rounded-[16px] px-4 py-3 flex items-center justify-between gap-2 shadow-[0_0_0_2px_rgba(134,239,172,0.15)]",children:[p("span",{className:"text-[#86efac] text-[13px]",children:"₱"}),p("input",')
           ]
           for old, new in replacements:
               count = s.count(old)
@@ -64,23 +40,24 @@ jobs:
               'pb-[88px]',
               'bg-[#a7f3d0]',
               'bg-[#1e293b] text-white font-bold rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3 border border-[#2a3655]',
-              'bg-white text-black font-bold rounded-2xl py-3.5',
-              'border border-[#3b82f6] rounded-[16px] px-4 py-3 flex items-center justify-between gap-2 shadow-[0_0_0_2px_rgba(59,130,246,0.15)]'
+              'bg-white text-black font-bold rounded-2xl py-3.5'
           ]:
               if needle in s:
                   raise SystemExit(f'OLD UI REMAINS: {needle[:100]}')
+          if s.count('border border-[#86efac] rounded-[16px] px-4 py-3 flex items-center justify-between gap-2 shadow-[0_0_0_2px_rgba(134,239,172,0.15)]') != 1:
+              raise SystemExit('CALC 1 DESIRED DP GREEN BORDER CHECK FAILED')
           if 'DRIVELOAN PRO' not in s or 'navigator.clipboard' not in s or 'PREMIUM COLOR' not in s:
               raise SystemExit('SAFETY CHECK FAILED: core UI/functionality marker missing')
       - name: Validate HTML/JS syntax
         run: |
-          node --check <(python - <<'PY'
+          python - <<'PY'
           import re
           s=open('index.html').read()
           m=re.search(r'<script type="module">(.*?)</script>',s,re.S)
           assert m, 'module script missing'
-          print(m.group(1))
+          open('/tmp/module.js','w').write(m.group(1))
           PY
-          )
+          node --check /tmp/module.js
       - name: Commit and clean workflow
         run: |
           git config user.name "github-actions[bot]"
