@@ -14,32 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Isolate UI-010 syntax components
-        shell: python
-        run: |
-          from pathlib import Path
-          import re, subprocess
-          text=Path('index.html').read_text(encoding='utf-8')
-          scripts=re.findall(r'<script type="module">(.*?)</script>',text,re.S)
-          js=scripts[0]
-          i=js.find('resetWasClicked')
-          print('STATE CONTEXT:',repr(js[max(0,i-700):i+900]))
-          def check(name,s):
-              Path('/tmp/test.js').write_text(s,encoding='utf-8')
-              r=subprocess.run(['node','--check','/tmp/test.js'],capture_output=True,text=True)
-              print(name,'RETURN',r.returncode)
-              print(r.stderr[:1200])
-          check('CURRENT',js)
-          state='[resetWasClicked,setResetWasClicked]=V.useState(!1),'
-          check('NO_STATE',js.replace(state,'',1))
-          a=js.find('y("div",{className:"flex flex-col gap-4 pt-0",children:')
-          b=js.find(',y("div",{className:"mt-6 bg-[#080c18]',a)
-          if a<0 or b<0: raise SystemExit('action markers missing')
-          base_a=js.find('y("div",{className:"flex flex-col gap-0 pt-0",children:')
-          base_b=js.find(',y("div",{className:"mt-6 bg-[#080c18]',base_a)
-          if base_a<0 or base_b<0: raise SystemExit('baseline action markers missing')
-          # baseline action is fetched from the known-good commit in a separate step below
-      - name: Fetch baseline and isolate action block
+        with:
+          fetch-depth: 1
+      - name: Isolate action block
         shell: bash
         run: |
           git fetch --no-tags origin cc61a126840a5cfcfe147cb88042b717a6e5357a --depth=1
@@ -53,11 +30,12 @@ jobs:
           b=cur.find(',y("div",{className:"mt-6 bg-[#080c18]',a)
           ba=base.find('y("div",{className:"flex flex-col gap-0 pt-0",children:')
           bb=base.find(',y("div",{className:"mt-6 bg-[#080c18]',ba)
+          print('MARKERS',a,b,ba,bb)
           if min(a,b,ba,bb)<0: raise SystemExit('action markers missing')
           baseline_action=base[ba:bb]
           variant=cur[:a]+baseline_action+cur[b:]
           Path('/tmp/test.js').write_text(variant,encoding='utf-8')
           r=subprocess.run(['node','--check','/tmp/test.js'],capture_output=True,text=True)
           print('NO_ACTION_UI_CHANGE RETURN',r.returncode)
-          print(r.stderr[:1200])
+          print(r.stderr[:1500])
           PY
