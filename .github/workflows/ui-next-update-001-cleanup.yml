@@ -1,0 +1,46 @@
+name: Clean Empty Footer Spacer
+on:
+  push:
+    branches: [ui/next-update-001]
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove empty footer spacer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          old='p("div",{})]}),Qf&&p("div",{className:"fixed inset-0'
+          new=']}),Qf&&p("div",{className:"fixed inset-0'
+          if s.count(old)!=1:
+              raise SystemExit(f'Expected 1 empty footer spacer, found {s.count(old)}')
+          s=s.replace(old,new)
+          if 'p("div",{})]}),Qf&&p("div",{className:"fixed inset-0' in s:
+              raise SystemExit('Empty footer spacer remains')
+          p.write_text(s)
+          print('Empty footer spacer removed.')
+          PY
+      - name: Validate module syntax
+        run: |
+          python - <<'PY'
+          import re
+          s=open('index.html').read()
+          m=re.search(r'<script type="module">(.*?)</script>',s,re.S)
+          assert m, 'module script missing'
+          open('/tmp/module.js','w').write(m.group(1))
+          PY
+          node --check /tmp/module.js
+      - name: Commit and clean workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/ui-next-update-001-cleanup.yml
+          git rm -f .github/workflows/ui-next-update-001-cleanup.yml
+          git commit -m "chore: remove empty footer spacer"
+          git push
