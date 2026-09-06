@@ -1,0 +1,47 @@
+name: UI-011 spacing fix
+
+on:
+  push:
+    branches:
+      - ui/next-update-011
+
+permissions:
+  contents: write
+
+jobs:
+  fix-spacing:
+    if: github.event.head_commit.message != 'UI-011: uniform action button spacing'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Apply spacing-only fix
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = 'className:"flex flex-col gap-4 pt-0"'
+          new = 'className:"flex flex-col pt-0",style:{rowGap:"16px"}'
+          if old not in s:
+              raise SystemExit('Expected UI-011 action container was not found; refusing to modify anything.')
+          if s.count(old) != 1:
+              raise SystemExit(f'Expected exactly one action container; found {s.count(old)}.')
+          p.write_text(s.replace(old, new, 1))
+          PY
+          node --check index.html
+          git diff --check
+          git diff -- index.html
+      - name: Commit spacing fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'UI-011: uniform action button spacing'
+          git push
+      - name: Remove temporary workflow
+        run: |
+          git rm .github/workflows/ui011-spacing-fix.yml
+          git commit -m 'UI-011: remove temporary spacing workflow'
+          git push
