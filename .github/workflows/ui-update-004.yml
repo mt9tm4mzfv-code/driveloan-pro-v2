@@ -1,0 +1,34 @@
+name: UI Update 004 Correct
+on:
+  push:
+    branches: [ui/next-update-004]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Correct Calc 3 heading only
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = 'MONTHLY AMORTIZATION → DOWN PAYMENT'
+          new = 'DOWN PAYMENT → MONTHLY AMORTIZATION'
+          count = s.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected exactly 1 heading occurrence, found {count}')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+          print('Corrected exactly one Calc 3 heading occurrence.')
+          PY
+      - name: Commit UI change
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --check
+          git commit -m 'ui: correct Calculator 3 heading order'
+          git push
