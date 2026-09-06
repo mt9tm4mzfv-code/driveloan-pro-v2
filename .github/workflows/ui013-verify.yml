@@ -1,0 +1,44 @@
+name: UI-013 Verify
+
+on:
+  push:
+    branches:
+      - ui/next-update-013
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Syntax and target verification
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s = Path('index.html').read_text(encoding='utf-8')
+          m = re.search(r'<script type="module">(.*?)</script>', s, re.S)
+          assert m, 'Module script not found'
+          Path('/tmp/app.mjs').write_text(m.group(1), encoding='utf-8')
+          assert 'Qe=R*(1-g/100)*1.17+se' in s
+          assert 'Fr=R*(g/100)' in s
+          assert 'Zo=R*(g/100)' in s
+          assert 'let L=R*(1-g/100)*1.17+se' in s
+          print('Target binding assertions passed.')
+          PY
+          node --check /tmp/app.mjs
+          echo 'Node syntax check passed.'
+
+      - name: Remove temporary verification workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/ui013-verify.yml
+          git commit -m "UI-013: remove temporary verification workflow"
+          git push
