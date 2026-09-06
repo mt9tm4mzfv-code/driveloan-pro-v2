@@ -16,20 +16,24 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Correct UI-010 wrapper binding
+      - name: Inspect and correct UI-010 wrapper
         shell: python
         run: |
           from pathlib import Path
-          import subprocess
+          import re, subprocess
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
-          old = 'overflow-hidden,onChange:()=>{resetWasClicked&&setResetWasClicked(!1)}",style:'
-          new = 'overflow-hidden",onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},style:'
-          if old not in text:
-              raise SystemExit('expected malformed UI-010 wrapper not found')
-          text = text.replace(old, new, 1)
-          if old in text or new not in text:
-              raise SystemExit('wrapper verification failed')
+          hits = re.findall(r'overflow-hidden.{0,180}resetWasClicked', text)
+          print('MATCHES:', len(hits))
+          for h in hits[:3]: print(repr(h))
+          pattern = r'(className:"mt-4 bg\[#131c31\] border border\[#2a3655\] rounded\[20px\] overflow-hidden)([^\"]*resetWasClicked[^\"]*)(",style:)'
+          m = re.search(pattern, text)
+          if not m:
+              raise SystemExit('regex wrapper anchor not found')
+          replacement = m.group(1) + '",onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},style:'
+          text = text[:m.start()] + replacement + text[m.end():]
+          if text.count('onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},style:') != 1:
+              raise SystemExit('correct wrapper binding verification failed')
           if 'resetWasClicked?"✓  ENTRY WAS RESET..":"↻  RESET ENTRY"' not in text:
               raise SystemExit('reset state implementation missing')
           path.write_text(text, encoding='utf-8')
