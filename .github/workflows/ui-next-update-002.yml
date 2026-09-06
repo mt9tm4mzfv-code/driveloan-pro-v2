@@ -14,23 +14,15 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
-      - name: Inspect current source patterns
+      - name: Inspect calculator source
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
           s=Path('index.html').read_text(encoding='utf-8')
-          print('=== EXAMPLES ===')
-          for m in re.finditer(r'example.{0,500}',s,re.I):
-              print(m.group(0))
-              print('---')
-              if s[:m.start()].count('example') >= 6:
-                  break
-          print('=== RESET BLOCK ===')
-          m=re.search(r'GENERATE AMORTIZATION COMPARISON.{0,1200}RESET ENTRY',s,re.S)
-          print(m.group(0) if m else 'NOT FOUND')
-          print('=== HELPER COMPONENT ===')
-          m=re.search(r'italic.{0,250}children:jf',s,re.S)
-          print(m.group(0) if m else 'NOT FOUND')
+          for needle in ['Down Payment Amount','Down Payment %','Monthly → Down Payment','Monthly →','XPANDER CROSS']:
+              print('\n===',needle,'===')
+              i=s.find(needle)
+              print(s[max(0,i-900):i+1600] if i>=0 else 'NOT FOUND')
           PY
           exit 1
