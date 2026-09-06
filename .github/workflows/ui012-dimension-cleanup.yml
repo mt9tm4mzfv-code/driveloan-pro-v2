@@ -37,11 +37,11 @@ jobs:
       - name: Basic integrity check
         run: git diff --check
 
-      - name: Commit and push exact change, then remove temporary workflows
+      - name: Commit and push exact change, then remove temporary workflow
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git rm .github/workflows/ui012-dimension-cleanup.yml .github/workflows/ui012-apply.yml
+          git rm .github/workflows/ui012-dimension-cleanup.yml
           git add index.html
           git diff --cached --check
           git diff --cached --stat
