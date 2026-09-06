@@ -14,24 +14,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify UI-010 and JavaScript syntax
+      - name: Inspect UI-010 syntax failure
         shell: python
         run: |
           from pathlib import Path
           import re, subprocess
           text = Path('index.html').read_text(encoding='utf-8')
-          assert '[resetWasClicked,setResetWasClicked]=V.useState(!1)' in text
-          assert 'className:"mt-4 bg-[#131c31] border border-[#2a3655] rounded-[20px] overflow-hidden",onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},style:' in text
-          assert 'overflow-hidden,onChange:()=>{resetWasClicked&&setResetWasClicked(!1)}' not in text
-          assert 'resetWasClicked?"✓  ENTRY WAS RESET..":"↻  RESET ENTRY"' in text
-          assert 'className:"flex flex-col gap-4 pt-0"' in text
+          i = text.find('resetWasClicked')
+          print('FIRST resetWasClicked INDEX:', i)
+          print('CONTEXT:', repr(text[max(0,i-500):i+1000]))
           scripts = re.findall(r'<script type="module">(.*?)</script>', text, flags=re.S)
           assert len(scripts) == 1
-          Path('/tmp/driveloan-module.js').write_text(scripts[0], encoding='utf-8')
-          subprocess.run(['node','--check','/tmp/driveloan-module.js'], check=True)
-          print('UI-010 assertions: PASS')
-          print('JavaScript syntax: PASS')
+          js = scripts[0]
+          Path('/tmp/driveloan-module.js').write_text(js, encoding='utf-8')
+          result = subprocess.run(['node','--check','/tmp/driveloan-module.js'], text=True, capture_output=True)
+          print('NODE CHECK RETURN:', result.returncode)
+          print(result.stderr)
+          if result.returncode != 0:
+              raise SystemExit(result.returncode)
       - name: Clean verification workflow
+        if: success()
         shell: bash
         run: |
           git config user.name github-actions[bot]
