@@ -16,23 +16,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Inspect and correct UI-010 wrapper
+      - name: Verify and clean UI-010 fix
         shell: python
         run: |
           from pathlib import Path
-          import re, subprocess
+          import subprocess
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
-          hits = re.findall(r'overflow-hidden.{0,180}resetWasClicked', text)
-          print('MATCHES:', len(hits))
-          for h in hits[:3]: print(repr(h))
-          pattern = r'(className:"mt-4 bg\[#131c31\] border border\[#2a3655\] rounded\[20px\] overflow-hidden)([^\"]*resetWasClicked[^\"]*)(",style:)'
-          m = re.search(pattern, text)
-          if not m:
-              raise SystemExit('regex wrapper anchor not found')
-          replacement = m.group(1) + '",onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},style:'
-          text = text[:m.start()] + replacement + text[m.end():]
-          if text.count('onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},style:') != 1:
+          malformed = 'overflow-hidden,onChange:()=>{resetWasClicked&&setResetWasClicked(!1)}",style:'
+          correct = 'overflow-hidden",onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},style:'
+          if malformed in text:
+              text = text.replace(malformed, correct, 1)
+          elif correct in text:
+              pass
+          else:
+              raise SystemExit('UI-010 wrapper binding not found')
+          if correct not in text:
               raise SystemExit('correct wrapper binding verification failed')
           if 'resetWasClicked?"✓  ENTRY WAS RESET..":"↻  RESET ENTRY"' not in text:
               raise SystemExit('reset state implementation missing')
@@ -40,7 +39,7 @@ jobs:
           subprocess.run(['git','config','user.name','github-actions[bot]'], check=True)
           subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'], check=True)
           subprocess.run(['git','add','index.html'])
-          subprocess.run(['git','rm','.github/workflows/ui-010-fix.yml'])
-          subprocess.run(['git','rm','UI-010-FIX-TRIGGER.txt'])
-          subprocess.run(['git','commit','-m','UI-010 DEBUG: correct reset wrapper binding'], check=True)
+          subprocess.run(['git','rm','.github/workflows/ui-010-fix.yml'], check=True)
+          subprocess.run(['git','rm','UI-010-FIX-TRIGGER.txt'], check=True)
+          subprocess.run(['git','commit','-m','UI-010 DEBUG: finalize safe reset binding'], check=True)
           subprocess.run(['git','push','origin','HEAD:ui/next-update-010-fix'], check=True)
