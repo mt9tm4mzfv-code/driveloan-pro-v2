@@ -28,8 +28,9 @@ jobs:
           if start<0 or end<0:
               raise SystemExit(f'UI-010 boundary markers not found: start={start} end={end}')
           after=start+len(marker)
-          print('BOUNDARY SEGMENT:',repr(text[after:end]))
-          text=text[:after]+'})]}),'+text[end:]
+          segment=text[after:end]
+          print('BOUNDARY SEGMENT:',repr(segment))
+          text=text[:after]+'})]})'+text[end:]
           scripts=re.findall(r'<script type="module">(.*?)</script>',text,re.S)
           assert len(scripts)==1
           Path('/tmp/app.js').write_text(scripts[0],encoding='utf-8')
@@ -41,5 +42,5 @@ jobs:
           subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
           subprocess.run(['git','add','index.html'])
           subprocess.run(['git','rm','.github/workflows/ui-010-fix-syntax.yml','UI-010-SYNTAX-TRIGGER.txt'])
-          subprocess.run(['git','commit','-m','UI-010 DEBUG: normalize reset button boundary'],check=True)
+          subprocess.run(['git','commit','-m','UI-010 DEBUG: fix reset button boundary syntax'],check=True)
           subprocess.run(['git','push','origin','HEAD:ui/next-update-010-fix'],check=True)
