@@ -14,18 +14,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Remove extra UI-010 closure
+      - name: Normalize UI-010 reset button boundary
         shell: python
         run: |
           from pathlib import Path
           import re, subprocess
           path=Path('index.html')
           text=path.read_text(encoding='utf-8')
-          old='ENTRY WAS RESET..":"↻  RESET ENTRY"})]})]}),y("div",{className:"mt-6'
-          new='ENTRY WAS RESET..":"↻  RESET ENTRY"})]}),y("div",{className:"mt-6'
-          if old not in text:
-              raise SystemExit('UI-010 extra closure anchor not found')
-          text=text.replace(old,new,1)
+          marker='ENTRY WAS RESET..":"↻  RESET ENTRY"'
+          start=text.find(marker)
+          next_marker=',y("div",{className:"mt-6'
+          end=text.find(next_marker,start)
+          if start<0 or end<0:
+              raise SystemExit(f'UI-010 boundary markers not found: start={start} end={end}')
+          after=start+len(marker)
+          print('BOUNDARY SEGMENT:',repr(text[after:end]))
+          text=text[:after]+'})]}),'+text[end:]
           scripts=re.findall(r'<script type="module">(.*?)</script>',text,re.S)
           assert len(scripts)==1
           Path('/tmp/app.js').write_text(scripts[0],encoding='utf-8')
@@ -37,5 +41,5 @@ jobs:
           subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
           subprocess.run(['git','add','index.html'])
           subprocess.run(['git','rm','.github/workflows/ui-010-fix-syntax.yml','UI-010-SYNTAX-TRIGGER.txt'])
-          subprocess.run(['git','commit','-m','UI-010 DEBUG: fix extra reset button closure'],check=True)
+          subprocess.run(['git','commit','-m','UI-010 DEBUG: normalize reset button boundary'],check=True)
           subprocess.run(['git','push','origin','HEAD:ui/next-update-010-fix'],check=True)
