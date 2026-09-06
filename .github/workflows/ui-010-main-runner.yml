@@ -40,11 +40,12 @@ jobs:
               raise SystemExit('UI-010 state anchor not found')
           text = text.replace(old_state, new_state, 1)
 
-          wrapper_prefix = 'y("div",{className:"mt-4 bg-[#131c31] border border-[#2a3655] rounded-[20px] overflow-hidden",style:'
-          wrapper_replacement = 'y("div",{className:"mt-4 bg-[#131c31] border border-[#2a3655] rounded-[20px] overflow-hidden",onChange:()=>{resetWasClicked&&setResetWasClicked(!1)},style:'
-          if text.count(wrapper_prefix) != 1:
-              raise SystemExit(f'UI-010 wrapper anchor count unexpected: {text.count(wrapper_prefix)}')
-          text = text.replace(wrapper_prefix, wrapper_replacement, 1)
+          search_from = text.find('rounded-[20px]')
+          overflow_pos = text.find('overflow-hidden', search_from)
+          if search_from < 0 or overflow_pos < 0:
+              raise SystemExit('UI-010 wrapper structural anchor not found')
+          insert_pos = overflow_pos + len('overflow-hidden')
+          text = text[:insert_pos] + ',onChange:()=>{resetWasClicked&&setResetWasClicked(!1)}' + text[insert_pos:]
 
           start_marker = 'y("div",{className:"flex flex-col gap-0 pt-0",children:'
           end_marker = '}),y("div",{className:"mt-6 bg-[#080c18]'
