@@ -1,10 +1,8 @@
 name: UI-010 Inspect
-
 on:
   push:
     branches:
       - ui/next-update-010-fix
-
 jobs:
   inspect:
     runs-on: ubuntu-latest
@@ -17,14 +15,8 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re
-          cur=re.findall(r'<script type="module">(.*?)</script>',Path('index.html').read_text(),re.S)[0]
           base=re.findall(r'<script type="module">(.*?)</script>',Path('/tmp/base.html').read_text(),re.S)[0]
-          a=cur.find('y("div",{className:"flex flex-col gap-4 pt-0",children:')
-          b=cur.find(',y("div",{className:"mt-6 bg-[#080c18]',a)
           ba=base.find('y("div",{className:"flex flex-col gap-0 pt-0",children:')
           bb=base.find(',y("div",{className:"mt-6 bg-[#080c18]',ba)
-          print('CURRENT TAIL',repr(cur[max(a,b-120):b]))
-          print('BASELINE TAIL',repr(base[max(ba,bb-120):bb]))
-          print('CURRENT HEAD',repr(cur[a:a+120]))
-          print('BASELINE HEAD',repr(base[ba:ba+120]))
+          print(repr(base[ba:bb]))
           PY
