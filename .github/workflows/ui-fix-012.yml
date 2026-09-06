@@ -1,12 +1,11 @@
 name: UI Fix 012
 
 on:
-  push:
-    branches: [main]
+  page_build:
+  workflow_dispatch:
 
 jobs:
   fix-test-commit:
-    if: ${{ !contains(github.event.head_commit.message, 'ui: fix button spacing structurally') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -49,7 +48,6 @@ jobs:
       - name: Start local server
         run: |
           python3 -m http.server 4173 >/tmp/driveloan-server.log 2>&1 &
-          echo $! > /tmp/driveloan-server.pid
 
       - name: Browser verify button geometry
         shell: bash
@@ -75,12 +73,12 @@ jobs:
           EOF
           node /tmp/verify-ui.js
 
-      - name: Commit verified fix and remove temporary workflow
+      - name: Commit verified fix and clean temporary files
         shell: bash
         run: |
-          rm -f .github/workflows/ui-fix-012.yml
+          rm -f .github/workflows/ui-fix-012.yml .ui-fix-012-trigger
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html .github/workflows/ui-fix-012.yml
+          git add index.html .github/workflows/ui-fix-012.yml .ui-fix-012-trigger
           git commit -m 'ui: fix button spacing structurally'
           git push origin main
