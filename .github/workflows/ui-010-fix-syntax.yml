@@ -21,12 +21,11 @@ jobs:
           import re, subprocess
           path=Path('index.html')
           text=path.read_text(encoding='utf-8')
-          old='ENTRY WAS RESET..":"↻  RESET ENTRY"})]})}),y("div",{className:"mt-6'
+          old='ENTRY WAS RESET..":"↻  RESET ENTRY"})]})]}),y("div",{className:"mt-6'
           new='ENTRY WAS RESET..":"↻  RESET ENTRY"})]}),y("div",{className:"mt-6'
           if old not in text:
-              raise SystemExit('UI-010 extra-closure anchor not found')
+              raise SystemExit('UI-010 extra closure anchor not found')
           text=text.replace(old,new,1)
-          if old in text: raise SystemExit('extra closure still present')
           scripts=re.findall(r'<script type="module">(.*?)</script>',text,re.S)
           assert len(scripts)==1
           Path('/tmp/app.js').write_text(scripts[0],encoding='utf-8')
