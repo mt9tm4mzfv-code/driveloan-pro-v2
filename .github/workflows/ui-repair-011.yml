@@ -1,0 +1,33 @@
+name: UI Repair 011
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore production artifact and tighten spacing
+        run: |
+          git show cfc43d1a5d31c5559513d92d9b08a22f6d37e561:index.html > index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = 'marginRight:"1rem"}'
+          new = 'marginRight:"1rem",marginTop:"-3rem"}'
+          if old not in s:
+              raise SystemExit('Target Generate button style not found')
+          p.write_text(s.replace(old, new, 1))
+          PY
+      - name: Commit repair
+        run: |
+          git config user.name "Jude@Github2026"
+          git config user.email "jude.dante@gmail.com"
+          git add index.html
+          git commit -m "ui: tighten amortization button spacing"
+          git push
