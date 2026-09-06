@@ -22,36 +22,25 @@ jobs:
           from pathlib import Path
           path = Path('index.html')
           s = path.read_text(encoding='utf-8')
-
           replacements = [
-            ('},children:Ho==="simple"?"COPIED!":"COPY SIMPLE COMPUTATION"})', ',width:"100%",height:"44px",boxSizing:"border-box"},children:Ho==="simple"?"COPIED!":"COPY SIMPLE COMPUTATION"})'),
-            ('},children:"GENERATE AMORTIZATION COMPARO"})', ',height:"44px",boxSizing:"border-box"},children:"GENERATE AMORTIZATION COMPARO"})'),
-            ('},children:resetWasClicked?"✓  ENTRY WAS RESET..":"↻  RESET ENTRY"})', ',width:"calc(100% - 2rem)",height:"44px",boxSizing:"border-box",marginLeft:"1rem",marginRight:"1rem"},children:resetWasClicked?"✓  ENTRY WAS RESET..":"↻  RESET ENTRY"})')
-          ]
-
-          for old, new in replacements:
-              count = s.count(old)
-              if count != 1:
-                  raise SystemExit(f'Expected exactly 1 target boundary, found {count}: {old}')
-              s = s.replace(old, new, 1)
-
-          path.write_text(s, encoding='utf-8')
+          ('},children:Ho==="simple"?"COPIED!":"COPY SIMPLE COMPUTATION"})', ',width:"100%",height:"44px",boxSizing:"border-box"},children:Ho==="simple"?"COPIED!":"COPY SIMPLE COMPUTATION"})'),
+          ('},children:"GENERATE AMORTIZATION COMPARO"})', ',height:"44px",boxSizing:"border-box"},children:"GENERATE AMORTIZATION COMPARO"})'),
+          ('},children:resetWasClicked?"✓  ENTRY WAS RESET..":"↻  RESET ENTRY"})', ',width:"calc(100% - 2rem)",height:"44px",boxSizing:"border-box",marginLeft:"1rem",marginRight:"1rem"},children:resetWasClicked?"✓  ENTRY WAS RESET..":"↻  RESET ENTRY"})')]
+          for old,new in replacements:
+              if s.count(old) != 1:
+                  raise SystemExit(f'Expected exactly 1 target boundary, found {s.count(old)}: {old}')
+              s=s.replace(old,new,1)
+          path.write_text(s,encoding='utf-8')
           print('Applied exactly 3 dimension-only button changes.')
           PY
 
-      - name: Verify exact scope
+      - name: Verify index diff only
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          s = Path('index.html').read_text(encoding='utf-8')
-          if s.count('height:"44px"') != 3:
-              raise SystemExit(f'Expected exactly 3 button height rules; found {s.count("height:\"44px\"")}')
-          if s.count('width:"calc(100% - 2rem)"') != 2:
-              raise SystemExit('Expected exactly two shared outer width rules for Generate and Reset.')
-          if s.count('width:"100%",height:"44px",boxSizing:"border-box"') != 1:
-              raise SystemExit('Expected exactly one Copy Simple dimension rule.')
-          print('Scope verification passed: exactly three button dimension updates.')
-          PY
+          git diff --check
+          test "$(git diff --numstat -- index.html | awk '{print $1+$2}')" = "2"
+          test "$(git diff -- index.html | grep -o 'height:\"44px\"' | wc -l | tr -d ' ')" = "3"
+          test "$(git diff -- index.html | grep -o 'width:\"calc(100% - 2rem)\"' | wc -l | tr -d ' ')" = "2"
+          echo "Verification passed: index.html only, exactly 3 height updates and 2 shared outer width rules."
 
       - name: Commit and push exact change, then remove temporary workflows
         run: |
