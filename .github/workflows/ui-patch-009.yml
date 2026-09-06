@@ -1,0 +1,36 @@
+name: UI Patch 009
+
+on:
+  push:
+    branches:
+      - ui/next-update-009
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Move amortization comparison closer to copy simple
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = 'style:{backgroundColor:Zf,color:"#000",width:"calc(100% - 2rem)",marginLeft:"1rem",marginRight:"1rem"},children:"GENERATE AMORTIZATION COMPARO"'
+          new = 'style:{backgroundColor:Zf,color:"#000",width:"calc(100% - 2rem)",marginLeft:"1rem",marginRight:"1rem",marginTop:"-4rem"},children:"GENERATE AMORTIZATION COMPARO"'
+          if old not in s:
+              raise SystemExit('Exact current target not found; aborting without changes.')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "ui: move amortization comparison closer to copy simple"
+          git push origin HEAD:ui/next-update-009
