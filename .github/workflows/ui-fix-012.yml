@@ -76,9 +76,9 @@ jobs:
       - name: Commit verified fix and clean temporary files
         shell: bash
         run: |
-          rm -f .github/workflows/ui-fix-012.yml .ui-fix-012-trigger .ui-fix-012-pagebuild-trigger .ui-fix-012-final-trigger .ui-fix-012-measured-trigger verify-ui.js ui-fix-012.png
+          rm -f .github/workflows/ui-fix-012.yml .ui-fix-012-trigger .ui-fix-012-pagebuild-trigger .ui-fix-012-final-trigger .ui-fix-012-measured-trigger .ui-fix-012-final-measured-trigger verify-ui.js ui-fix-012.png
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html .github/workflows/ui-fix-012.yml .ui-fix-012-trigger .ui-fix-012-pagebuild-trigger .ui-fix-012-final-trigger .ui-fix-012-measured-trigger verify-ui.js ui-fix-012.png
+          git add -A
           git commit -m 'ui: fix button spacing structurally'
           git push origin main
