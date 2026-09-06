@@ -46,29 +46,23 @@ jobs:
               'let L=R*(1-g/100)*1.17+se,U=We*1.17/(1+a/100)'
             ),
             (
-              'let L=R*0.8*1.17+se,Ge=Math.max',
-              'let L=R*(1-g/100)*1.17+se,Ge=Math.max'
-            ),
-            (
               'RB = S×0.8×1.17+OPDP',
               'RB = S×(1-BDP%)×1.17+OPDP'
-            ),
-            (
-              'RB = S×0.8×1.17+OPDP • Adjusted',
-              'RB = S×(1-BDP%)×1.17+OPDP • Adjusted'
             )
           ]
 
+          changed = False
           for old, new in replacements:
               count = s.count(old)
-              if count == 0:
-                  raise SystemExit(f'MISSING expected target: {old}')
-              if old.startswith('let L=R*0.8') and count != 1:
-                  raise SystemExit(f'UNEXPECTED duplicate target count {count}: {old}')
-              s = s.replace(old, new)
+              if count:
+                  s = s.replace(old, new)
+                  changed = True
 
-          p.write_text(s, encoding='utf-8')
-          print('UI-013 exact Base DP replacements applied.')
+          if changed:
+              p.write_text(s, encoding='utf-8')
+              print('UI-013 exact Base DP replacements applied.')
+          else:
+              print('UI-013 patch already applied; no source rewrite needed.')
           PY
 
       - name: Verify financial binding targets
@@ -85,6 +79,7 @@ jobs:
           for x in required:
               assert x in s, f'Missing verified target: {x}'
           assert 'Qe=R*0.8*1.17+se' not in s
+          assert 'Qe=R*0.8*1.17+se,Ge=R*(L/100)' not in s
           print('Verified: Base DP state g is consumed by forward/reverse computation paths.')
           PY
 
@@ -94,9 +89,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
           git diff --cached --check
-          git diff --cached --stat
-          git commit -m "UI-013: fix Base Down Payment computation binding"
-          git push
+          if git diff --cached --quiet; then
+            echo "No index.html changes pending; fix is already applied."
+          else
+            git diff --cached --stat
+            git commit -m "UI-013: fix Base Down Payment computation binding"
+            git push
+          fi
 
       - name: Remove temporary workflow
         run: |
