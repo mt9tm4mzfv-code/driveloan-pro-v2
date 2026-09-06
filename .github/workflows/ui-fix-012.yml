@@ -1,0 +1,86 @@
+name: UI Fix 012
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  fix-test-commit:
+    if: ${{ !contains(github.event.head_commit.message, 'ui: fix button spacing structurally') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Apply structural spacing fix
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old_parent = 'className:"flex flex-col gap-2 pt-2"'
+          new_parent = 'className:"flex flex-col gap-0 pt-0"'
+          old_button = 'marginRight:"1rem",marginTop:"-3rem"'
+          new_button = 'marginRight:"1rem",marginTop:"0.5rem"'
+          if s.count(old_parent) != 1:
+              raise SystemExit(f'Expected exactly one parent layout marker; found {s.count(old_parent)}')
+          if s.count(old_button) != 1:
+              raise SystemExit(f'Expected exactly one Generate button marker; found {s.count(old_button)}')
+          s = s.replace(old_parent, new_parent, 1)
+          s = s.replace(old_button, new_button, 1)
+          p.write_text(s, encoding='utf-8')
+          print('Applied structural fix: parent gap 0 / padding-top 0; Generate margin-top 0.5rem.')
+
+      - name: Verify source patch
+        shell: bash
+        run: |
+          grep -F 'className:"flex flex-col gap-0 pt-0"' index.html
+          grep -F 'marginRight:"1rem",marginTop:"0.5rem"' index.html
+          ! grep -F 'marginTop:"-3rem"' index.html
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local server
+        run: |
+          python3 -m http.server 4173 >/tmp/driveloan-server.log 2>&1 &
+          echo $! > /tmp/driveloan-server.pid
+
+      - name: Browser verify button geometry
+        shell: bash
+        run: |
+          cat > /tmp/verify-ui.js <<'EOF'
+          const { chromium } = require('playwright');
+          (async() => {
+            const browser = await chromium.launch({headless:true});
+            const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+            await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle', timeout: 60000 });
+            await page.getByRole('button', { name: 'COPY SIMPLE COMPUTATION' }).waitFor({ state: 'visible', timeout: 30000 });
+            await page.getByRole('button', { name: 'GENERATE AMORTIZATION COMPARO' }).waitFor({ state: 'visible', timeout: 30000 });
+            const copy = await page.getByRole('button', { name: 'COPY SIMPLE COMPUTATION' }).boundingBox();
+            const gen = await page.getByRole('button', { name: 'GENERATE AMORTIZATION COMPARO' }).boundingBox();
+            if (!copy || !gen) throw new Error('Could not measure target buttons');
+            const gap = gen.y - (copy.y + copy.height);
+            console.log(JSON.stringify({copy, gen, gap}, null, 2));
+            if (gap < 6 || gap > 20) throw new Error(`Button gap out of target range: ${gap}px`);
+            if (gen.y < copy.y + copy.height) throw new Error(`Overlap detected: ${gap}px`);
+            await page.screenshot({ path: '/tmp/ui-fix-012.png', fullPage: true });
+            await browser.close();
+          })().catch(err => { console.error(err); process.exit(1); });
+          EOF
+          node /tmp/verify-ui.js
+
+      - name: Commit verified fix and remove temporary workflow
+        shell: bash
+        run: |
+          rm -f .github/workflows/ui-fix-012.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html .github/workflows/ui-fix-012.yml
+          git commit -m 'ui: fix button spacing structurally'
+          git push origin main
