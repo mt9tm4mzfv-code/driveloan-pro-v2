@@ -1,0 +1,43 @@
+name: UI-015 apply DIR slider fix
+on:
+  push:
+    branches: [ui/next-update-015-fix]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply exact DIR binding fix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); s=p.read_text(encoding='utf-8')
+          reps=[('R*(1-g/100)*1.17+se','R*(1-g/100)*(1+T/100)+se'),('(Qe-Ge)/1.17','(Qe-Ge)/(1+T/100)'),('(R-Ge)*0.17','(R-Ge)*(T/100)'),('Qe-1.17*sn','Qe-(1+T/100)*sn'),('(R-an)*0.17','(R-an)*(T/100)'),('We*1.17/(1+a/100)','We*(1+T/100)/(1+a/100)')]
+          for old,new in reps:
+              c=s.count(old); assert c>=1, f'MISSING {old}'; s=s.replace(old,new); print(old,c)
+          for old,new in [('[e,I,P,R,We,a,It.RequiredDP_raw,se,g]','[e,I,P,R,We,a,It.RequiredDP_raw,se,g,T]'),('[R,se,We,a,un,g]','[R,se,We,a,un,g,T]')]:
+              assert s.count(old)==1, f'DEP COUNT {old}={s.count(old)}'; s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Verify syntax and targets
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          targets=['R*(1-g/100)*(1+T/100)+se','(Qe-Ge)/(1+T/100)','(R-Ge)*(T/100)','Qe-(1+T/100)*sn','(R-an)*(T/100)','We*(1+T/100)/(1+a/100)','[e,I,P,R,We,a,It.RequiredDP_raw,se,g,T]','[R,se,We,a,un,g,T]']
+          assert all(x in s for x in targets)
+          m=re.search(r'<script[^>]*>(.*?)</script>',s,re.S); assert m
+          Path('/tmp/app.js').write_text(m.group(1),encoding='utf-8')
+          PY
+          node --check /tmp/app.js
+          echo 'UI-015 syntax and target verification PASS'
+      - name: Commit fix and remove temporary workflow
+        run: |
+          rm -f .github/workflows/ui015-apply-dir-fix.yml
+          git config user.name 'Jude@Github2026'; git config user.email 'jude.dante@gmail.com'
+          git add index.html .github/workflows/ui015-apply-dir-fix.yml
+          git commit -m 'UI-015: bind Dealer Incentive Rate slider to calculations'
+          git push origin HEAD:ui/next-update-015-fix
