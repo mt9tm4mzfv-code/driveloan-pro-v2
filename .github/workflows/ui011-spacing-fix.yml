@@ -30,7 +30,6 @@ jobs:
               raise SystemExit(f'Expected exactly one action container; found {s.count(old)}.')
           p.write_text(s.replace(old, new, 1))
           PY
-          node --check index.html
           git diff --check
           git diff -- index.html
       - name: Commit spacing fix
