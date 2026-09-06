@@ -9,20 +9,88 @@ permissions:
   contents: write
 
 jobs:
-  inspect-source:
+  apply-ui-update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
-      - name: Inspect calculator source
+
+      - name: Apply requested UI-only changes
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
-          s=Path('index.html').read_text(encoding='utf-8')
-          for needle in ['Down Payment Amount','Down Payment %','Monthly → Down Payment','Monthly →','XPANDER CROSS']:
-              print('\n===',needle,'===')
-              i=s.find(needle)
-              print(s[max(0,i-900):i+1600] if i>=0 else 'NOT FOUND')
+
+          path = Path('index.html')
+          s = path.read_text(encoding='utf-8')
+          original = s
+
+          # 1) Premium ON badge follows the active calculator accent.
+          old = 'className:"bg-[#60a5fa] text-black font-black text-[10px] px-3 py-1 rounded-full tracking-wide",children:"ON"'
+          new = 'className:"text-black font-black text-[10px] px-3 py-1 rounded-full tracking-wide",style:{backgroundColor:l},children:"ON"'
+          assert s.count(old) == 1, 'Premium ON badge pattern count mismatch'
+          s = s.replace(old, new, 1)
+
+          # 2) Exact requested helper wording + active calculator color.
+          old = 'jf=e===1?`Kung mag Down Payment ko og ₱${$f(I)}, pila akong monthly?`:e===2?`Kung mag Down Payment ko og ${P.toFixed(2)}%, pila akong monthly?`:`Kung kaya nako ₱${$f(un)} monthly, pila needed DP?`'
+          new = 'jf=e===1?`Kung mag Down Payment ko og ₱${$f(I)} pila akong monthly?`:e===2?`Kung mag Down Payment ko og ${P.toFixed(2)}%, pila akong monthly?`:`Pila ang needed nga down payment para mag monthly og ₱${$f(un)}?`'
+          assert s.count(old) == 1, 'Helper wording pattern count mismatch'
+          s = s.replace(old, new, 1)
+
+          old = 'className:"text-[12px] italic text-[#7ee0a0] mt-1",children:jf'
+          new = 'className:"text-[12px] italic mt-1",style:{color:l},children:jf'
+          assert s.count(old) == 1, 'Helper color pattern count mismatch'
+          s = s.replace(old, new, 1)
+
+          # 3) Increase the dark UI space between Generate and Reset.
+          old = 'GENERATE AMORTIZATION COMPARISON"]}),p("button",{onClick:Gf'
+          new = 'GENERATE AMORTIZATION COMPARISON"]}),p("div",{className:"h-8",children:null}),p("button",{onClick:Gf'
+          assert s.count(old) == 1, 'Generate/Reset spacing insertion point mismatch'
+          s = s.replace(old, new, 1)
+
+          # 4) Compact, bold, color-coded 3D Reset button + confirmation popup.
+          old = 'p("button",{onClick:Gf,className:"bg-[#0f172a] rounded-2xl py-3.5 text-[12px] tracking-wide",style:{borderWidth:1,borderColor:Zf,color:Zf},children:"RESET ENTRY"})'
+          new = 'p("button",{onClick:()=>{Gf();window.alert("ENTRY RESET")},className:"bg-[#0f172a] rounded-[14px] py-2.5 px-5 text-[11px] font-black tracking-wide transition-transform active:translate-y-[2px]",style:{borderWidth:1,borderColor:Zf,color:Zf,boxShadow:`0 3px 0 ${Zf}`},children:"RESET ENTRY"})'
+          assert s.count(old) == 1, 'Reset button pattern count mismatch'
+          s = s.replace(old, new, 1)
+
+          assert s != original, 'No changes made'
+          path.write_text(s, encoding='utf-8')
+          print('UI UPDATE 002 APPLIED')
           PY
-          exit 1
+
+      - name: Validate requested UI update
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          checks=[
+            'Kung mag Down Payment ko og ₱${$f(I)} pila akong monthly?',
+            'Kung mag Down Payment ko og ${P.toFixed(2)}%, pila akong monthly?',
+            'Pila ang needed nga down payment para mag monthly og ₱${$f(un)}?',
+            'style:{color:l},children:jf',
+            'style:{backgroundColor:l},children:"ON"',
+            'className:"h-8",children:null',
+            'window.alert("ENTRY RESET")',
+            'font-black tracking-wide transition-transform active:translate-y-[2px]',
+            'boxShadow:`0 3px 0 ${Zf}`',
+          ]
+          missing=[x for x in checks if x not in s]
+          if missing:
+            raise SystemExit('VALIDATION FAILED: '+ ' | '.join(missing))
+          print('VALIDATION PASSED')
+          PY
+
+      - name: Commit UI update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "ui: refine calculator helper text and reset control"
+          git push
+
+      - name: Remove temporary workflow
+        if: success()
+        run: |
+          git rm .github/workflows/ui-next-update-002.yml
+          git commit -m "chore: remove temporary UI update workflow"
+          git push
