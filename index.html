@@ -75,14 +75,19 @@ body.ui016-calc3 .text-\[\#f59e0b\],body.ui016-calc3 .bg-\[\#f59e0b\],body.ui016
 </style><script id="UI-016-THEME-BINDER">
 (function(){
   function apply(){
+    if(!document.body)return;
     var txt=document.body.innerText||"";
     var n=1, m=txt.match(/CALCULATOR\s*[—-]\s*(1|2|3)/i);
     if(m)n=Number(m[1]);
     document.body.classList.remove("ui016-calc1","ui016-calc2","ui016-calc3");
     document.body.classList.add("ui016-calc"+n);
   }
-  apply();
-  new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});
+  function start(){
+    apply();
+    new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",start);
+  else start();
 })();
 </script>
 </head>
