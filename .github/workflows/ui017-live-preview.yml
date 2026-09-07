@@ -21,16 +21,16 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout UI-016 V2 branch
+      - name: Checkout refined UI-016 V2 branch
         uses: actions/checkout@v4
         with:
-          ref: ui-016-v2-font-slider-capsule-fix
+          ref: ui-016-v2-visual-refined
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Upload UI-016 V2 Pages artifact
+      - name: Upload refined UI-016 V2 Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
-      - name: Deploy UI-016 V2 to GitHub Pages
+      - name: Deploy refined UI-016 V2 to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
