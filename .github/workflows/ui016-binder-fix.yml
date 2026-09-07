@@ -1,0 +1,52 @@
+name: UI-016 binder fix
+
+on:
+  push:
+    branches: [ui/next-update-016-debug]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout debug branch
+        uses: actions/checkout@v4
+        with:
+          ref: ui/next-update-016-debug
+          fetch-depth: 0
+      - name: Fix UI-016 binder timing only
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = '''<script id="UI-016-THEME-BINDER">\n(function(){\n  function apply(){\n    var txt=document.body.innerText||"";\n    var n=1, m=txt.match(/CALCULATOR\\s*[—-]\\s*(1|2|3)/i);\n    if(m)n=Number(m[1]);\n    document.body.classList.remove("ui016-calc1","ui016-calc2","ui016-calc3");\n    document.body.classList.add("ui016-calc"+n);\n  }\n  apply();\n  new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});\n})();\n</script>'''
+          new = '''<script id="UI-016-THEME-BINDER">\n(function(){\n  function apply(){\n    if(!document.body)return;\n    var txt=document.body.innerText||"";\n    var n=1, m=txt.match(/CALCULATOR\\s*[—-]\\s*(1|2|3)/i);\n    if(m)n=Number(m[1]);\n    document.body.classList.remove("ui016-calc1","ui016-calc2","ui016-calc3");\n    document.body.classList.add("ui016-calc"+n);\n  }\n  if(document.readyState === "loading") {\n    document.addEventListener("DOMContentLoaded",function(){\n      apply();\n      new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});\n    });\n  } else {\n    apply();\n    new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});\n  }\n})();\n</script>'''
+          if old not in s:
+              raise SystemExit('UI-016 binder block not found')
+          p.write_text(s.replace(old,new,1))
+          PY
+          grep -q 'DOMContentLoaded' index.html
+          grep -q 'UI-016-PREMIUM-THEME' index.html
+          ! grep -q 'UI-016 binder fix' index.html
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          assert s.count('UI-016-PREMIUM-THEME') == 1
+          assert s.count('UI-016-THEME-BINDER') == 1
+          assert s.count('DOMContentLoaded') == 1
+          print('UI-016 binder timing verification: PASS')
+          PY
+      - name: Commit fix and remove workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'UI-016 debug: fix theme binder timing'
+          git rm .github/workflows/ui016-binder-fix.yml
+          git commit -m 'chore: remove temporary UI-016 binder workflow'
+          git push origin HEAD:ui/next-update-016-debug
