@@ -15,16 +15,12 @@ jobs:
           from pathlib import Path
           s=Path('index.html').read_text()
           marker='id="UI-017-TWO-STAGE-HEADER"'
-          if marker in s:
-              raise SystemExit('UI-017 already present')
-          old='className:"text-[12px] italic mt-1"'
-          new='className:"text-[12px] mt-1 ui017-sample-question"'
+          if marker in s: raise SystemExit('UI-017 already present')
+          old='className:"text-[12px] italic mt-1"'; new='className:"text-[12px] mt-1 ui017-sample-question"'
           count=s.count(old)
-          if count!=3:
-              raise SystemExit(f'Expected exactly 3 sample-question italic blocks, found {count}')
+          if count!=3: raise SystemExit(f'Expected exactly 3 sample-question italic blocks, found {count}')
           s=s.replace(old,new)
           css='''<style id="UI-017-TWO-STAGE-HEADER">
-          /* UI-017: two-stage floating header + visibility/color cleanup only */
           body.ui017-condensed div.fixed.top-0.z-50{padding:6px 10px !important;gap:0 !important}
           body.ui017-condensed div.fixed.top-0.z-50 > div:first-child{display:none !important}
           body.ui017-condensed div.fixed.top-0.z-50 > div:nth-child(2){margin-top:0 !important}
@@ -34,17 +30,7 @@ jobs:
           .ui017-sample-question{font-style:normal !important}
           </style>'''
           js='''<script id="UI-017-TWO-STAGE-HEADER-SCRIPT">
-          (function(){
-            function apply(){
-              var body=document.body;if(!body)return;
-              body.classList.toggle('ui017-condensed',window.scrollY>24);
-              var header=document.querySelector('div.fixed.top-0.z-50');
-              if(header){header.querySelectorAll('button.rounded-full').forEach(function(b){b.style.opacity='1';b.style.visibility='visible';b.style.display='flex';b.style.alignItems='center';b.style.justifyContent='center';b.style.lineHeight='1';if(b.classList.contains('text-black'))b.style.color='#07130d';});}
-              document.querySelectorAll('button').forEach(function(b){if((b.textContent||'').trim()==='COPY DETAILED COMPUTATION')b.classList.add('ui017-copy-detailed');});
-            }
-            function boot(){apply();window.addEventListener('scroll',apply,{passive:true});new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});}
-            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
-          })();
+          (function(){function apply(){var body=document.body;if(!body)return;body.classList.toggle('ui017-condensed',window.scrollY>24);var header=document.querySelector('div.fixed.top-0.z-50');if(header){header.querySelectorAll('button.rounded-full').forEach(function(b){b.style.opacity='1';b.style.visibility='visible';b.style.display='flex';b.style.alignItems='center';b.style.justifyContent='center';b.style.lineHeight='1';if(b.classList.contains('text-black'))b.style.color='#07130d';});}document.querySelectorAll('button').forEach(function(b){if((b.textContent||'').trim()==='COPY DETAILED COMPUTATION')b.classList.add('ui017-copy-detailed');});}function boot(){apply();window.addEventListener('scroll',apply,{passive:true});new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();})();
           </script>'''
           pos=s.rfind('</head>')
           if pos<0: raise SystemExit('Missing </head>')
