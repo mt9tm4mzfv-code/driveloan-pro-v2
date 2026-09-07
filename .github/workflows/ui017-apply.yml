@@ -39,7 +39,7 @@ jobs:
       - name: Verify UI-017
         run: |
           grep -q 'UI-017-TWO-STAGE-HEADER' index.html
-          test "$(grep -o 'ui017-sample-question' index.html | wc -l)" -eq 3
+          test "$(grep -o 'ui017-sample-question' index.html | wc -l)" -eq 2
           test "$(grep -o 'ui017-copy-detailed' index.html | wc -l)" -ge 1
           test "$(grep -o 'body.ui017-condensed' index.html | wc -l)" -ge 1
       - name: Commit UI-017
