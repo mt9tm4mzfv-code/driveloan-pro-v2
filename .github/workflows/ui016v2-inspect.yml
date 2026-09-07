@@ -22,7 +22,7 @@ jobs:
           s=Path('index.html').read_text()
           out=[]
           out.append(f'SIZE {len(s)}')
-          for term in ['Mitsubishi','Toyota','Brand','brand','Model','model','SRP','Unit Details','UNIT DETAILS','Vios','Fortuner','Hilux','Rush','input type="range"','Bank Interest Rate','Base DP','Dealer Incentive']:
+          for term in ['Mitsubishi','Toyota','Brand','brand','Model','model','SRP','Unit Details','UNIT DETAILS','Vios','Fortuner','Hilux','Rush','input type="range"','Bank Interest Rate','Base Down Payment','Dealer Incentive']:
               hits=[m.start() for m in re.finditer(re.escape(term), s, re.I)]
               out.append(f'\nTERM {term} COUNT {len(hits)}')
               for p in hits[:8]:
@@ -30,8 +30,10 @@ jobs:
           Path('ui016v2-inspection.txt').write_text('\n'.join(out))
           print('\n'.join(out))
           PY
-      - name: Upload inspection report
+      - name: Upload inspection bundle
         uses: actions/upload-artifact@v4
         with:
           name: ui016v2-inspection
-          path: ui016v2-inspection.txt
+          path: |
+            ui016v2-inspection.txt
+            index.html
