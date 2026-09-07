@@ -1,0 +1,78 @@
+name: Meta UI Reference Test
+on:
+  push:
+    branches:
+      - ui-016-meta-reference-test
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply visual-only reference layer
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          if 'META-UI-REFERENCE-TEST' in s:
+              raise SystemExit('already applied')
+          css=r'''<style id="META-UI-REFERENCE-TEST">
+          /* Visual-only test based on supplied Meta AI reference. No fields or calculations added/changed. */
+          html,body{background:#080e1a!important;color:#fff!important}
+          body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+          /* Static, clean header: defeat the original inline fixed positioning. */
+          body>div.fixed.top-0.left-1\/2.-translate-x-1\/2.w-\[calc\(100\%-40px\)\].max-w-\[520px\].z-50{position:relative!important;top:auto!important;left:auto!important;transform:none!important;width:100%!important;max-width:520px!important;margin:0 auto!important;border-radius:0 0 24px 24px!important;z-index:10!important}
+          /* Generic fallback for the same header if Tailwind class serialization differs. */
+          div[style*="position:fixed"][style*="top:0px"]{position:relative!important;top:auto!important;left:auto!important;transform:none!important;width:100%!important;max-width:520px!important;margin:0 auto!important}
+          /* Header title/status/navigation visual language. */
+          div[style*="position:relative"]{scroll-margin-top:0}
+          /* Step circles: force number visibility without changing their values. */
+          button{font-family:Inter,system-ui,sans-serif!important}
+          /* Sample questions: normal, not italic. */
+          p.italic,.italic{font-style:normal!important}
+          /* Existing input/value capsules. */
+          input,select{border-radius:20px!important;min-height:58px}
+          /* Range sliders. */
+          input[type=range]{min-height:0!important;height:6px!important;border-radius:999px!important;accent-color:#7aa8ff}
+          input[type=range]::-webkit-slider-thumb{width:28px;height:28px;border-radius:50%;border:3px solid #fff;background:#7aa8ff;box-shadow:0 0 18px rgba(122,168,255,.55);-webkit-appearance:none}
+          input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;border:3px solid #fff;background:#7aa8ff;box-shadow:0 0 18px rgba(122,168,255,.55)}
+          /* Calculator/result cards. */
+          div.rounded-\[20px\],div.rounded-2xl{border-color:rgba(122,168,255,.20)!important}
+          /* Detailed copy text should match simple copy text. */
+          button{color:#fff}
+          /* Right-side scroll status indicator. */
+          #meta-ui-scroll-status{position:fixed;right:5px;top:14vh;height:72vh;width:4px;background:#343a46;border-radius:999px;z-index:99999;pointer-events:none;opacity:.95}
+          #meta-ui-scroll-status-fill{position:absolute;left:0;top:0;width:100%;height:20%;background:#69717f;border-radius:999px;transform:translateY(0)}
+          #meta-ui-scroll-status-dot{position:absolute;left:50%;top:0;width:8px;height:8px;margin-left:-2px;border-radius:50%;background:#aeb5bf;transform:translate(-50%,-50%);box-shadow:0 0 8px rgba(174,181,191,.45)}
+          @media (max-width:560px){#meta-ui-scroll-status{right:3px;width:3px}}
+          </style>'''
+          js=r'''<script id="META-UI-REFERENCE-TEST">(function(){function ready(){var d=document.createElement('div');d.id='meta-ui-scroll-status';d.innerHTML='<div id="meta-ui-scroll-status-fill"></div><div id="meta-ui-scroll-status-dot"></div>';document.body.appendChild(d);var fill=d.firstElementChild,dot=d.lastElementChild;function update(){var max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight),p=Math.max(0,Math.min(1,window.scrollY/max));var travel=Math.max(0,d.clientHeight-fill.offsetHeight);fill.style.height=Math.max(18,Math.min(28,d.clientHeight*.24))+'px';travel=Math.max(0,d.clientHeight-fill.offsetHeight);fill.style.transform='translateY('+(travel*p)+'px)';dot.style.top=(travel*p)+'px'}update();window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);new MutationObserver(update).observe(document.body,{subtree:true,childList:true})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready()})();</script>'''
+          s=s.replace('</head>',css+'\n</head>',1)
+          s=s.replace('</body>',js+'\n</body>',1)
+          p.write_text(s)
+          PY
+      - name: Verify visual-only constraints
+        shell: bash
+        run: |
+          test "$(grep -o 'META-UI-REFERENCE-TEST' index.html | wc -l)" -eq 2
+          ! grep -q 'Vios XLE CVT\|Fortuner G\|Hilux G\|Rush G\|Toyota\|Honda\|Custom' index.html
+          node --check <(python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          m=re.findall(r'<script id="META-UI-REFERENCE-TEST">(.*?)</script>',s,re.S)
+          print(m[0])
+          PY
+          )
+      - name: Commit and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name 'Jude@Github2026'
+          git config user.email 'jude.dante@gmail.com'
+          rm .github/workflows/meta-ui-test.yml
+          git add index.html .github/workflows/meta-ui-test.yml
+          git commit -m 'test: refine UI toward Meta reference'
+          git push
