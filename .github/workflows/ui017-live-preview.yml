@@ -1,4 +1,4 @@
-name: UI-017 Live Preview
+name: UI-016 V2 Live Preview
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: ui017-live-preview
+  group: ui016v2-live-preview
   cancel-in-progress: true
 
 jobs:
@@ -21,16 +21,16 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout UI-017 round 2 branch
+      - name: Checkout UI-016 V2 branch
         uses: actions/checkout@v4
         with:
-          ref: ui/next-update-017-header-round2
+          ref: ui-016-v2-font-slider-capsule-fix
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Upload UI-017 Pages artifact
+      - name: Upload UI-016 V2 Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
-      - name: Deploy UI-017 to GitHub Pages
+      - name: Deploy UI-016 V2 to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
