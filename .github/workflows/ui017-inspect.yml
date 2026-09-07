@@ -9,17 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect header markers
+      - name: Inspect sample questions
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
           s=Path('index.html').read_text()
-          for needle in ['DRIVELOAN PRO','CALCULATOR 1','COPY DETAILED COMPUTATION']:
-              print('===',needle,'===')
-              p=s.find(needle)
-              print('pos=',p)
-              if p>=0: print(s[max(0,p-1800):p+2200])
-          print('=== UI-016 markers ===')
-          for needle in ['UI-016-PREMIUM-THEME','UI-016-THEME-BINDER']:
-              print(needle, s.find(needle))
+          for needle in ['italic','Para mag monthly','pila akong DOWN PAYMENT','pila akong MONTHLY']:
+              print('\n===',needle,'===')
+              for m in list(re.finditer(re.escape(needle),s,re.I))[:10]:
+                  p=m.start(); print(s[max(0,p-700):p+1200])
           PY
