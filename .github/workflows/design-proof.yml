@@ -1,0 +1,134 @@
+name: Design Language Proof
+
+on:
+  push:
+    branches:
+      - ui-next-design-language-proof
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply visual-only design layer
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          css=r'''<style id="DRIVELOAN-DESIGN-PROOF">
+          :root{
+            --dl-bg:#0b0f14;--dl-panel:#121922;--dl-panel2:#171f2a;--dl-line:#2a3746;
+            --dl-text:#f5f7fa;--dl-muted:#8d99a8;--dl-soft:#aeb8c5;
+            --dl-green:#9be6b5;--dl-blue:#7da8ff;--dl-gold:#e8bf78;
+          }
+          html,body{background:#0b0f14!important;color:var(--dl-text)!important}
+          body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;-webkit-font-smoothing:antialiased}
+          body::before{content:"";position:fixed;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,transparent,#7da8ff,transparent);opacity:.65;z-index:99998;pointer-events:none}
+
+          /* Header: clean, static, never covering content. */
+          .fixed.top-0.z-50{
+            position:relative!important;top:auto!important;left:auto!important;transform:none!important;
+            width:calc(100% - 32px)!important;max-width:520px!important;margin:18px auto 20px!important;
+            border-radius:24px!important;background:rgba(18,25,34,.96)!important;
+            border:1px solid #2c3948!important;box-shadow:0 14px 34px rgba(0,0,0,.28)!important;
+          }
+
+          /* App shell / cards */
+          .min-h-screen{background:radial-gradient(circle at 50% -8%,#1a2635 0,#0d131b 38%,#090d12 100%)!important}
+          [class*="rounded-[20px]"],[class*="rounded-[22px]"],[class*="rounded-2xl"]{
+            border-color:var(--dl-line)!important;box-shadow:0 10px 30px rgba(0,0,0,.18)!important
+          }
+          [class*="bg-[#0e1525]"],[class*="bg-[#111827]"],[class*="bg-[#1f2937]"]{background:var(--dl-panel)!important}
+
+          /* Typography hierarchy */
+          h1,h2,h3{font-family:"Space Grotesk",Inter,sans-serif!important;letter-spacing:-.02em}
+          button{font-family:Inter,sans-serif!important;font-weight:700!important;letter-spacing:.045em!important}
+          label,[class*="uppercase"]{letter-spacing:.18em}
+          .italic{font-style:normal!important;color:var(--dl-soft)!important}
+
+          /* Inputs / capsules */
+          input:not([type="range"]),select{
+            background:#0d1116!important;color:#f5f7fa!important;border:1px solid #2c3948!important;
+            border-radius:20px!important;min-height:56px;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)
+          }
+          input:not([type="range"]):focus,select:focus{border-color:#7da8ff!important;box-shadow:0 0 0 2px rgba(125,168,255,.14)!important;outline:none!important}
+
+          /* Sliders */
+          input[type="range"]{height:8px!important;min-height:8px!important;background:transparent!important;border:0!important;box-shadow:none!important;accent-color:var(--dl-blue)!important}
+          input[type="range"]::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:#303a48}
+          input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-10px;border-radius:50%;background:#7da8ff;border:3px solid #edf3ff;box-shadow:0 0 16px rgba(125,168,255,.48)}
+          input[type="range"]::-moz-range-track{height:8px;border-radius:999px;background:#303a48}
+          input[type="range"]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#7da8ff;border:3px solid #edf3ff;box-shadow:0 0 16px rgba(125,168,255,.48)}
+
+          /* Compact value capsules */
+          input[type="number"],input[inputmode="numeric"]{font-family:"JetBrains Mono",ui-monospace,monospace!important;font-variant-numeric:tabular-nums}
+
+          /* Step marker: force the active number to remain visible. */
+          .dl-step-visible{display:flex!important;align-items:center!important;justify-content:center!important;color:#08120d!important;font-weight:800!important;font-size:20px!important;line-height:1!important;text-decoration:none!important;opacity:1!important;visibility:visible!important}
+          .dl-step-visible::first-letter{color:#08120d!important}
+
+          /* Premium result hierarchy */
+          [class*="text-[28px]"],[class*="text-[30px]"],[class*="text-[32px]"]{font-variant-numeric:tabular-nums}
+          
+          /* Right-side position/status rail */
+          #dl-position-rail{position:fixed;right:7px;top:18vh;width:4px;height:64vh;border-radius:999px;background:#252c35;z-index:99999;pointer-events:none;opacity:.95}
+          #dl-position-rail .dl-position-dot{position:absolute;left:-1px;width:6px;height:72px;border-radius:999px;background:#626c79;box-shadow:0 0 7px rgba(255,255,255,.08);transform:translateY(0);transition:transform .06s linear}
+          @media(max-width:600px){#dl-position-rail{right:4px;width:4px}#dl-position-rail .dl-position-dot{left:-1px;width:6px}}
+          </style>'''
+          js=r'''<script id="DRIVELOAN-DESIGN-PROOF-BEHAVIOR">
+          (function(){
+            function boot(){
+              if(!document.body)return;
+              if(!document.getElementById('dl-position-rail')){
+                var rail=document.createElement('div');rail.id='dl-position-rail';
+                rail.innerHTML='<span class="dl-position-dot"></span>';document.body.appendChild(rail);
+              }
+              function update(){
+                var d=document.documentElement,max=Math.max(1,d.scrollHeight-window.innerHeight),p=Math.max(0,Math.min(1,window.scrollY/max));
+                var dot=document.querySelector('#dl-position-rail .dl-position-dot');
+                if(dot){var travel=Math.max(0,64*window.innerHeight/100-72);dot.style.transform='translateY('+travel*p+'px)'}
+              }
+              update();window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);
+              document.querySelectorAll('.italic').forEach(function(el){el.style.fontStyle='normal'});
+              /* Make the existing calculator step marker legible without adding a field. */
+              document.querySelectorAll('div').forEach(function(el){
+                var t=(el.textContent||'').trim();
+                if(/^[123]$/.test(t) && el.children.length===0){
+                  var r=el.getBoundingClientRect();
+                  if(r.width>=28&&r.width<=90&&r.height>=28&&r.height<=90){el.classList.add('dl-step-visible')}
+                }
+              });
+            }
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+          })();
+          </script>'''
+          assert 'DRIVELOAN-DESIGN-PROOF' not in s
+          s=s.replace('</head>',css+'\n'+js+'\n</head>',1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Verify no functional source edits
+        run: |
+          test -f index.html
+          ! grep -Eiq 'Toyota|Honda|Custom brands|Vios XLE|Fortuner G|Hilux G|Rush G' index.html
+          node --check <(python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          blocks=re.findall(r'<script[^>]*>(.*?)</script>',s,re.S)
+          Path('/tmp/scripts.js').write_text('\n'.join(blocks),encoding='utf-8')
+          print(Path('/tmp/scripts.js').read_text())
+          PY
+          )
+      - name: Commit visual proof and remove workflow
+        run: |
+          rm -f .github/workflows/design-proof.yml
+          git config user.name 'Jude@Github2026'
+          git config user.email 'jude.dante@gmail.com'
+          git add index.html .github/workflows/design-proof.yml
+          git commit -m 'UI proof: premium dark design language'
+          git push origin HEAD:ui-next-design-language-proof
