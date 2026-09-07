@@ -1,0 +1,29 @@
+name: UI-016 V2 Inspect
+
+on:
+  push:
+    branches:
+      - ui-016-v2-font-slider-capsule-fix
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect source targets
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text()
+          print('SIZE', len(s))
+          for term in ['Mitsubishi','Toyota','Brand','brand','Model','model','SRP','Unit Details','UNIT DETAILS','Vios','Fortuner','Hilux','Rush','input type="range"','Bank Interest Rate','Base DP','Dealer Incentive']:
+              hits=[m.start() for m in re.finditer(re.escape(term), s, re.I)]
+              print('\nTERM', term, 'COUNT', len(hits))
+              for p in hits[:5]:
+                  print(s[max(0,p-500):min(len(s),p+1000)].replace('\\n',' ')[:1500])
+          PY
