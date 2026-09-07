@@ -1,0 +1,47 @@
+name: UI-017 Fix Round 2
+
+on:
+  push:
+    branches:
+      - ui/next-update-017-header-round2
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ui/next-update-017-header-round2
+      - name: Apply safer UI-017 mobile header fix
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          marker='<!-- UI-017-ROUND2-FIX -->'
+          if marker not in s:
+              css='''\n<style id="UI-017-ROUND2-CSS">\nhtml body { padding-top: 118px !important; }\nhtml body.ui017-condensed { padding-top: 62px !important; }\nbody div.fixed.top-0.z-50 { top:0 !important; left:0 !important; right:0 !important; width:100% !important; min-height:0 !important; height:auto !important; box-sizing:border-box !important; padding:10px 12px 8px !important; display:flex !important; flex-direction:column !important; align-items:stretch !important; justify-content:flex-start !important; gap:8px !important; overflow:visible !important; }\nbody div.fixed.top-0.z-50 > div:first-child { display:flex !important; min-height:42px !important; align-items:center !important; justify-content:center !important; position:relative !important; margin:0 !important; }\nbody div.fixed.top-0.z-50 > div:nth-child(2) { width:100% !important; min-height:46px !important; margin:0 !important; padding:4px 8px !important; box-sizing:border-box !important; display:flex !important; align-items:center !important; justify-content:center !important; gap:10px !important; overflow:visible !important; }\nbody.ui017-condensed div.fixed.top-0.z-50 { padding:8px 12px !important; gap:0 !important; }\nbody.ui017-condensed div.fixed.top-0.z-50 > div:first-child { display:none !important; }\nbody.ui017-condensed div.fixed.top-0.z-50 > div:nth-child(2) { min-height:46px !important; }\nbody div.fixed.top-0.z-50 button.rounded-full { opacity:1 !important; visibility:visible !important; display:flex !important; flex:0 0 48px !important; width:48px !important; height:48px !important; min-width:48px !important; min-height:48px !important; align-items:center !important; justify-content:center !important; position:relative !important; z-index:2 !important; line-height:1 !important; font-size:18px !important; font-weight:700 !important; }\nbody div.fixed.top-0.z-50 button.rounded-full.text-black { color:#07130d !important; }\nbody div.fixed.top-0.z-50 button.rounded-full.text-white { color:#fff !important; }\nbody div[class*="italic"] { font-style:normal !important; }\n.ui017-copy-detailed { color:#07130d !important; }\n</style>\n<script id="UI-017-ROUND2-BINDER">\n(function(){function fix(){try{var h=document.querySelector('div.fixed.top-0.z-50');if(h){h.querySelectorAll('button.rounded-full').forEach(function(b){b.style.opacity='1';b.style.visibility='visible';b.style.display='flex';});}document.querySelectorAll('div').forEach(function(el){var t=(el.textContent||'').trim();if(t&&t.length<180&&(/^(Kung mag |Kung.*monthly\\?|Para mag monthly)/i.test(t)))el.style.fontStyle='normal';});document.querySelectorAll('button').forEach(function(b){if((b.textContent||'').trim()==='COPY DETAILED COMPUTATION')b.style.color='#07130d';});}catch(e){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();new MutationObserver(fix).observe(document.documentElement,{subtree:true,childList:true,characterData:true});})();\n</script>\n'''
+              s=s.replace('</head>',marker+css+'</head>',1)
+              p.write_text(s)
+          PY
+      - name: Verify
+        run: |
+          grep -q 'UI-017-ROUND2-FIX' index.html
+          grep -q 'UI-017-ROUND2-CSS' index.html
+          grep -q 'UI-017-ROUND2-BINDER' index.html
+      - name: Commit fix and remove workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'fix: stabilize UI-017 mobile floating header'
+          rm -f .github/workflows/ui017-fix-round2.yml
+          git add .github/workflows/ui017-fix-round2.yml
+          git commit -m 'chore: remove temporary UI-017 fix workflow'
+          git push origin HEAD:ui/next-update-017-header-round2
