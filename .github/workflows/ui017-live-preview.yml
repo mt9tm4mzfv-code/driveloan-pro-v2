@@ -1,0 +1,34 @@
+name: UI-017 Live Preview
+
+on:
+  push:
+    branches:
+      - ui/next-update-017-header-cleanup
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ui017-live-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout UI-017
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy UI-017 to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
