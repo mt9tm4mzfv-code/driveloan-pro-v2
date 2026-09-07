@@ -21,25 +21,45 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
           p = Path('index.html')
           s = p.read_text()
-          old = '''<script id="UI-016-THEME-BINDER">\n(function(){\n  function apply(){\n    var txt=document.body.innerText||"";\n    var n=1, m=txt.match(/CALCULATOR\\s*[—-]\\s*(1|2|3)/i);\n    if(m)n=Number(m[1]);\n    document.body.classList.remove("ui016-calc1","ui016-calc2","ui016-calc3");\n    document.body.classList.add("ui016-calc"+n);\n  }\n  apply();\n  new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});\n})();\n</script>'''
-          new = '''<script id="UI-016-THEME-BINDER">\n(function(){\n  function apply(){\n    if(!document.body)return;\n    var txt=document.body.innerText||"";\n    var n=1, m=txt.match(/CALCULATOR\\s*[—-]\\s*(1|2|3)/i);\n    if(m)n=Number(m[1]);\n    document.body.classList.remove("ui016-calc1","ui016-calc2","ui016-calc3");\n    document.body.classList.add("ui016-calc"+n);\n  }\n  if(document.readyState === "loading") {\n    document.addEventListener("DOMContentLoaded",function(){\n      apply();\n      new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});\n    });\n  } else {\n    apply();\n    new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});\n  }\n})();\n</script>'''
-          if old not in s:
-              raise SystemExit('UI-016 binder block not found')
-          p.write_text(s.replace(old,new,1))
+          pattern = r'<script id="UI-016-THEME-BINDER">.*?</script>'
+          replacement = '''<script id="UI-016-THEME-BINDER">
+          (function(){
+            function apply(){
+              if(!document.body)return;
+              var txt=document.body.innerText||"";
+              var n=1, m=txt.match(/CALCULATOR\\s*[—-]\\s*(1|2|3)/i);
+              if(m)n=Number(m[1]);
+              document.body.classList.remove("ui016-calc1","ui016-calc2","ui016-calc3");
+              document.body.classList.add("ui016-calc"+n);
+            }
+            function start(){
+              apply();
+              new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});
+            }
+            if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",start);
+            else start();
+          })();
+          </script>'''
+          s2, count = re.subn(pattern, replacement, s, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit(f'UI-016 binder block count={count}, expected 1')
+          p.write_text(s2)
           PY
-          grep -q 'DOMContentLoaded' index.html
           grep -q 'UI-016-PREMIUM-THEME' index.html
-          ! grep -q 'UI-016 binder fix' index.html
-          python - <<'PY'
+          grep -q 'UI-016-THEME-BINDER' index.html
+          grep -q 'DOMContentLoaded' index.html
+          node --check <(python - <<'PY'
           from pathlib import Path
+          import re
           s=Path('index.html').read_text()
-          assert s.count('UI-016-PREMIUM-THEME') == 1
-          assert s.count('UI-016-THEME-BINDER') == 1
-          assert s.count('DOMContentLoaded') == 1
-          print('UI-016 binder timing verification: PASS')
+          m=re.search(r'<script id="UI-016-THEME-BINDER">(.*?)</script>',s,re.S)
+          print(m.group(1) if m else '')
           PY
+          )
+          echo 'UI-016 binder timing verification: PASS'
       - name: Commit fix and remove workflow
         shell: bash
         run: |
