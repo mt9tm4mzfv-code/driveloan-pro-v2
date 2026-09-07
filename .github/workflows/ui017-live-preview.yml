@@ -21,10 +21,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout UI-017 branch
+      - name: Checkout UI-017 round 2 branch
         uses: actions/checkout@v4
         with:
-          ref: ui/next-update-017-header-cleanup
+          ref: ui/next-update-017-header-round2
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload UI-017 Pages artifact
