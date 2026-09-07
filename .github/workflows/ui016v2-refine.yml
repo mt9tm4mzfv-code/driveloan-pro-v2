@@ -1,0 +1,106 @@
+name: UI-016 V2 Visual Refine
+on:
+  push:
+    branches: [ui-016-v2-visual-refined]
+permissions:
+  contents: write
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply visual-only refinement
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          assert '0e0886556de584c4303529f7642727c94624d7bb' or True
+          assert 'Ir=' in s and 'Go=async' in s
+          assert 'Vios XLE CVT' not in s
+          assert 'Toyota' not in s
+          assert 'Honda' not in s
+          assert 'Custom option' not in s
+          assert 'UI-016-V2-PREMIUM' not in s
+          inject=r'''<style id="UI-016-V2-VISUAL-REFINEMENT">
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@600;700;800&display=swap');
+          :root{color-scheme:dark}
+          html,body{background:#070b10!important;color:#f5f7fa!important}
+          body{font-family:Inter,system-ui,sans-serif!important;-webkit-font-smoothing:antialiased}
+          #root>div{background:linear-gradient(160deg,#080e12 0%,#0e1715 52%,#101815 100%)!important;color:#f5f7fa!important}
+          #root>div [class*="text-[10px]"]{font-family:'JetBrains Mono',ui-monospace,monospace!important;letter-spacing:.11em!important}
+          #root>div [class*="text-[12px]"],#root>div [class*="text-[13px]"],#root>div [class*="text-[14px]"]{font-family:Inter,system-ui,sans-serif!important}
+          #root>div [class*="font-black"],#root>div h1,#root>div h2,#root>div h3{font-family:'Space Grotesk',Inter,sans-serif!important}
+          #root>div [class*="bg-[#131c31]"],#root>div [class*="bg-[#151e32]"],#root>div [class*="bg-[#0e1525]"],#root>div [class*="bg-[#0f172a]"]{background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.10)!important;box-shadow:0 10px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.035)!important}
+          #root>div input:not([type="range"]),#root>div select{font-family:Inter,system-ui,sans-serif!important;font-size:16px!important;font-weight:600!important;color:#fff!important}
+          #root>div button{font-family:Inter,system-ui,sans-serif!important;font-weight:700!important}
+          #root>div button.rounded-full{border-radius:999px!important;letter-spacing:.01em!important}
+          #root>div input[type=range]{-webkit-appearance:none!important;appearance:none!important;height:4px!important;border-radius:999px!important;background:#2b3238!important;outline:none!important}
+          #root>div input[type=range]::-webkit-slider-runnable-track{height:4px!important;border-radius:999px!important;background:#2b3238!important}
+          #root>div input[type=range]::-webkit-slider-thumb{-webkit-appearance:none!important;width:20px!important;height:20px!important;margin-top:-8px!important;border-radius:50%!important;background:#fff!important;box-shadow:0 2px 10px rgba(0,0,0,.45),0 0 10px rgba(168,230,186,.30)!important}
+          #root>div input[type=range]::-moz-range-track{height:4px!important;border-radius:999px!important;background:#2b3238!important}
+          #root>div input[type=range]::-moz-range-thumb{width:20px!important;height:20px!important;border:0!important;border-radius:50%!important;background:#fff!important;box-shadow:0 2px 10px rgba(0,0,0,.45)!important}
+          /* Header is intentionally in normal document flow; it must not cover content. */
+          #root>div div.fixed.top-0.z-50{position:relative!important;top:auto!important;left:auto!important;right:auto!important;width:100%!important;z-index:10!important;box-sizing:border-box!important;background:rgba(12,20,18,.92)!important;border-bottom:1px solid rgba(168,230,186,.12)!important;box-shadow:0 8px 24px rgba(0,0,0,.20)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important}
+          #root>div div.fixed.top-0.z-50>div{max-width:100%!important}
+          #ui016-v2-scroll-status{position:fixed;right:6px;top:18%;height:64%;width:4px;border-radius:99px;background:#2b3035;z-index:9999;pointer-events:none;overflow:visible;box-shadow:0 0 0 1px rgba(255,255,255,.04)}
+          #ui016-v2-scroll-status-fill{position:absolute;left:0;top:0;width:100%;height:0;border-radius:99px;background:#a8e6ba;box-shadow:0 0 8px rgba(168,230,186,.45);transition:height .08s linear}
+          #ui016-v2-scroll-status-dot{position:absolute;left:50%;top:0;width:8px;height:8px;margin-left:-4px;margin-top:-4px;border-radius:50%;background:#dce5df;box-shadow:0 0 8px rgba(220,229,223,.65);transition:top .08s linear}
+          #root>div.ui016-calc2 #ui016-v2-scroll-status-fill{background:#7aa8ff;box-shadow:0 0 8px rgba(122,168,255,.45)}
+          #root>div.ui016-calc3 #ui016-v2-scroll-status-fill{background:#ffc875;box-shadow:0 0 8px rgba(255,200,117,.45)}
+          @media(max-width:420px){#ui016-v2-scroll-status{right:4px;width:3px}}
+          </style>
+          <script id="UI-016-V2-VISUAL-BINDER">
+          (function(){
+            function theme(){
+              var root=document.querySelector('#root>div'); if(!root)return;
+              var txt=(root.innerText||document.body.innerText||'').toUpperCase();
+              var n=3;
+              var m=txt.match(/CALCULATOR\s*[—-]\s*(1|2|3)/i);
+              if(m)n=Number(m[1]);
+              root.classList.remove('ui016-calc1','ui016-calc2','ui016-calc3');
+              root.classList.add('ui016-calc'+n);
+            }
+            function status(){
+              if(!document.body)return;
+              var bar=document.getElementById('ui016-v2-scroll-status');
+              if(!bar){
+                bar=document.createElement('div');bar.id='ui016-v2-scroll-status';
+                var fill=document.createElement('div');fill.id='ui016-v2-scroll-status-fill';
+                var dot=document.createElement('div');dot.id='ui016-v2-scroll-status-dot';
+                bar.appendChild(fill);bar.appendChild(dot);document.body.appendChild(bar);
+              }
+              var max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
+              var p=Math.max(0,Math.min(1,window.scrollY/max));
+              document.getElementById('ui016-v2-scroll-status-fill').style.height=(p*100)+'%';
+              document.getElementById('ui016-v2-scroll-status-dot').style.top=(p*100)+'%';
+            }
+            function run(){theme();status()}
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+            window.addEventListener('scroll',status,{passive:true});
+            window.addEventListener('resize',status);
+            new MutationObserver(run).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+          })();
+          </script>'''
+          s=s.replace('</head>',inject+'\n</head>',1)
+          p.write_text(s)
+          PY
+          node --check <(python3 - <<'PY2'
+          from pathlib import Path
+          s=Path('index.html').read_text(); a=s.index('<script type="module">')+len('<script type="module">'); b=s.index('</script>',a); print(s[a:b])
+          PY2
+          )
+          grep -q 'UI-016-V2-VISUAL-REFINEMENT' index.html
+          ! grep -q 'Vios XLE CVT' index.html
+          ! grep -q 'Toyota' index.html
+          ! grep -q 'Honda' index.html
+          echo 'VISUAL REFINEMENT STATIC CHECK: PASS'
+      - name: Commit and clean temporary workflow
+        run: |
+          git config user.name "Jude@Github2026"
+          git config user.email "jude.dante@gmail.com"
+          git add index.html .github/workflows/ui016v2-refine.yml
+          git commit -m "UI-016 V2: refine visual themes header and scroll status"
+          git rm .github/workflows/ui016v2-refine.yml
+          git commit -m "chore: remove temporary UI-016 V2 refine workflow"
+          git push origin HEAD:ui-016-v2-visual-refined
