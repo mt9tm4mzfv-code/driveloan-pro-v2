@@ -1,0 +1,25 @@
+name: UI-017 Inspect
+on:
+  push:
+    branches: ["ui/next-update-017-header-cleanup"]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect header markers
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          for needle in ['DRIVELOAN PRO','CALCULATOR 1','COPY DETAILED COMPUTATION']:
+              print('\n===',needle,'===')
+              p=s.find(needle)
+              print('pos=',p)
+              if p>=0: print(s[max(0,p-1800):p+2200])
+          print('\n=== UI-016 markers ===')
+          for needle in ['UI-016-PREMIUM-THEME','UI-016-THEME-BINDER']:
+              print(needle, s.find(needle))
+          PY
