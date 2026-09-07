@@ -20,10 +20,18 @@ jobs:
           from pathlib import Path
           import re
           s=Path('index.html').read_text()
-          print('SIZE', len(s))
+          out=[]
+          out.append(f'SIZE {len(s)}')
           for term in ['Mitsubishi','Toyota','Brand','brand','Model','model','SRP','Unit Details','UNIT DETAILS','Vios','Fortuner','Hilux','Rush','input type="range"','Bank Interest Rate','Base DP','Dealer Incentive']:
               hits=[m.start() for m in re.finditer(re.escape(term), s, re.I)]
-              print('\nTERM', term, 'COUNT', len(hits))
-              for p in hits[:5]:
-                  print(s[max(0,p-500):min(len(s),p+1000)].replace('\\n',' ')[:1500])
+              out.append(f'\nTERM {term} COUNT {len(hits)}')
+              for p in hits[:8]:
+                  out.append(s[max(0,p-700):min(len(s),p+1400)].replace('\\n',' '))
+          Path('ui016v2-inspection.txt').write_text('\n'.join(out))
+          print('\n'.join(out))
           PY
+      - name: Upload inspection report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui016v2-inspection
+          path: ui016v2-inspection.txt
