@@ -1,0 +1,43 @@
+name: Meta UI Reference Test 2
+on:
+  push:
+    branches: [ui-016-meta-reference-test2]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply visual reference only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); s=p.read_text()
+          css='''<style id="META-UI-REFERENCE-TEST2">
+          html,body{background:#080e1a!important;color:#fff!important}body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+          div[style*="position:fixed"][style*="top:0px"]{position:relative!important;top:auto!important;left:auto!important;transform:none!important;width:100%!important;max-width:520px!important;margin:0 auto!important;z-index:10!important}
+          p.italic,.italic{font-style:normal!important}button{font-family:Inter,system-ui,sans-serif!important}
+          input,select{border-radius:20px!important}input[type=range]{height:6px!important;min-height:0!important;border-radius:999px!important;accent-color:#7aa8ff}input[type=range]::-webkit-slider-thumb{width:28px;height:28px;border-radius:50%;border:3px solid #fff;background:#7aa8ff;box-shadow:0 0 18px rgba(122,168,255,.55);-webkit-appearance:none}input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;border:3px solid #fff;background:#7aa8ff}
+          #meta-ui-scroll-status{position:fixed;right:4px;top:14vh;height:72vh;width:4px;background:#343a46;border-radius:999px;z-index:99999;pointer-events:none}#meta-ui-scroll-status-fill{position:absolute;left:0;top:0;width:100%;height:24px;background:#69717f;border-radius:999px}#meta-ui-scroll-status-dot{position:absolute;left:50%;top:0;width:8px;height:8px;border-radius:50%;background:#aeb5bf;transform:translate(-50%,-50%)}
+          </style>'''
+          js='''<script id="META-UI-REFERENCE-TEST2">(function(){function go(){if(document.getElementById("meta-ui-scroll-status"))return;var d=document.createElement("div");d.id="meta-ui-scroll-status";d.innerHTML="<div id=\\"meta-ui-scroll-status-fill\\"></div><div id=\\"meta-ui-scroll-status-dot\\"></div>";document.body.appendChild(d);var f=d.firstElementChild,dot=d.lastElementChild;function u(){var m=Math.max(1,document.documentElement.scrollHeight-innerHeight),p=Math.max(0,Math.min(1,scrollY/m)),t=Math.max(0,d.clientHeight-f.offsetHeight);f.style.transform="translateY("+(t*p)+"px)";dot.style.top=(t*p)+"px"}u();addEventListener("scroll",u,{passive:true});addEventListener("resize",u)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go()})();</script>'''
+          s=s.replace('</head>',css+'</head>',1).replace('</body>',js+'</body>',1);p.write_text(s)
+          PY
+      - name: Verify no demo-only additions
+        run: |
+          ! grep -q 'Toyota\|Honda\|Custom\|Vios XLE CVT' index.html
+          grep -q 'META-UI-REFERENCE-TEST2' index.html
+          node --check <(python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('index.html').read_text(); print(re.findall(r'<script id="META-UI-REFERENCE-TEST2">(.*?)</script>',s,re.S)[0])
+          PY
+          )
+      - name: Commit result and remove workflow
+        run: |
+          git config user.name 'Jude@Github2026'; git config user.email 'jude.dante@gmail.com'
+          rm .github/workflows/meta-ui-test2.yml
+          git add index.html .github/workflows/meta-ui-test2.yml
+          git commit -m 'test: apply Meta reference visual treatment'
+          git push
