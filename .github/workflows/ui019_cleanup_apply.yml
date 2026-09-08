@@ -59,7 +59,7 @@ jobs:
           git add index.html
           git add -u .github/workflows/ui019_cleanup_apply.yml
           git diff --cached --check
-          test "$(git diff --cached --name-only | wc -l)" -eq 1
-          test "$(git diff --cached --name-only)" = "index.html"
+          test "$(git diff --cached --name-only | grep -c '^index\.html$')" -eq 1
+          test "$(git diff --cached --name-only | grep -c '^\.github/workflows/ui019_cleanup_apply\.yml$')" -eq 1
           git commit -m "UI-019 cleanup: remove offline validity and section number icons"
           git push origin HEAD:future-update-point-ui018-2026-09-08
