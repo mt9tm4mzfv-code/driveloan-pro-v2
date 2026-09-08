@@ -15,14 +15,19 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
+env:
+  PREVIEW_GOLD_SHA: 0e0886556de584c4303529f7642727c94624d7bb
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
     steps:
       - name: Checkout exact GOLD
         uses: actions/checkout@v4
         with:
-          ref: 0e0886556de584c4303529f7642727c94624d7bb
+          ref: ${{ env.PREVIEW_GOLD_SHA }}
 
       - name: Inject visual-only preview layer
         shell: bash
