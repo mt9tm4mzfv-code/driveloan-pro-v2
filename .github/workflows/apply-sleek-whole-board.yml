@@ -1,0 +1,53 @@
+name: Apply sleek whole-board UI
+
+on:
+  push:
+    branches: [ui-sleek-whole-board-2026-09-08]
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ui-sleek-whole-board-2026-09-08
+          fetch-depth: 0
+      - name: Apply UI-only outer frame
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          if 'id="driveloan-sleek-whole-ui"' in s:
+              raise SystemExit('Sleek frame already present')
+          css = '''\n<style id="driveloan-sleek-whole-ui">\n/* DRIVELOAN-SLEEK-WHOLE-UI-V1: visual-only outer frame. */\n#root > div:first-child{\n  width:calc(100% - 24px)!important;\n  max-width:1100px!important;\n  margin:12px auto!important;\n  padding:14px!important;\n  border:1px solid #2f3d63!important;\n  border-radius:28px!important;\n  box-sizing:border-box!important;\n  overflow:hidden!important;\n}\n@media (max-width:640px){\n  #root > div:first-child{\n    width:calc(100% - 16px)!important;\n    margin:8px auto!important;\n    padding:10px!important;\n    border-radius:22px!important;\n  }\n}\n</style>\n'''
+          marker = '</head>'
+          if marker not in s:
+              raise SystemExit('Expected </head> not found')
+          p.write_text(s.replace(marker, css + marker, 1))
+          print('Applied sleek whole-board UI frame')
+          PY
+      - name: Validate and remove temporary workflow
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('index.html').read_text()
+          assert '<!DOCTYPE html>' in s
+          assert '</head>' in s and '</html>' in s
+          assert s.count('id="driveloan-sleek-whole-ui"') == 1
+          assert 'input[type=range]::-webkit-slider-thumb' in s
+          ring_tokens = ['width:30px','height:30px','border:4px solid #f6f8ff','box-shadow:0 0 0 3px rgba(134,170,247,.18)']
+          assert all(t in s for t in ring_tokens), 'Slider ring signature missing'
+          Path('.github/workflows/apply-sleek-whole-board.yml').unlink()
+          print('Validation passed; temporary workflow removed')
+          PY
+      - name: Commit UI-only change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/apply-sleek-whole-board.yml
+          git diff --cached --check
+          git commit -m "UI: add sleek thin frame around whole calculator UI"
+          git push origin HEAD:ui-sleek-whole-board-2026-09-08
