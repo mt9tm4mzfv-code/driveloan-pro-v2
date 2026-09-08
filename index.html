@@ -127,7 +127,17 @@ input[type=range]{accent-color:var(--dl-accent,#5aa8ff);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
   document.addEventListener('click',function(){setTimeout(apply,0);},{passive:true});document.addEventListener('input',apply,{passive:true});document.addEventListener('change',apply,{passive:true});
 })();
-</script></head>
+</script><style id="UI-020-COLOR-CODED-FIELD-LABELS">
+.dl-ui020-field-label{color:var(--dl-accent,#5aa8ff)!important;font-weight:700!important;-webkit-font-smoothing:antialiased!important;-moz-osx-font-smoothing:grayscale!important}
+</style>
+<script id="UI-020-COLOR-CODED-FIELD-LABELS-BINDER">
+(function(){
+  var labels=new Set(['VEHICLE VARIANT','UNIT SRP','OFFICIAL PROMO DP','PREMIUM COLOR? • SURCHARGE = ADD CASHOUT','COLOR NAME','PREMIUM AMOUNT','LOAN TERM','BANK INTEREST RATE (%)','BASE DOWN PAYMENT (%)',"DEALER'S INCENTIVE RATE (%)","CLIENT'S DESIRED DOWN PAYMENT AMOUNT","CLIENT'S DESIRED DOWN PAYMENT %",'DESIRED MONTHLY AMORTIZATION','REQUIRED DOWN PAYMENT','MONTHLY AMORTIZATION']);
+  function apply(){document.querySelectorAll('div').forEach(function(el){if(el.children.length!==0)return;var txt=(el.textContent||'').trim();if(!labels.has(txt))return;if(!el.className||String(el.className).indexOf('text-[10px]')===-1)return;el.classList.add('dl-ui020-field-label')})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+})();
+</script>
+</head>
 <body>
   <div id="root"></div>
   
