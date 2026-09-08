@@ -1,0 +1,65 @@
+name: UI-019 cleanup apply
+
+on:
+  push:
+    branches:
+      - future-update-point-ui018-2026-09-08
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout future branch
+        uses: actions/checkout@v4
+        with:
+          ref: future-update-point-ui018-2026-09-08
+          fetch-depth: 0
+
+      - name: Apply UI-019 cleanup only
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("index.html")
+          text = path.read_text(encoding="utf-8")
+
+          offline_start = 'y("div",{className:"mt-3 bg-[#131c31] border border-[#2a3655] rounded-[20px] p-4",children:'
+          offline_end = 'p("div",{className:"mt-4 bg-[#131c31] border border-[#2a3655] rounded-[20px] overflow-hidden"'
+          if text.count(offline_start) != 1:
+              raise SystemExit(f"Expected exactly 1 Offline Validity block, found {text.count(offline_start)}")
+          start = text.index(offline_start)
+          end = text.index(offline_end, start)
+          if end <= start:
+              raise SystemExit("Offline block boundaries invalid")
+          text = text[:start] + text[end:]
+
+          number_prefix = 'children:[p("div",{className:`w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-black shrink-0 ${Jf}`,children:e}),y("div",{className:"flex-1 min-w-0",children:['
+          if text.count(number_prefix) != 1:
+              raise SystemExit(f"Expected exactly 1 calculator section-number block, found {text.count(number_prefix)}")
+          text = text.replace(number_prefix, 'children:[y("div",{className:"flex-1 min-w-0",children:[', 1)
+
+          if "Offline Validity Update" in text:
+              raise SystemExit("Offline Validity Update still present")
+          if number_prefix in text:
+              raise SystemExit("Section number icon block still present")
+
+          path.write_text(text, encoding="utf-8")
+
+      - name: Remove temporary workflow
+        run: rm -f .github/workflows/ui019_cleanup_apply.yml
+
+      - name: Commit UI-019 cleanup
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git add -u .github/workflows/ui019_cleanup_apply.yml
+          git diff --cached --check
+          test "$(git diff --cached --name-only | wc -l)" -eq 1
+          test "$(git diff --cached --name-only)" = "index.html"
+          git commit -m "UI-019 cleanup: remove offline validity and section number icons"
+          git push origin HEAD:future-update-point-ui018-2026-09-08
