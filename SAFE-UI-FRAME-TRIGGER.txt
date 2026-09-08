@@ -1,0 +1,1 @@
+One-shot trigger for safe UI frame validation.
