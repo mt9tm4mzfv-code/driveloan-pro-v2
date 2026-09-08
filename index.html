@@ -151,15 +151,16 @@ input[type=range]{accent-color:var(--dl-accent,#5aa8ff);}
       el.style.background='linear-gradient(to right,'+a+' 0%,'+a+' '+pct+'%,#2b3446 '+pct+'%,#2b3446 100%)';
     });
     document.querySelectorAll('button').forEach(function(b){
-      var txt=(b.textContent||'').trim();
-      var p=b.parentElement;
+      var txt=(b.textContent||'').trim();var p=b.parentElement;
       if((txt==='ON'||txt==='OFF') && p && /PREMIUM COLOR SURCHARGE/i.test((p.parentElement||p).textContent||'')){if(txt==='ON')b.classList.add('dl-theme-control');else b.classList.remove('dl-theme-control');}
     });
   }
-  function apply(){theme();}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
-  new MutationObserver(apply).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-current','class','value']});
+  function apply(){try{theme();}catch(e){console.error('DriveLoan theme binder:',e);}}
+  function boot(){apply();setTimeout(apply,250);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  document.addEventListener('click',function(){setTimeout(apply,0);},{passive:true});
   document.addEventListener('input',apply,{passive:true});
+  document.addEventListener('change',apply,{passive:true});
 })();
 </script></head>
 <body>
