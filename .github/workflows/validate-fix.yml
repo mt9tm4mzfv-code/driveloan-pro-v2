@@ -1,0 +1,42 @@
+name: Validate blank-render fix
+on:
+  push:
+    branches: [fix-live-blank-20260908]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install browser
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install --with-deps chromium
+      - name: Render local candidate
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          node <<'NODE'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true});
+            page.on('console',m=>console.log('CONSOLE',m.type(),m.text()));
+            page.on('pageerror',e=>console.log('PAGEERROR',e.stack||e.message));
+            await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded',timeout:20000});
+            await page.waitForTimeout(1000);
+            const text=await page.locator('#root').innerText();
+            const children=await page.locator('#root > *').count();
+            console.log('ROOT_CHILDREN',children);
+            console.log('TEXT_HEAD',JSON.stringify(text.slice(0,500)));
+            if(children<1 || !text.includes('DRIVELOAN PRO')) process.exit(2);
+            await page.screenshot({path:'candidate.png',fullPage:true});
+            await browser.close();
+          })();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blank-render-fix-candidate
+          path: candidate.png
