@@ -1,0 +1,75 @@
+name: UI-020 label color-code deploy
+on:
+  push:
+    branches:
+      - future-update-point-ui020-2026-09-08
+permissions:
+  contents: write
+jobs:
+  apply-ui020:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply UI-020 label styling
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          marker = '</head>'
+          assert marker in s, 'head marker missing'
+          assert 'UI-020-COLOR-CODED-FIELD-LABELS' not in s, 'UI-020 already applied'
+          block = r'''<style id="UI-020-COLOR-CODED-FIELD-LABELS">
+/* UI-020: visual-only field-title clarity. Theme accent follows existing calculator theme variable. */
+.dl-ui020-field-label{
+  color:var(--dl-accent,#5aa8ff)!important;
+  font-weight:700!important;
+  -webkit-font-smoothing:antialiased!important;
+  -moz-osx-font-smoothing:grayscale!important;
+}
+</style>
+<script id="UI-020-COLOR-CODED-FIELD-LABELS-BINDER">
+(function(){
+  var labels=new Set([
+    'VEHICLE VARIANT',
+    'UNIT SRP',
+    'OFFICIAL PROMO DP',
+    'PREMIUM COLOR? • SURCHARGE = ADD CASHOUT',
+    'COLOR NAME',
+    'PREMIUM AMOUNT',
+    'LOAN TERM',
+    'BANK INTEREST RATE (%)',
+    'BASE DOWN PAYMENT (%)',
+    "DEALER'S INCENTIVE RATE (%)",
+    "CLIENT'S DESIRED DOWN PAYMENT AMOUNT",
+    "CLIENT'S DESIRED DOWN PAYMENT %",
+    'DESIRED MONTHLY AMORTIZATION',
+    'REQUIRED DOWN PAYMENT',
+    'MONTHLY AMORTIZATION'
+  ]);
+  function apply(){
+    try{
+      document.querySelectorAll('div').forEach(function(el){
+        if(el.children.length!==0)return;
+        var txt=(el.textContent||'').trim();
+        if(!labels.has(txt))return;
+        if(!el.className||String(el.className).indexOf('text-[10px]')===-1)return;
+        el.classList.add('dl-ui020-field-label');
+      });
+    }catch(e){console.error('DriveLoan UI-020 label binder:',e);}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+})();
+</script>
+'''
+          s = s.replace(marker, block + marker, 1)
+          p.write_text(s)
+          PY
+      - name: Commit and remove temporary workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'UI-020: color-code calculator field titles' || true
+          git rm .github/workflows/ui020-label-colorcodetemp.yml
+          git commit -m 'UI-020 cleanup: remove temporary workflow'
