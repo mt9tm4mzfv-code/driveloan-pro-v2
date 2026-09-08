@@ -1,1 +1,0 @@
-Final smoke validation passed on mobile viewport: render, three calculator themes, neutral frame, and calculation output.
