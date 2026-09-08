@@ -1,0 +1,80 @@
+name: Meta Redemption Preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact GOLD
+        uses: actions/checkout@v4
+        with:
+          ref: 0e0886556de584c4303529f7642727c94624d7bb
+
+      - name: Inject visual-only preview layer
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          marker='<!-- META-REDEMPTION-PREVIEW -->'
+          assert marker not in s
+          layer=r'''<!-- META-REDEMPTION-PREVIEW --><style id="META-REDEMPTION-UI">
+          :root{--mr-accent:#7AA8FF;--mr-track:#1b2a45;--mr-card:#111c30}
+          html,body{background:#080e1a!important}
+          body{font-family:Inter,system-ui,sans-serif!important;-webkit-font-smoothing:antialiased}
+          #root>div{background:linear-gradient(145deg,#080e1a 0%,#0f1c30 100%)!important}
+          h1,h2,h3{font-family:"Space Grotesk",Inter,sans-serif!important}
+          button{font-family:Inter,system-ui,sans-serif!important}
+          input[type=text],input[type=number],select{font-family:Inter,system-ui,sans-serif!important;font-weight:600!important;color:#fff!important}
+          input[type=range]{-webkit-appearance:none!important;appearance:none!important;height:4px!important;background:var(--mr-track)!important;border-radius:999px!important}
+          input[type=range]::-webkit-slider-runnable-track{height:4px!important;background:var(--mr-track)!important;border-radius:999px!important}
+          input[type=range]::-moz-range-track{height:4px!important;background:var(--mr-track)!important;border-radius:999px!important}
+          input[type=range]::-webkit-slider-thumb{-webkit-appearance:none!important;appearance:none!important;width:20px!important;height:20px!important;margin-top:-8px!important;background:#fff!important;border:3px solid var(--mr-accent)!important;border-radius:50%!important;box-shadow:0 2px 8px rgba(0,0,0,.45),0 0 0 2px #fff,0 0 12px rgba(122,168,255,.55)!important}
+          input[type=range]::-moz-range-thumb{width:20px!important;height:20px!important;background:#fff!important;border:3px solid var(--mr-accent)!important;border-radius:50%!important;box-shadow:0 2px 8px rgba(0,0,0,.45),0 0 0 2px #fff,0 0 12px rgba(122,168,255,.55)!important}
+          input[type=range]:focus{outline:none!important}
+          input[type=range]+div{background:#111c30!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:12px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important}
+          input[type=range]+div input,input[type=range]+div span{font-family:"JetBrains Mono",monospace!important;color:#fff!important}
+          p.text-\[12px\].mt-1{font-style:normal!important}
+          .fixed.top-0.z-50{position:relative!important;top:auto!important;left:auto!important;transform:none!important;width:calc(100% - 32px)!important;margin:12px auto 16px!important;z-index:10!important}
+          #meta-redemption-rail{position:fixed;right:7px;top:18%;height:64%;width:4px;background:#252a33;border-radius:999px;z-index:99999;pointer-events:none}
+          #meta-redemption-rail i{position:absolute;left:0;top:0;width:4px;height:18%;border-radius:999px;background:#5c626d;box-shadow:0 0 7px rgba(92,98,109,.45)}
+          </style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"><script>(function(){function boot(){var r=document.createElement('div');r.id='meta-redemption-rail';var i=document.createElement('i');r.appendChild(i);document.body.appendChild(r);function f(){var m=Math.max(1,document.documentElement.scrollHeight-innerHeight),p=Math.min(1,Math.max(0,scrollY/m));i.style.top=(82*p)+'%'}f();addEventListener('scroll',f,{passive:true});addEventListener('resize',f)}document.readyState==='loading'?document.addEventListener('DOMContentLoaded',boot):boot()})();</script>'''
+          s=s.replace('</head>',layer+'</head>',1)
+          p.write_text(s)
+          assert marker in s
+          assert 'META-REDEMPTION-UI' in s
+          assert 'meta-redemption-rail' in s
+          print('Preview layer injected:',len(s),'bytes')
+          PY
+
+      - name: Verify preview artifact before deployment
+        shell: bash
+        run: |
+          grep -q 'META-REDEMPTION-UI' index.html
+          grep -q 'meta-redemption-rail' index.html
+          ! grep -q 'Vios XLE CVT' index.html
+          ! grep -q 'Fortuner G' index.html
+          echo 'Verified: visual layer present; Toyota model additions absent.'
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy Pages preview
+        uses: actions/deploy-pages@v4
