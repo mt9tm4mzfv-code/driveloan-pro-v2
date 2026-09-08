@@ -3,6 +3,8 @@ name: Meta Redemption Preview
 on:
   push:
     branches: [main]
+    paths:
+      - '.github/workflows/meta-redemption-preview.yml'
 
 permissions:
   contents: read
@@ -15,7 +17,6 @@ concurrency:
 
 jobs:
   deploy:
-    if: startsWith(github.event.head_commit.message, 'test: run Meta redemption preview')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout exact GOLD
