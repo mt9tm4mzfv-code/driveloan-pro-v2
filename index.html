@@ -58,24 +58,12 @@ input[type=text],input[type=number],select{
 }
 button[style*="backgroundColor"]{font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;letter-spacing:.08em!important;}
 button[style*="backgroundColor"]:hover{filter:brightness(1.04);}
-#ui016-proof-rail{
-  position:fixed; right:7px; top:18vh; bottom:18vh; width:4px;
-  border-radius:999px; background:#252a33; opacity:.9; z-index:2147483000;
-  pointer-events:none; box-shadow:0 0 0 1px rgba(255,255,255,.03);
-}
-#ui016-proof-rail i{
-  position:absolute; left:0; top:0; width:4px; height:26%;
-  border-radius:999px; background:#6f747d;
-  box-shadow:0 0 8px rgba(111,116,125,.28);
-  transform:translateY(0); transition:transform .08s linear,height .08s linear;
-}
 </style>
 <script id="UI-016-FINAL-PROOF-BINDER">
 (function(){
   function rangePaint(el){var min=Number(el.min||0),max=Number(el.max||100),val=Number(el.value||0),pct=max===min?0:((val-min)/(max-min))*100;el.style.background='linear-gradient(to right,#86aaf7 0%,#86aaf7 '+pct+'%,#2b3446 '+pct+'%,#2b3446 100%)';}
   function bindRanges(){document.querySelectorAll('input[type="range"]').forEach(function(el){if(el.dataset.ui016RingBound)return;el.dataset.ui016RingBound='1';rangePaint(el);el.addEventListener('input',function(){rangePaint(el);},{passive:true});el.addEventListener('change',function(){rangePaint(el);},{passive:true});});}
-  function bindRail(){if(!document.body)return;var rail=document.getElementById('ui016-proof-rail');if(!rail){rail=document.createElement('div');rail.id='ui016-proof-rail';var marker=document.createElement('i');rail.appendChild(marker);document.body.appendChild(rail);}var marker=rail.firstElementChild;if(!marker)return;function update(){var d=document.documentElement,max=Math.max(1,d.scrollHeight-window.innerHeight),p=Math.max(0,Math.min(1,window.scrollY/max)),track=Math.max(20,rail.clientHeight),h=Math.max(24,Math.min(track,track*(window.innerHeight/d.scrollHeight)));marker.style.height=h+'px';marker.style.transform='translateY('+(p*(track-h))+'px)';}if(!rail.dataset.ui016RailBound){rail.dataset.ui016RailBound='1';window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);}update();}
-  function apply(){try{bindRanges();bindRail();document.querySelectorAll('[class*="text-[12px]"][class*="italic"]').forEach(function(el){el.style.fontStyle='normal';});}catch(e){console.error('DriveLoan proof binder:',e);}}
+  function apply(){try{bindRanges();document.querySelectorAll('[class*="text-[12px]"][class*="italic"]').forEach(function(el){el.style.fontStyle='normal';});}catch(e){console.error('DriveLoan proof binder:',e);}}
   function boot(){apply();setTimeout(apply,250);setTimeout(apply,1000);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
   new MutationObserver(function(){apply();}).observe(document.documentElement,{subtree:true,childList:true});
