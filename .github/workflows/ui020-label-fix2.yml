@@ -1,0 +1,22 @@
+name: UI-020 Label Fix 2
+on: [push]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply exact rendered-label binder
+        run: python3 -c "import base64; from pathlib import Path; p=Path('index.html'); s=p.read_text(encoding='utf-8'); old=base64.b64decode('ICBmdW5jdGlvbiBhcHBseSgpe2RvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJ2RpdixwLHNwYW4sbGFiZWwnKS5mb3JFYWNoKGZ1bmN0aW9uKGVsKXtpZihlbC5jaGlsZHJlbi5sZW5ndGghPT0wKXJldHVybjt2YXIgdHh0PShlbC50ZXh0Q29udGVudHx8JycpLnRyaW0oKTtpZighbGFiZWxzLmhhcyh0eHQpKXJldHVybjt2YXIgYz1TdHJpbmcoZWwuY2xhc3NOYW1lfHwnJyk7aWYoYy5pbmRleE9mKCd0ZXh0LVsxMHB4XScpPT09LTEmJmMuaW5kZXhPZigndGV4dC1bOXB4XScpPT09LTEpcmV0dXJuO2VsLmNsYXNzTGlzdC5hZGQoJ2RsLXVpMDIwLWZpZWxkLWxhYmVsJyl9KX0KICBmdW5jdGlvbiBib290KCl7YXBwbHkoKTt2YXIgbj0wLHRpbWVyPXNldEludGVydmFsKGZ1bmN0aW9uKCl7YXBwbHkoKTtpZigrK24+PTIwKWNsZWFySW50ZXJ2YWwodGltZXIpO30sMjUwKTt9').decode(); new=base64.b64decode('ICBmdW5jdGlvbiBhcHBseSgpe3ZhciBhY2NlbnQ9Z2V0Q29tcHV0ZWRTdHlsZShkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQpLmdldFByb3BlcnR5VmFsdWUoJy0tZGwtYWNjZW50JykudHJpbSgpfHwnIzVhYThmZic7ZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnI3Jvb3QgKicpLmZvckVhY2goZnVuY3Rpb24oZWwpe3ZhciB0eHQ9KGVsLnRleHRDb250ZW50fHwnJykudHJpbSgpO2lmKCFsYWJlbHMuaGFzKHR4dCkpcmV0dXJuO2VsLmNsYXNzTGlzdC5hZGQoJ2RsLXVpMDIwLWZpZWxkLWxhYmVsJyk7ZWwuc3R5bGUuc2V0UHJvcGVydHkoJ2NvbG9yJyxhY2NlbnQsJ2ltcG9ydGFudCcpO2VsLnN0eWxlLnNldFByb3BlcnR5KCdmb250LXdlaWdodCcsJzcwMCcsJ2ltcG9ydGFudCcpO2VsLnN0eWxlLnNldFByb3BlcnR5KCctd2Via2l0LWZvbnQtc21vb3RoaW5nJywnYW50aWFsaWFzZWQnLCdpbXBvcnRhbnQnKTtlbC5zdHlsZS5zZXRQcm9wZXJ0eSgnLW1vei1vc3gtZm9udC1zbW9vdGhpbmcnLCdncmF5c2NhbGUnLCdpbXBvcnRhbnQnKX0pfQogIGZ1bmN0aW9uIGJvb3QoKXthcHBseSgpO3ZhciBuPTAsdGltZXI9c2V0SW50ZXJ2YWwoZnVuY3Rpb24oKXthcHBseSgpO2lmKCsrbj49NDApY2xlYXJJbnRlcnZhbCh0aW1lcik7fSwyNTApO30=').decode(); assert old in s, 'Expected UI-020 binder not found; aborting safely.'; p.write_text(s.replace(old,new,1),encoding='utf-8')"
+      - name: Commit fix and clean temporary workflow
+        run: |
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'UI-020 fix: target exact rendered field labels'
+          git rm .github/workflows/ui020-label-fix2.yml
+          git rm UI020-FIX2-TRIGGER.txt || true
+          git commit -m 'chore: remove temporary UI-020 fix workflow'
+          git push
