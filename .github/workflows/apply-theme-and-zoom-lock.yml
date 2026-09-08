@@ -1,0 +1,79 @@
+name: Apply calculator theme colors and mobile zoom lock
+on:
+  push:
+    branches: [ui-sleek-whole-board-2026-09-08]
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ui-sleek-whole-board-2026-09-08
+          fetch-depth: 0
+      - name: Apply UI-only layer
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text()
+          meta='<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">'
+          s=re.sub(r'<meta name="viewport"[^>]*>',meta,s,count=1)
+          layer=r'''<style id="DRIVELOAN-THEME-ZOOM-LOCK-V1">
+          /* UI-only: calculator theme accents + mobile zoom lock. No formulas or handlers changed. */
+          html,body{touch-action:pan-y;overscroll-behavior-x:none;}
+          body{overflow-x:hidden;}
+          input[type=text],input[type=number],select,textarea{font-size:16px!important;}
+          input[type=range]{accent-color:var(--dl-accent,#5aa8ff);}
+          .dl-theme-control{background:var(--dl-accent,#5aa8ff)!important;border-color:var(--dl-accent,#5aa8ff)!important;box-shadow:0 0 16px var(--dl-glow,rgba(90,168,255,.35))!important;}
+          .dl-theme-slider::-webkit-slider-thumb{background:var(--dl-accent,#5aa8ff)!important;border-color:#f6f8ff!important;box-shadow:0 0 0 3px var(--dl-soft,rgba(90,168,255,.18)),0 0 18px var(--dl-glow,rgba(90,168,255,.55))!important;}
+          .dl-theme-slider::-moz-range-thumb{background:var(--dl-accent,#5aa8ff)!important;border-color:#f6f8ff!important;box-shadow:0 0 0 3px var(--dl-soft,rgba(90,168,255,.18)),0 0 18px var(--dl-glow,rgba(90,168,255,.55))!important;}
+          </style>
+          <script id="DRIVELOAN-THEME-ZOOM-BINDER">
+          (function(){
+            function theme(){
+              var t='';
+              document.querySelectorAll('button').forEach(function(b){if((b.textContent||'').trim().match(/^CALC-0[123]$/)&&b.getAttribute('aria-current')==='true')t=(b.textContent||'').trim();});
+              if(!t){document.querySelectorAll('button').forEach(function(b){if((b.textContent||'').trim()==='CALC-01'&&b.className.includes('bg-'))t='CALC-01';if((b.textContent||'').trim()==='CALC-02'&&b.className.includes('bg-'))t='CALC-02';if((b.textContent||'').trim()==='CALC-03'&&b.className.includes('bg-'))t='CALC-03';});}
+              var a=t==='CALC-01'?'#4ade80':t==='CALC-03'?'#f59e0b':'#5aa8ff';
+              var g=t==='CALC-01'?'rgba(74,222,128,.55)':t==='CALC-03'?'rgba(245,158,11,.55)':'rgba(90,168,255,.55)';
+              var so=t==='CALC-01'?'rgba(74,222,128,.18)':t==='CALC-03'?'rgba(245,158,11,.18)':'rgba(90,168,255,.18)';
+              document.documentElement.style.setProperty('--dl-accent',a);document.documentElement.style.setProperty('--dl-glow',g);document.documentElement.style.setProperty('--dl-soft',so);
+              document.querySelectorAll('input[type="range"]').forEach(function(el){
+                el.classList.add('dl-theme-slider');
+                var min=Number(el.min||0),max=Number(el.max||100),val=Number(el.value||0),pct=max===min?0:((val-min)/(max-min))*100;
+                el.style.background='linear-gradient(to right,'+a+' 0%,'+a+' '+pct+'%,#2b3446 '+pct+'%,#2b3446 100%)';
+              });
+              document.querySelectorAll('button').forEach(function(b){
+                var txt=(b.textContent||'').trim();
+                var p=b.parentElement;
+                if((txt==='ON'||txt==='OFF') && p && /PREMIUM COLOR SURCHARGE/i.test((p.parentElement||p).textContent||'')){if(txt==='ON')b.classList.add('dl-theme-control');else b.classList.remove('dl-theme-control');}
+              });
+            }
+            function apply(){theme();}
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+            new MutationObserver(apply).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-current','class','value']});
+            document.addEventListener('input',apply,{passive:true});
+          })();
+          </script>'''
+          s=s.replace('</head>',layer+'</head>',1)
+          p.write_text(s)
+          PY
+      - name: Validate and finalize
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          assert s.count('<html')==1 and s.count('</html>')==1
+          assert 'maximum-scale=1' in s and 'user-scalable=no' in s
+          assert 'DRIVELOAN-THEME-ZOOM-LOCK-V1' in s
+          print('UI validation passed')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .github/workflows/apply-theme-and-zoom-lock.yml
+          git add index.html .github/workflows/apply-theme-and-zoom-lock.yml
+          git commit -m "UI: calculator color themes and mobile zoom lock"
+          git push origin HEAD:ui-sleek-whole-board-2026-09-08
