@@ -1,0 +1,64 @@
+name: UI-017 Cleanup Remove Inner Scrollbar
+
+on:
+  push:
+    branches: [future-update-point-ui017-cleanup-2026-09-08]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: future-update-point-ui017-cleanup-2026-09-08
+          fetch-depth: 0
+
+      - name: Remove synthetic inner scrollbar only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          s = p.read_text()
+
+          # Remove only the synthetic UI-016 proof rail CSS.
+          rail_css = re.compile(
+              r'\n#ui016-proof-rail\{.*?\n\}\n#ui016-proof-rail i\{.*?\n\}\n',
+              re.S,
+          )
+          s2, css_count = rail_css.subn('\n', s, count=1)
+          if css_count != 1:
+              raise SystemExit(f'Expected exactly 1 synthetic rail CSS block, found {css_count}')
+
+          # Remove only the rail-binding function and its invocation; preserve range styling.
+          rail_fn = re.compile(
+              r'\n  function bindRail\(\)\{.*?\n  \}\n  function apply\(\)\{try\{bindRanges\(\);bindRail\(\);',
+              re.S,
+          )
+          s3, fn_count = rail_fn.subn(
+              '\n  function apply(){try{bindRanges();',
+              s2,
+              count=1,
+          )
+          if fn_count != 1:
+              raise SystemExit(f'Expected exactly 1 rail binder block, found {fn_count}')
+
+          # Confirm the synthetic rail is completely absent and no calculator logic was changed.
+          if 'ui016-proof-rail' in s3 or 'function bindRail' in s3:
+              raise SystemExit('Synthetic rail code still present after cleanup')
+
+          p.write_text(s3)
+          print('UI-017 cleanup applied: removed inner synthetic scrollbar only')
+          PY
+
+      - name: Commit cleanup and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .github/workflows/ui017_cleanup_scrollbar.yml
+          git add index.html .github/workflows/ui017_cleanup_scrollbar.yml
+          git commit -m "UI-017 cleanup: remove inner scrollbar"
+          git push origin HEAD:future-update-point-ui017-cleanup-2026-09-08
