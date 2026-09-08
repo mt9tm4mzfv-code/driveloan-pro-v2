@@ -1,0 +1,118 @@
+name: Apply render fix v3
+on:
+  push:
+    branches: [fix-live-render-v3-20260908]
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch UI-only render binders
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text()
+          proof_pat=r'<script id="UI-016-FINAL-PROOF-BINDER">.*?</script>'
+          proof='''<script id="UI-016-FINAL-PROOF-BINDER">
+          (function(){
+            function rangePaint(el){
+              var min=Number(el.min||0),max=Number(el.max||100),val=Number(el.value||0);
+              var pct=max===min?0:((val-min)/(max-min))*100;
+              var accent='#86aaf7';
+              el.style.background='linear-gradient(to right,'+accent+' 0%,'+accent+' '+pct+'%,#2b3446 '+pct+'%,#2b3446 100%)';
+            }
+            function bindRanges(){
+              document.querySelectorAll('input[type="range"]').forEach(function(el){
+                if(el.dataset.ui016RingBound)return;
+                el.dataset.ui016RingBound='1';
+                rangePaint(el);
+                el.addEventListener('input',function(){rangePaint(el);},{passive:true});
+                el.addEventListener('change',function(){rangePaint(el);},{passive:true});
+              });
+            }
+            function bindRail(){
+              if(!document.body)return;
+              var rail=document.getElementById('ui016-proof-rail');
+              if(!rail){rail=document.createElement('div');rail.id='ui016-proof-rail';var marker=document.createElement('i');rail.appendChild(marker);document.body.appendChild(rail);}
+              var marker=rail.firstElementChild;
+              function update(){
+                var d=document.documentElement,max=Math.max(1,d.scrollHeight-window.innerHeight),p=Math.max(0,Math.min(1,window.scrollY/max));
+                var track=Math.max(20,rail.clientHeight),h=Math.max(24,Math.min(track,track*(window.innerHeight/d.scrollHeight)));
+                marker.style.height=h+'px';marker.style.transform='translateY('+(p*(track-h))+'px)';
+              }
+              if(!rail.dataset.ui016RailBound){rail.dataset.ui016RailBound='1';window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);}
+              update();
+            }
+            function apply(){
+              try{
+                bindRanges();bindRail();
+                document.querySelectorAll('[class*="text-[12px]"][class*="italic"]').forEach(function(el){el.style.fontStyle='normal';});
+              }catch(e){console.error('DriveLoan proof binder:',e);}
+            }
+            function boot(){apply();setTimeout(apply,250);setTimeout(apply,1000);}
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+            new MutationObserver(function(){apply();}).observe(document.documentElement,{subtree:true,childList:true});
+          })();
+          </script>'''
+          s,n=re.subn(proof_pat,proof,s,count=1,flags=re.S)
+          if n!=1: raise SystemExit('proof binder not found exactly once')
+          theme_pat=r'<script id="DRIVELOAN-THEME-ZOOM-BINDER">.*?</script>'
+          theme='''<script id="DRIVELOAN-THEME-ZOOM-BINDER">
+          (function(){
+            function theme(){
+              var t='';
+              document.querySelectorAll('button').forEach(function(b){
+                var txt=(b.textContent||'').trim();
+                if(!/^CALC-0[123]$/.test(txt))return;
+                var active=b.getAttribute('aria-current')==='true'||b.getAttribute('aria-pressed')==='true'||b.getAttribute('data-state')==='active';
+                var bg=getComputedStyle(b).backgroundColor;
+                if(active||bg==='rgb(126, 224, 160)'||bg==='rgb(134, 239, 172)'||bg==='rgb(90, 168, 255)'||bg==='rgb(245, 158, 11)')t=txt;
+              });
+              if(!t)t='CALC-01';
+              var a=t==='CALC-01'?'#4ade80':t==='CALC-03'?'#f59e0b':'#5aa8ff';
+              var g=t==='CALC-01'?'rgba(74,222,128,.55)':t==='CALC-03'?'rgba(245,158,11,.55)':'rgba(90,168,255,.55)';
+              var so=t==='CALC-01'?'rgba(74,222,128,.18)':t==='CALC-03'?'rgba(245,158,11,.18)':'rgba(90,168,255,.18)';
+              document.documentElement.style.setProperty('--dl-accent',a);document.documentElement.style.setProperty('--dl-glow',g);document.documentElement.style.setProperty('--dl-soft',so);
+              document.querySelectorAll('input[type="range"]').forEach(function(el){
+                el.classList.add('dl-theme-slider');
+                var min=Number(el.min||0),max=Number(el.max||100),val=Number(el.value||0),pct=max===min?0:((val-min)/(max-min))*100;
+                el.style.background='linear-gradient(to right,'+a+' 0%,'+a+' '+pct+'%,#2b3446 '+pct+'%,#2b3446 100%)';
+              });
+              document.querySelectorAll('button').forEach(function(b){
+                var txt=(b.textContent||'').trim(),p=b.parentElement;
+                if((txt==='ON'||txt==='OFF')&&p&&/PREMIUM COLOR SURCHARGE|PREMIUM COLOR/i.test((p.parentElement||p).textContent||'')){
+                  if(txt==='ON')b.classList.add('dl-theme-control');else b.classList.remove('dl-theme-control');
+                }
+              });
+            }
+            function apply(){try{theme();}catch(e){console.error('DriveLoan theme binder:',e);}}
+            function boot(){apply();var n=0,timer=setInterval(function(){apply();if(++n>=20)clearInterval(timer);},250);}
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+            document.addEventListener('click',function(){setTimeout(apply,0);},{passive:true});
+            document.addEventListener('input',apply,{passive:true});
+            document.addEventListener('change',apply,{passive:true});
+          })();
+          </script>'''
+          s,n=re.subn(theme_pat,theme,s,count=1,flags=re.S)
+          if n!=1: raise SystemExit('theme binder not found exactly once')
+          old='style:{borderLeftWidth:6,borderLeftColor:Zf,borderRightWidth:6,borderRightColor:Zf,borderTopWidth:6,borderTopColor:Zf,borderBottomWidth:6,borderBottomColor:Zf}'
+          new='style:{borderWidth:1,borderColor:"#2a3655"}'
+          if old not in s: raise SystemExit('calculator frame style not found')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          print('render fix v3 patched')
+          PY
+      - name: Remove workflow and commit
+        run: |
+          git config user.name 'Jude@Github2026'
+          git config user.email 'jude.dante@gmail.com'
+          git add index.html
+          git commit -m 'FIX: harden UI proof binder and stabilize themes'
+          rm -f .github/workflows/apply-render-fix-v3.yml
+          git add .github/workflows/apply-render-fix-v3.yml
+          git commit -m 'chore: remove temporary render fix workflow'
+          git push origin HEAD:fix-live-render-v3-20260908
