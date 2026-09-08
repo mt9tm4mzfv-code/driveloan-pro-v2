@@ -127,7 +127,71 @@ input[type=range]{accent-color:var(--dl-accent,#5aa8ff);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
   document.addEventListener('click',function(){setTimeout(apply,0);},{passive:true});document.addEventListener('input',apply,{passive:true});document.addEventListener('change',apply,{passive:true});
 })();
-</script></head>
+</script><style id="DRIVELOAN-UI020-LABEL-FIX-V1">
+/* UI-020: theme-colored, sharper calculator field/title labels only. */
+.dl-ui020-label{
+  opacity:1!important;
+  filter:none!important;
+  font-weight:700!important;
+  -webkit-font-smoothing:antialiased!important;
+  -moz-osx-font-smoothing:grayscale!important;
+}
+</style>
+<script id="DRIVELOAN-UI020-LABEL-FIX-BINDER">
+(function(){
+  var LABELS=new Set([
+    'VEHICLE VARIANT','UNIT SRP','OFFICIAL PROMO DP',
+    'PREMIUM COLOR? • SURCHARGE = ADD CASHOUT','LOAN TERM',
+    'BANK INTEREST RATE (%)','BASE DOWN PAYMENT (%)',
+    "DEALER'S INCENTIVE RATE (%)",
+    "CLIENT'S DESIRED DOWN PAYMENT AMOUNT",
+    "CLIENT'S DESIRED DOWN PAYMENT %",
+    'DESIRED MONTHLY AMORTIZATION','REQUIRED DOWN PAYMENT',
+    'MONTHLY AMORTIZATION'
+  ]);
+  function activeCalc(){
+    var found=1;
+    document.querySelectorAll('button').forEach(function(b){
+      var t=(b.textContent||'').trim();
+      if(t!=='1'&&t!=='2'&&t!=='3')return;
+      var c=String(b.className||'');
+      if(c.indexOf('bg-[#7ee0a0]')!==-1)found=1;
+      else if(c.indexOf('bg-[#5aa8ff]')!==-1)found=2;
+      else if(c.indexOf('bg-[#f59e0b]')!==-1)found=3;
+    });
+    return found;
+  }
+  function paint(){
+    var n=activeCalc();
+    var color=n===1?'#7ee0a0':n===2?'#5aa8ff':'#f59e0b';
+    document.querySelectorAll('#root *').forEach(function(el){
+      var text=(el.textContent||'').trim();
+      if(!LABELS.has(text))return;
+      if(el.children.length!==0)return;
+      el.classList.add('dl-ui020-label');
+      el.style.setProperty('color',color,'important');
+      el.style.setProperty('font-weight','700','important');
+      el.style.setProperty('opacity','1','important');
+      el.style.setProperty('filter','none','important');
+    });
+  }
+  function boot(){
+    paint();
+    setTimeout(paint,0);
+    setTimeout(paint,100);
+    setTimeout(paint,300);
+    setTimeout(paint,800);
+    setTimeout(paint,1500);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  document.addEventListener('click',function(){setTimeout(paint,0);setTimeout(paint,80);},{passive:true});
+  document.addEventListener('change',function(){setTimeout(paint,0);},{passive:true});
+  document.addEventListener('input',function(){setTimeout(paint,0);},{passive:true});
+  new MutationObserver(function(){paint();}).observe(document.documentElement,{subtree:true,childList:true});
+})();
+</script>
+
+</head>
 <body>
   <div id="root"></div>
   
