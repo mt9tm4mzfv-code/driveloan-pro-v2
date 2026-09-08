@@ -33,9 +33,9 @@ jobs:
           if css_count != 1:
               raise SystemExit(f'Expected exactly 1 synthetic rail CSS block, found {css_count}')
 
-          # Remove only the rail-binding function and its invocation; preserve range styling.
+          # Remove only the synthetic rail binder and its invocation.
           rail_fn = re.compile(
-              r'\n  function bindRail\(\)\{.*?\n  \}\n  function apply\(\)\{try\{bindRanges\(\);bindRail\(\);',
+              r'\s*function bindRail\(\)\{.*?\}\s*function apply\(\)\{try\{bindRanges\(\);bindRail\(\);',
               re.S,
           )
           s3, fn_count = rail_fn.subn(
@@ -46,7 +46,7 @@ jobs:
           if fn_count != 1:
               raise SystemExit(f'Expected exactly 1 rail binder block, found {fn_count}')
 
-          # Confirm the synthetic rail is completely absent and no calculator logic was changed.
+          # Confirm the synthetic rail is completely absent.
           if 'ui016-proof-rail' in s3 or 'function bindRail' in s3:
               raise SystemExit('Synthetic rail code still present after cleanup')
 
