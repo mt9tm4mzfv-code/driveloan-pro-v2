@@ -1,0 +1,52 @@
+name: Validate render fix v3
+on:
+  push:
+    branches: [fix-live-render-v3-20260908]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install browser
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install --with-deps chromium
+      - name: Render and functional smoke test
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          node <<'NODE'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true});
+            const errors=[];
+            page.on('pageerror',e=>{errors.push(e.message);console.log('PAGEERROR',e.message);});
+            await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded',timeout:20000});
+            await page.waitForTimeout(1800);
+            const rootText=await page.locator('#root').innerText();
+            const sliders=await page.locator('input[type="range"]').count();
+            const accent1=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--dl-accent').trim());
+            const card=await page.locator('#root > div:first-child > div.mt-4').evaluate(el=>{const c=getComputedStyle(el);return {width:c.borderLeftWidth,color:c.borderLeftColor};});
+            const monthly1=rootText.includes('28,896.00');
+            if(sliders!==3||!rootText.includes('DRIVELOAN PRO')||accent1!=='#4ade80'||card.width!=='1px'||!monthly1) throw new Error('CALC-01 validation failed');
+            await page.getByRole('button',{name:'2',exact:true}).click();
+            await page.waitForTimeout(300);
+            const accent2=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--dl-accent').trim());
+            if(accent2!=='#5aa8ff') throw new Error('CALC-02 theme failed');
+            await page.getByRole('button',{name:'3',exact:true}).click();
+            await page.waitForTimeout(300);
+            const accent3=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--dl-accent').trim());
+            if(accent3!=='#f59e0b') throw new Error('CALC-03 theme failed');
+            if(errors.length) throw new Error('PAGEERRORS: '+errors.join(' | '));
+            await page.screenshot({path:'render-v3-candidate.png',fullPage:true});
+            await browser.close();
+          })();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: render-v3-candidate
+          path: render-v3-candidate.png
