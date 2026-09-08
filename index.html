@@ -133,8 +133,9 @@ input[type=range]{accent-color:var(--dl-accent,#5aa8ff);}
 <script id="UI-020-COLOR-CODED-FIELD-LABELS-BINDER">
 (function(){
   var labels=new Set(['VEHICLE VARIANT','UNIT SRP','OFFICIAL PROMO DP','PREMIUM COLOR? • SURCHARGE = ADD CASHOUT','COLOR NAME','PREMIUM AMOUNT','LOAN TERM','BANK INTEREST RATE (%)','BASE DOWN PAYMENT (%)',"DEALER'S INCENTIVE RATE (%)","CLIENT'S DESIRED DOWN PAYMENT AMOUNT","CLIENT'S DESIRED DOWN PAYMENT %",'DESIRED MONTHLY AMORTIZATION','REQUIRED DOWN PAYMENT','MONTHLY AMORTIZATION']);
-  function apply(){document.querySelectorAll('div').forEach(function(el){if(el.children.length!==0)return;var txt=(el.textContent||'').trim();if(!labels.has(txt))return;if(!el.className||String(el.className).indexOf('text-[10px]')===-1)return;el.classList.add('dl-ui020-field-label')})}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+  function apply(){document.querySelectorAll('div,p,span,label').forEach(function(el){if(el.children.length!==0)return;var txt=(el.textContent||'').trim();if(!labels.has(txt))return;var c=String(el.className||'');if(c.indexOf('text-[10px]')===-1&&c.indexOf('text-[9px]')===-1)return;el.classList.add('dl-ui020-field-label')})}
+  function boot(){apply();var n=0,timer=setInterval(function(){apply();if(++n>=20)clearInterval(timer);},250);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
 </head>
