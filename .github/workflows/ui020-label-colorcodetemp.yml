@@ -1,8 +1,7 @@
 name: UI-020 label color-code deploy
 on:
-  push:
-    branches:
-      - future-update-point-ui020-2026-09-08
+  pull_request:
+    types: [opened, synchronize]
 permissions:
   contents: write
 jobs:
@@ -73,4 +72,3 @@ jobs:
           git commit -m 'UI-020: color-code calculator field titles' || true
           git rm .github/workflows/ui020-label-colorcodetemp.yml
           git commit -m 'UI-020 cleanup: remove temporary workflow'
-          # UI-020 trigger touch to ensure the workflow runs on the branch push.
