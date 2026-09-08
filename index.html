@@ -115,7 +115,25 @@ input[type=range]{accent-color:var(--dl-accent,#5aa8ff);}
 </style>
 <script id="DRIVELOAN-THEME-ZOOM-BINDER">
 (function(){
-  function theme(){var t='';document.querySelectorAll('button').forEach(function(b){var txt=(b.textContent||'').trim();if(!/^CALC-0[123]$/.test(txt))return;var active=b.getAttribute('aria-current')==='true'||b.getAttribute('aria-pressed')==='true'||b.getAttribute('data-state')==='active';var bg=getComputedStyle(b).backgroundColor;if(active||bg==='rgb(126, 224, 160)'||bg==='rgb(134, 239, 172)'||bg==='rgb(90, 168, 255)'||bg==='rgb(245, 158, 11)')t=txt;});if(!t)t='CALC-01';var a=t==='CALC-01'?'#4ade80':t==='CALC-03'?'#f59e0b':'#5aa8ff',g=t==='CALC-01'?'rgba(74,222,128,.55)':t==='CALC-03'?'rgba(245,158,11,.55)':'rgba(90,168,255,.55)',so=t==='CALC-01'?'rgba(74,222,128,.18)':t==='CALC-03'?'rgba(245,158,11,.18)':'rgba(90,168,255,.18)';document.documentElement.style.setProperty('--dl-accent',a);document.documentElement.style.setProperty('--dl-glow',g);document.documentElement.style.setProperty('--dl-soft',so);document.querySelectorAll('input[type="range"]').forEach(function(el){el.classList.add('dl-theme-slider');var min=Number(el.min||0),max=Number(el.max||100),val=Number(el.value||0),pct=max===min?0:((val-min)/(max-min))*100;el.style.background='linear-gradient(to right,'+a+' 0%,'+a+' '+pct+'%,#2b3446 '+pct+'%,#2b3446 100%)';});document.querySelectorAll('button').forEach(function(b){var txt=(b.textContent||'').trim(),p=b.parentElement;if((txt==='ON'||txt==='OFF')&&p&&/PREMIUM COLOR SURCHARGE|PREMIUM COLOR/i.test((p.parentElement||p).textContent||'')){if(txt==='ON')b.classList.add('dl-theme-control');else b.classList.remove('dl-theme-control');}});}
+  function theme(){
+    var t='',best=-1;
+    document.querySelectorAll('button').forEach(function(b){
+      var txt=(b.textContent||'').trim();
+      if(!/^[123]$/.test(txt))return;
+      var bg=getComputedStyle(b).backgroundColor;
+      var m=bg.match(/rgba?\(([0-9]+),\s*([0-9]+),\s*([0-9]+)/);
+      var lum=m?(Number(m[1])*299+Number(m[2])*587+Number(m[3])*114)/1000:0;
+      var active=b.getAttribute('aria-current')==='true'||b.getAttribute('aria-pressed')==='true'||b.getAttribute('data-state')==='active';
+      if(active||lum>best){best=lum;t=txt;}
+    });
+    if(!t)t='1';
+    var a=t==='1'?'#4ade80':t==='3'?'#f59e0b':'#5aa8ff';
+    var g=t==='1'?'rgba(74,222,128,.55)':t==='3'?'rgba(245,158,11,.55)':'rgba(90,168,255,.55)';
+    var so=t==='1'?'rgba(74,222,128,.18)':t==='3'?'rgba(245,158,11,.18)':'rgba(90,168,255,.18)';
+    document.documentElement.style.setProperty('--dl-accent',a);document.documentElement.style.setProperty('--dl-glow',g);document.documentElement.style.setProperty('--dl-soft',so);
+    document.querySelectorAll('input[type="range"]').forEach(function(el){el.classList.add('dl-theme-slider');var min=Number(el.min||0),max=Number(el.max||100),val=Number(el.value||0),pct=max===min?0:((val-min)/(max-min))*100;el.style.background='linear-gradient(to right,'+a+' 0%,'+a+' '+pct+'%,#2b3446 '+pct+'%,#2b3446 100%)';});
+    document.querySelectorAll('button').forEach(function(b){var txt=(b.textContent||'').trim(),p=b.parentElement;if((txt==='ON'||txt==='OFF')&&p&&/PREMIUM COLOR SURCHARGE|PREMIUM COLOR/i.test((p.parentElement||p).textContent||'')){if(txt==='ON')b.classList.add('dl-theme-control');else b.classList.remove('dl-theme-control');}});
+  }
   function apply(){try{theme();}catch(e){console.error('DriveLoan theme binder:',e);}}
   function boot(){apply();var n=0,timer=setInterval(function(){apply();if(++n>=20)clearInterval(timer);},250);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
