@@ -1,0 +1,43 @@
+name: Debug live render
+on:
+  push:
+    branches: [debug-live-blank-20260908]
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install --with-deps chromium
+      - name: Probe live site
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true});
+            page.on('console',m=>console.log('CONSOLE',m.type(),m.text()));
+            page.on('pageerror',e=>console.log('PAGEERROR',e.stack||e.message));
+            page.on('requestfailed',r=>console.log('REQUESTFAILED',r.url(),r.failure()?.errorText));
+            const resp=await page.goto('https://mt9tm4mzfv-code.github.io/driveloan-pro-v2/',{waitUntil:'networkidle',timeout:60000});
+            console.log('STATUS',resp?.status());
+            console.log('URL',page.url());
+            console.log('TITLE',await page.title());
+            console.log('ROOT_HTML_LENGTH',await page.locator('#root').innerHTML().then(x=>x.length).catch(()=>-1));
+            console.log('ROOT_TEXT',JSON.stringify((await page.locator('#root').innerText().catch(()=>'' )).slice(0,1000)));
+            console.log('BODY_BG',await page.evaluate(()=>getComputedStyle(document.body).backgroundColor));
+            console.log('ROOT_CHILDREN',await page.locator('#root > *').count().catch(()=>-1));
+            await page.screenshot({path:'live.png',fullPage:true});
+            await browser.close();
+          })();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: live-render-debug
+          path: live.png
