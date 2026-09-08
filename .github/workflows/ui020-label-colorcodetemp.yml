@@ -73,3 +73,4 @@ jobs:
           git commit -m 'UI-020: color-code calculator field titles' || true
           git rm .github/workflows/ui020-label-colorcodetemp.yml
           git commit -m 'UI-020 cleanup: remove temporary workflow'
+          # UI-020 trigger touch to ensure the workflow runs on the branch push.
