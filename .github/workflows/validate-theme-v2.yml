@@ -1,0 +1,50 @@
+name: Validate theme render v2
+on:
+  push:
+    branches: [fix-theme-render-v2-20260908]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install browser
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install --with-deps chromium
+      - name: Render and inspect candidate
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          node <<'NODE'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true});
+            page.on('console',m=>console.log('CONSOLE',m.type(),m.text()));
+            page.on('pageerror',e=>console.log('PAGEERROR',e.stack||e.message));
+            await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded',timeout:20000});
+            await page.waitForTimeout(1500);
+            const text=await page.locator('#root').innerText();
+            const rootChildren=await page.locator('#root > *').count();
+            const sliders=await page.locator('input[type="range"]').count();
+            const accent=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--dl-accent').trim());
+            const backgrounds=await page.locator('button').evaluateAll(bs=>bs.filter(b=>/^CALC-0[123]$/.test((b.textContent||'').trim())).map(b=>({text:b.textContent.trim(),bg:getComputedStyle(b).backgroundColor})));
+            const cardBorder=await page.locator('#root > div:first-child > div.mt-4').evaluate(el=>({left:getComputedStyle(el).borderLeftColor,width:getComputedStyle(el).borderLeftWidth,top:getComputedStyle(el).borderTopColor}));
+            console.log('ROOT_CHILDREN',rootChildren);
+            console.log('SLIDERS',sliders);
+            console.log('ACCENT',accent);
+            console.log('CALC_BUTTONS',JSON.stringify(backgrounds));
+            console.log('CARD_BORDER',JSON.stringify(cardBorder));
+            console.log('TEXT_OK',text.includes('DRIVELOAN PRO'));
+            if(rootChildren<1 || sliders!==3 || !text.includes('DRIVELOAN PRO') || accent!=='#4ade80' || cardBorder.width!=='1px') process.exit(2);
+            await page.screenshot({path:'theme-v2-candidate.png',fullPage:true});
+            await browser.close();
+          })();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: theme-v2-candidate
+          path: theme-v2-candidate.png
