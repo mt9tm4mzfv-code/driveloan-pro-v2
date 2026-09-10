@@ -1,1 +1,0 @@
-Temporary marker for controlled UI-021 clipboard correction; remove before deployment.
