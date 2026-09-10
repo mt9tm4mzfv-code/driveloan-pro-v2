@@ -42,7 +42,8 @@ iframe{display:block;width:100%;height:100%;border:0}
       d[line.slice(0,idx)]=line.slice(idx+2);
     });
     var calc=activeCalc(doc);
-    var unit=d['Unit']||'';
+    var variantInput=inputNearLabel(doc,'VEHICLE VARIANT');
+    var unit=variantInput&&clean(variantInput.value)?clean(variantInput.value):(d['Unit']||'');
     var color=d['Color']||'Standard Color';
     var srp=parseMoney(d['Unit SRP']);
     var promo=parseMoney(d['Official Promo DP']);
@@ -68,7 +69,7 @@ iframe{display:block;width:100%;height:100%;border:0}
     var out=[];
     if(calc===1){
       out.push('Client Desired DP Amount: ₱'+desiredAmount);
-      out.push('Unit: CALCULATOR 1 SIMPLE COMPUTATION CLIPBOARD');
+      out.push('Unit: '+unit);
       out.push('Unit SRP: ₱'+srp);
       out.push('Official Promo DP: ₱'+promo);
       out.push('Color: '+color);
@@ -82,7 +83,7 @@ iframe{display:block;width:100%;height:100%;border:0}
     } else if(calc===2){
       out.push('Client Desired DP (Percentage): '+desiredPct);
       out.push('Client Desired DP Amount: ₱'+desiredAmount);
-      out.push('Unit: CALCULATOR 2 SIMPLE COMPUTATION CLIPBOARD');
+      out.push('Unit: '+unit);
       out.push('Unit SRP: ₱'+srp);
       out.push('Official Promo DP: ₱'+promo);
       out.push('Color: '+color);
@@ -100,7 +101,7 @@ iframe{display:block;width:100%;height:100%;border:0}
       var desiredMonthlyInput=inputNearLabel(doc,'DESIRED MONTHLY AMORTIZATION');
       var desiredMonthly=desiredMonthlyInput&&desiredMonthlyInput.value?Number(String(desiredMonthlyInput.value).replace(/[^0-9.]/g,'')):0;
       out.push('Client Desired Monthly (5 Years): ₱'+(desiredMonthly?Number(desiredMonthly).toLocaleString('en-US',{maximumFractionDigits:0}):monthly));
-      out.push('Unit: CALCULATOR 3 SIMPLE COMPUTATION CLIPBOARD');
+      out.push('Unit: '+unit);
       out.push('Color: '+color);
       out.push('Unit SRP: ₱'+srp);
       out.push('Official Promo DP: ₱'+promo);
