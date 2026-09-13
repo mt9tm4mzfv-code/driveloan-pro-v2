@@ -215,18 +215,48 @@ Total DP Deductible to Unit SRP: ₱${N(Jn)} (${Rr.toFixed(4)}%)
 Amount Financed: ₱${N(Zn)} (${Ao.toFixed(2)}%)
 Monthly (${O} Years): ₱${N(au)}
 Bank Interest Rate: ${a.toFixed(2)}%
-Estimated computation only. Subject to change without prior notice.`,Yo=`Unit: ${t}
-Color: ${Do}
-Unit SRP: ₱${N(R)} (100%)
-Client Desired DP: ₱${N(on)} (${Vo.toFixed(2)}%)
-Client Net DP: ₱${N(su)} (${Bo.toFixed(2)}%)
+Estimated computation only. Subject to change without prior notice.`,Yo=e===1?`Client Desired DP Amount: ₱${N(on)}
+Unit: ${t}
+Unit SRP: ₱${N(R)}
 Official Promo DP: ₱${N(se)}
-Additional Cashout: ₱${N(Ye)}${s?` (${h})`:""}
-Client Discount: ₱${N(Pr)} (${Ko.toFixed(2)}%)
-Total DP: ₱${N(Jn)} (${Rr.toFixed(4)}%)
-Amount Financed: ₱${N(Zn)} (${Ao.toFixed(2)}%)
-Monthly (${O} Years @ ${a.toFixed(2)}%): ₱${N(au)}
-Estimated computation only.`,simpleClipboardText=Yo,detailedClipboardText=Xo,Gf=()=>{r("XPANDER CROSS"),u(1500000),o(38000),f(!1),m("White Pearl"),k(15000),c(5),d(57),C(20),z(17),D(150000),_e(10),$o(25000)},Go=async(L,U)=>{try{await navigator.clipboard.writeText(L),Tr(U),setTimeout(()=>Tr(null),1500)}catch{let G=document.createElement("textarea");G.value=L,document.body.appendChild(G),G.select(),document.execCommand("copy"),document.body.removeChild(G),Tr(U),setTimeout(()=>Tr(null),1500)}},Zf=e===1?"#86efac":e===2?"#93c5fd":"#fdba74",Jf=e===1?"bg-[#86efac] text-black":e===2?"bg-[#93c5fd] text-black":"bg-[#fdba74] text-black",qf=e===1?"Down Payment Amount → Monthly Amortization":e===2?"Down Payment % → Monthly Amortization":"MONTHLY AMORTIZATION → DOWN PAYMENT AMOUNT",jf=e===1?`Kung mag Down Payment ko og ₱${$f(I)} pila akong monthly?`:e===2?`Kung mag DOWN PAYMENT ko og 30% pila ang akong monthly?`:`Para mag monthly ko og ₱25,000 pila akong DOWN PAYMENT?`,bf=(L)=>{c(L);let U=Mf[L];if(U!==void 0)d(U)};return y("div",{className:"min-h-screen bg-[#0e1525] text-white font-sans antialiased selection:bg-[#7ee0a0]/30",children:[p("style",{children:`
+Color: ${Do}
+Additional Cashout for ${s?h:"White Pearl"} Color: ₱${N(Ye)}
+Client Net DP (Actual Client Cashout): ₱${N(su)}
+Client Discount: ₱${N(Pr)}
+Total DP Deductible to Unit SRP: ₱${N(Jn)}
+Amount Financed: ₱${N(Zn)}
+Monthly (${O} Years): ₱${N(au)}
+Bank Interest Rate: ${a.toFixed(2)}%
+Estimated computation only. Subject to change without prior notice.`:
+e===2?`Client Desired DP Percentage: ${P.toFixed(2)}%
+Client Desired DP Amount: ₱${N(on)}
+Unit: ${t}
+Unit SRP: ₱${N(R)}
+Official Promo DP: ₱${N(se)}
+Color: ${Do}
+Additional Cashout for ${s?h:"White Pearl"} Color: ₱${N(Ye)}
+Client Net DP (Actual Client Cashout): ₱${N(su)}
+Client Discount: ₱${N(Pr)}
+Total DP Deductible to Unit SRP: ₱${N(Jn)}
+Amount Financed: ₱${N(Zn)}
+Monthly (${O} Years): ₱${N(au)}
+Bank Interest Rate: ${a.toFixed(2)}%
+Estimated computation only. Subject to change without prior notice.`:
+`Client Desired Monthly: ₱${N(un)}
+Unit: ${t}
+Color: ${Do}
+Unit SRP: ₱${N(R)}
+Official Promo DP: ₱${N(se)}
+Client Required DP Amount: ₱${N(on)}
+Additional Cashout for ${s?h:"White Pearl"} Color: ₱${N(Ye)}
+Client Net DP (Actual Client Cashout): ₱${N(su)}
+Client Discount: ₱${N(Pr)}
+Total DP Deductible to Unit SRP: ₱${N(Jn)}
+Amount Financed: ₱${N(Zn)}
+Monthly (${O} Years): ₱${N(au)}
+Loan Term: ${O} Years
+Bank Interest Rate: ${a.toFixed(2)}%
+Estimated computation only. Subject to change without prior notice.`,simpleClipboardText=Yo,detailedClipboardText=Xo,Gf=()=>{r("XPANDER CROSS"),u(1500000),o(38000),f(!1),m("White Pearl"),k(15000),c(5),d(57),C(20),z(17),D(150000),_e(10),$o(25000)},Go=async(L,U)=>{try{await navigator.clipboard.writeText(L),Tr(U),setTimeout(()=>Tr(null),1500)}catch{let G=document.createElement("textarea");G.value=L,document.body.appendChild(G),G.select(),document.execCommand("copy"),document.body.removeChild(G),Tr(U),setTimeout(()=>Tr(null),1500)}},Zf=e===1?"#86efac":e===2?"#93c5fd":"#fdba74",Jf=e===1?"bg-[#86efac] text-black":e===2?"bg-[#93c5fd] text-black":"bg-[#fdba74] text-black",qf=e===1?"Down Payment Amount → Monthly Amortization":e===2?"Down Payment % → Monthly Amortization":"MONTHLY AMORTIZATION → DOWN PAYMENT AMOUNT",jf=e===1?`Kung mag Down Payment ko og ₱${$f(I)} pila akong monthly?`:e===2?`Kung mag DOWN PAYMENT ko og 30% pila ang akong monthly?`:`Para mag monthly ko og ₱25,000 pila akong DOWN PAYMENT?`,bf=(L)=>{c(L);let U=Mf[L];if(U!==void 0)d(U)};return y("div",{className:"min-h-screen bg-[#0e1525] text-white font-sans antialiased selection:bg-[#7ee0a0]/30",children:[p("style",{children:`
         input[type=range]{
           -webkit-appearance:none;
           appearance:none;
