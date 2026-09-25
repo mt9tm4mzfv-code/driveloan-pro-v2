@@ -345,5 +345,340 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
 </script>
   <script>(function(){function m(a){var h=a.getAttribute("href");if(!h)return;try{var u=new URL(h,document.baseURI);if((u.protocol==="http:"||u.protocol==="https:")&&u.host!==location.host){a.target="_blank";a.rel="noopener noreferrer";}}catch(e){}}function s(){document.querySelectorAll("a[href]").forEach(m);}if(document.readyState!=="loading"){s();}else{document.addEventListener("DOMContentLoaded",s);}document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(a){m(a);}},true);})();</script>
   
-<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+<script>
+(function(){
+  const DETAILED_DEFAULT = {clientDesired:true,baseDown:true,officialPromo:true,clientNet:true,clientDiscount:true,totalDP:true,amountFinanced:true,bankRate:true,estimated:true};
+  const SIMPLE_DEFAULT = {clientDesired:true,officialPromo:true,clientNet:true,clientDiscount:true,totalDP:true,amountFinanced:true,bankRate:true,estimated:true};
+  const LS_DET='dl_gold_v8_detailed';
+  const LS_SIMP='dl_gold_v8_simple';
+
+  function loadSettings(){
+    try{
+      const d=localStorage.getItem(LS_DET);
+      const s=localStorage.getItem(LS_SIMP);
+      return {detailed:d?JSON.parse(d):{...DETAILED_DEFAULT},simple:s?JSON.parse(s):{...SIMPLE_DEFAULT}};
+    }catch(e){return {detailed:{...DETAILED_DEFAULT},simple:{...SIMPLE_DEFAULT}};}
+  }
+  function saveSettings(det,simp){
+    localStorage.setItem(LS_DET,JSON.stringify(det));
+    localStorage.setItem(LS_SIMP,JSON.stringify(simp));
+  }
+
+  function getCalcType(){
+    const titleEl=document.querySelector('div.text-\\[13px\\].font-bold.tracking-\\[0\\.12em\\]');
+    if(titleEl){
+      const t=titleEl.textContent||'';
+      if(t.includes('DOWN PAYMENT AMOUNT →')) return 'calc1';
+      if(t.includes('DOWN PAYMENT % →')) return 'calc2';
+      if(t.includes('MONTHLY AMORTIZATION →')) return 'calc3';
+    }
+    const monos=document.querySelectorAll('div.font-mono.whitespace-pre-wrap');
+    for(let m of monos){
+      const txt=m.textContent||'';
+      if(txt.includes("Client's Desired Monthly")||txt.includes("Client Desired Monthly:")) return 'calc3';
+      if(txt.includes("Client Desired DP Percentage:")) return 'calc2';
+      if(txt.includes("Client Desired DP Amount:")&&!txt.includes("Percentage")) return 'calc1';
+    }
+    return 'calc1';
+  }
+
+  function matchDetailed(line){
+    const l=line.trim();
+    if(l.startsWith('Client Desired DP Amount:')) return 'clientDesired';
+    if(l.startsWith('Base Down Payment')) return 'baseDown';
+    if(l.startsWith('Official Promo DP:')) return 'officialPromo';
+    if(l.startsWith('Client Net DP')) return 'clientNet';
+    if(l.startsWith('Client Discount:')) return 'clientDiscount';
+    if(l.startsWith('Total DP Deductible')) return 'totalDP';
+    if(l.startsWith('Amount Financed:')) return 'amountFinanced';
+    if(l.startsWith('Bank Interest Rate:')) return 'bankRate';
+    if(l.startsWith('Estimated computation')) return 'estimated';
+    return null;
+  }
+  function matchSimple(line){
+    const l=line.trim();
+    if(l.startsWith('Client Desired DP Amount:')) return 'clientDesired';
+    if(l.startsWith('Official Promo DP:')) return 'officialPromo';
+    if(l.startsWith('Client Net DP')) return 'clientNet';
+    if(l.startsWith('Client Discount:')) return 'clientDiscount';
+    if(l.startsWith('Total DP Deductible')) return 'totalDP';
+    if(l.startsWith('Amount Financed:')) return 'amountFinanced';
+    if(l.startsWith('Bank Interest Rate:')) return 'bankRate';
+    if(l.startsWith('Estimated computation')) return 'estimated';
+    return null;
+  }
+  function filterText(original,settings,matcher){
+    if(!original) return '';
+    const lines=original.split('\n');
+    const out=[];
+    for(let line of lines){
+      if(line.trim()===''){out.push(line);continue;}
+      const key=matcher(line);
+      if(key){if(settings[key]) out.push(line);}else{out.push(line);}
+    }
+    return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+  }
+  function isFreshDetailed(text){
+    return text.includes('Client Desired DP Amount:')&&text.includes('Base Down Payment')&&text.includes('Official Promo DP:')&&text.includes('Client Net DP')&&text.includes('Client Discount:')&&text.includes('Total DP Deductible')&&text.includes('Amount Financed:')&&text.includes('Bank Interest Rate:')&&text.includes('Estimated computation');
+  }
+  function isFreshSimple(text){
+    return text.includes('Client Desired DP Amount:')&&text.includes('Official Promo DP:')&&text.includes('Client Net DP')&&text.includes('Client Discount:')&&text.includes('Total DP Deductible')&&text.includes('Amount Financed:')&&text.includes('Bank Interest Rate:')&&text.includes('Estimated computation');
+  }
+  function findBoxes(){
+    const allDivs=document.querySelectorAll('div');
+    let dHead=null,sHead=null;
+    for(let d of allDivs){
+      if(d.textContent==='DETAILED CLIPBOARD • DARK MIRROR') dHead=d;
+      if(d.textContent==='SIMPLE CLIPBOARD • DARK MIRROR') sHead=d;
+    }
+    let dBox=null,sBox=null,dCopy=null,sCopy=null;
+    if(dHead){
+      const card=dHead.closest('div.bg-\\[\\#0a0f1e\\]');
+      if(card){
+        dBox=card.querySelector('div.font-mono');
+        dCopy=Array.from(card.querySelectorAll('button')).find(b=>b.textContent.trim()==='COPY DETAILED COMPUTATION');
+      }
+    }
+    if(sHead){
+      const card=sHead.closest('div.bg-\\[\\#0a0f1e\\]');
+      if(card){
+        sBox=card.querySelector('div.font-mono');
+        sCopy=Array.from(card.querySelectorAll('button')).find(b=>b.textContent.trim()==='COPY SIMPLE COMPUTATION');
+      }
+    }
+    return {dBox,sBox,dCopy,sCopy};
+  }
+  function getAccent(){
+    const {dCopy}=findBoxes();
+    if(dCopy){
+      const bg=dCopy.style.backgroundColor||window.getComputedStyle(dCopy).backgroundColor;
+      if(bg&&bg!=='rgba(0, 0, 0, 0)') return bg;
+    }
+    return '#86efac';
+  }
+
+  // CLIPBOARD OVERRIDE - PRODUCTION
+  const originalWriteText = navigator.clipboard.writeText.bind(navigator.clipboard);
+  navigator.clipboard.writeText = async function(text){
+    try{
+      const calcType = getCalcType();
+      if(calcType === 'calc1' && (text.includes('Client Desired DP Amount:') || text.includes('Unit:'))){
+        const settings = loadSettings();
+        const {dBox,sBox} = findBoxes();
+        let isDetailed = text.includes('Base Down Payment');
+        let matcher = isDetailed ? matchDetailed : matchSimple;
+        let settingObj = isDetailed ? settings.detailed : settings.simple;
+        let originalBox = isDetailed ? dBox : sBox;
+        let originalText = text;
+        if(originalBox){
+          const stored = originalBox.getAttribute('data-original-v8');
+          if(stored) originalText = stored;
+        }
+        const filtered = filterText(originalText, settingObj, matcher);
+        if(filtered !== originalText || (originalBox && originalBox.textContent !== originalText)){
+          const finalText = originalBox ? originalBox.textContent : filtered;
+          return originalWriteText(finalText);
+        }
+      }
+    }catch(e){}
+    return originalWriteText(text);
+  };
+
+  function ensureButtons(){
+    const {dCopy,sCopy}=findBoxes();
+    if(!dCopy||!sCopy) return;
+    const calcType=getCalcType();
+    const accent=getAccent();
+    if(calcType!=='calc1'){
+      const dBtn=document.getElementById('dl-detailed-settings-btn');
+      const sBtn=document.getElementById('dl-simple-settings-btn');
+      if(dBtn) dBtn.style.display='none';
+      if(sBtn) sBtn.style.display='none';
+      return;
+    }
+    let dBtn=document.getElementById('dl-detailed-settings-btn');
+    if(!dBtn){
+      dBtn=document.createElement('button');
+      dBtn.id='dl-detailed-settings-btn';
+      dBtn.textContent='⚙️ DETAILED COMPUTATION SETTINGS';
+      dBtn.className='w-full font-black rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3';
+      dBtn.style.backgroundColor=accent;
+      dBtn.style.color='#000';
+      dBtn.style.marginTop='8px';
+      dBtn.style.display='block';
+      dBtn.onclick=()=>openModal('detailed');
+      dCopy.insertAdjacentElement('afterend',dBtn);
+    }else{
+      dBtn.style.display='block';
+      dBtn.style.backgroundColor=accent;
+      dBtn.style.color='#000';
+    }
+    let sBtn=document.getElementById('dl-simple-settings-btn');
+    if(!sBtn){
+      sBtn=document.createElement('button');
+      sBtn.id='dl-simple-settings-btn';
+      sBtn.textContent='⚙️ SIMPLE COMPUTATION SETTINGS';
+      sBtn.className='w-full font-black rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3';
+      sBtn.style.backgroundColor=accent;
+      sBtn.style.color='#000';
+      sBtn.style.marginTop='8px';
+      sBtn.style.display='block';
+      sBtn.onclick=()=>openModal('simple');
+      sCopy.insertAdjacentElement('afterend',sBtn);
+    }else{
+      sBtn.style.display='block';
+      sBtn.style.backgroundColor=accent;
+      sBtn.style.color='#000';
+    }
+  }
+
+  function updateOriginalStorage(){
+    const {dBox,sBox}=findBoxes();
+    const calcType=getCalcType();
+    if(dBox){
+      const cur=dBox.textContent;
+      const stored=dBox.getAttribute('data-original-v8');
+      const storedType=dBox.getAttribute('data-calc-type-v8');
+      if(!stored){dBox.setAttribute('data-original-v8',cur);dBox.setAttribute('data-calc-type-v8',calcType);}
+      else if(storedType!==calcType){dBox.setAttribute('data-original-v8',cur);dBox.setAttribute('data-calc-type-v8',calcType);}
+      else if(calcType==='calc1'&&isFreshDetailed(cur)){dBox.setAttribute('data-original-v8',cur);}
+      else if(calcType!=='calc1'){dBox.setAttribute('data-original-v8',cur);}
+    }
+    if(sBox){
+      const cur=sBox.textContent;
+      const stored=sBox.getAttribute('data-original-v8');
+      const storedType=sBox.getAttribute('data-calc-type-v8');
+      if(!stored){sBox.setAttribute('data-original-v8',cur);sBox.setAttribute('data-calc-type-v8',calcType);}
+      else if(storedType!==calcType){sBox.setAttribute('data-original-v8',cur);sBox.setAttribute('data-calc-type-v8',calcType);}
+      else if(calcType==='calc1'&&isFreshSimple(cur)){sBox.setAttribute('data-original-v8',cur);}
+      else if(calcType!=='calc1'){sBox.setAttribute('data-original-v8',cur);}
+    }
+  }
+
+  function applyFilter(){
+    updateOriginalStorage();
+    const calcType=getCalcType();
+    const {dBox,sBox}=findBoxes();
+    const settings=loadSettings();
+    if(calcType!=='calc1'){
+      if(dBox){const orig=dBox.getAttribute('data-original-v8');if(orig&&dBox.textContent!==orig)dBox.textContent=orig;}
+      if(sBox){const orig=sBox.getAttribute('data-original-v8');if(orig&&sBox.textContent!==orig)sBox.textContent=orig;}
+      return;
+    }
+    if(dBox){
+      const original=dBox.getAttribute('data-original-v8')||dBox.textContent;
+      const filtered=filterText(original,settings.detailed,matchDetailed);
+      if(dBox.textContent!==filtered) dBox.textContent=filtered;
+    }
+    if(sBox){
+      const original=sBox.getAttribute('data-original-v8')||sBox.textContent;
+      const filtered=filterText(original,settings.simple,matchSimple);
+      if(sBox.textContent!==filtered) sBox.textContent=filtered;
+    }
+  }
+
+  function openModal(type){
+    if(getCalcType()!=='calc1'){alert('Settings available only for Calculator 1');return;}
+    let modal=document.getElementById('dl-settings-modal');
+    if(!modal){
+      modal=document.createElement('div');
+      modal.id='dl-settings-modal';
+      modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:12px;';
+      modal.innerHTML='<div id="dl-modal-inner" style="background:#131c31;border:1px solid #2a3655;border-radius:20px;width:100%;max-width:520px;max-height:85vh;overflow:auto;padding:16px;"></div>';
+      modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});
+      document.body.appendChild(modal);
+    }
+    modal.style.display='flex';
+    renderModal(type);
+  }
+
+  function renderModal(type){
+    const inner=document.getElementById('dl-modal-inner');
+    if(!inner) return;
+    const settings=loadSettings();
+    const isDet=type==='detailed';
+    const accent=getAccent();
+    const title=isDet?'DETAILED COMPUTATION SETTINGS (CAL1 ONLY)':'SIMPLE COMPUTATION SETTINGS (CAL1 ONLY)';
+    inner.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div><div style="font-size:14px;font-weight:900;color:${accent};">⚙️ ${title}</div><div style="font-size:10px;color:#8a96b5;margin-top:4px;">Cal1 lang • Filtered ang ma COPY gyud</div></div>
+        <button id="dl-close" style="width:32px;height:32px;border-radius:999px;background:#0f172a;border:1px solid #2a3655;color:#8a96b5;">✕</button>
+      </div>
+      <div style="background:#0a0f1e;border:1px solid #1e293b;border-radius:16px;padding:12px;margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;color:#8a96b5;margin-bottom:12px;">${isDet?'DETAILED - 9 ITEMS':'SIMPLE - 8 ITEMS'} (CAL1 ONLY)</div>
+        <div id="dl-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+      <div style="font-size:10px;color:#5b6786;background:#080c18;border-radius:12px;padding:12px;border:1px solid #1a233a;margin-bottom:12px;">• Naka-check = makita + ma COPY<br>• Dili check = dili makita + dili ma COPY<br>• Unit, SRP, Monthly = automatic apil</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button id="dl-reset" style="border-radius:999px;padding:12px;font-size:11px;font-weight:700;border:1px solid #2a3655;color:#8a96b5;background:#0f172a;">RESET TO DEFAULT</button>
+        <button id="dl-save" style="border-radius:999px;padding:12px;font-size:11px;font-weight:900;background:${accent};color:#000;">SAVE & CLOSE</button>
+      </div>
+    `;
+    document.getElementById('dl-close').onclick=()=>{document.getElementById('dl-settings-modal').style.display='none';};
+    document.getElementById('dl-save').onclick=()=>{document.getElementById('dl-settings-modal').style.display='none';};
+    document.getElementById('dl-reset').onclick=()=>{
+      if(isDet){const s=loadSettings();saveSettings({...DETAILED_DEFAULT},s.simple);}
+      else{const s=loadSettings();saveSettings(s.detailed,{...SIMPLE_DEFAULT});}
+      renderModal(type);setTimeout(applyFilter,100);
+    };
+    const detailedItems=[
+      {k:'clientDesired',label:'1.) Client Desired DP Amount'},
+      {k:'baseDown',label:'2.) Base Down Payment (20.00%)'},
+      {k:'officialPromo',label:'3.) Official Promo DP'},
+      {k:'clientNet',label:'4.) Client Net DP (Actual Client Cashout)'},
+      {k:'clientDiscount',label:'5.) Client Discount'},
+      {k:'totalDP',label:'6.) Total DP Deductible to Unit SRP'},
+      {k:'amountFinanced',label:'7.) Amount Financed'},
+      {k:'bankRate',label:'8.) Bank Interest Rate'},
+      {k:'estimated',label:'9.) Estimated computation only.'}
+    ];
+    const simpleItems=[
+      {k:'clientDesired',label:'1.) Client Desired DP Amount'},
+      {k:'officialPromo',label:'2.) Official Promo DP'},
+      {k:'clientNet',label:'3.) Client Net DP (Actual Client Cashout)'},
+      {k:'clientDiscount',label:'4.) Client Discount'},
+      {k:'totalDP',label:'5.) Total DP Deductible to Unit SRP'},
+      {k:'amountFinanced',label:'6.) Amount Financed'},
+      {k:'bankRate',label:'7.) Bank Interest Rate'},
+      {k:'estimated',label:'8.) Estimated computation only.'}
+    ];
+    const items=isDet?detailedItems:simpleItems;
+    const obj=isDet?settings.detailed:settings.simple;
+    const list=document.getElementById('dl-list');
+    items.forEach(it=>{
+      const checked=obj[it.k];
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:12px;background:#0f172a;border:1px solid #2a3655;border-radius:12px;padding:10px 12px;cursor:pointer;';
+      row.innerHTML=`<div style="width:20px;height:20px;border-radius:6px;border:1px solid ${checked?accent:'#3a455f'};background:${checked?accent:'transparent'};display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:12px;">${checked?'✓':''}</div><span style="font-size:11px;font-weight:600;color:${checked?'#fff':'#5b6786'};">${it.label}</span>`;
+      row.onclick=()=>{
+        const cur=loadSettings();
+        if(isDet) cur.detailed[it.k]=!cur.detailed[it.k];
+        else cur.simple[it.k]=!cur.simple[it.k];
+        saveSettings(cur.detailed,cur.simple);
+        renderModal(type);
+        setTimeout(applyFilter,100);
+      };
+      list.appendChild(row);
+    });
+  }
+
+  function boot(){
+    ensureButtons();
+    setTimeout(()=>{
+      const {dBox,sBox}=findBoxes();
+      if(dBox){dBox.setAttribute('data-original-v8',dBox.textContent);dBox.setAttribute('data-calc-type-v8',getCalcType());}
+      if(sBox){sBox.setAttribute('data-original-v8',sBox.textContent);sBox.setAttribute('data-calc-type-v8',getCalcType());}
+      applyFilter();
+    },1000);
+    setInterval(()=>{ensureButtons();applyFilter();},1200);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
+  else boot();
+})();
+</script>
+<style>
+#dl-detailed-settings-btn, #dl-simple-settings-btn { color:#000 !important; font-weight:900 !important; }
+</style>
+</body>
 </html>
