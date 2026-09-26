@@ -346,140 +346,243 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
   <script>(function(){function m(a){var h=a.getAttribute("href");if(!h)return;try{var u=new URL(h,document.baseURI);if((u.protocol==="http:"||u.protocol==="https:")&&u.host!==location.host){a.target="_blank";a.rel="noopener noreferrer";}}catch(e){}}function s(){document.querySelectorAll("a[href]").forEach(m);}if(document.readyState!=="loading"){s();}else{document.addEventListener("DOMContentLoaded",s);}document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(a){m(a);}},true);})();</script>
   
 <script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+
 <script>
 (function(){
-  const DETAILED_DEFAULT = {clientDesired:true,baseDown:true,officialPromo:true,clientNet:true,clientDiscount:true,totalDP:true,amountFinanced:true,bankRate:true,estimated:true};
-  const SIMPLE_DEFAULT = {clientDesired:true,officialPromo:true,clientNet:true,clientDiscount:true,totalDP:true,amountFinanced:true,bankRate:true,estimated:true};
-  const LS_DET='dl_gold_v8_detailed';
-  const LS_SIMP='dl_gold_v8_simple';
+  const DETAILED_DEFAULT_CAL1 = {clientDesired:true,baseDown:true,officialPromo:true,clientNet:true,clientDiscount:true,totalDP:true,amountFinanced:true,bankRate:true,estimated:true};
+  const SIMPLE_DEFAULT_CAL1 = {clientDesired:true,officialPromo:true,clientNet:true,clientDiscount:true,totalDP:true,amountFinanced:true,bankRate:true,estimated:true};
+  const DETAILED_DEFAULT_CAL2 = {clientDesiredPct:true,clientDesiredAmt:true,baseDown:true,officialPromo:true,clientNet:true,clientDiscount:true,totalDP:true,amountFinanced:true,bankRate:true,estimated:true};
+  const SIMPLE_DEFAULT_CAL2 = {clientDesiredPct:true,clientDesiredAmt:true,officialPromo:true,clientNet:true,clientDiscount:true,totalDP:true,amountFinanced:true,bankRate:true,estimated:true};
+  const DETAILED_DEFAULT_CAL3 = {desiredMonthly:true,baseDown:true,officialPromo:true,requiredDP:true,clientNet:true,clientDiscount:true,totalDP:true,amountFinanced:true,bankRate:true,estimated:true};
+  const SIMPLE_DEFAULT_CAL3 = {desiredMonthly:true,officialPromo:true,requiredDP:true,clientNet:true,clientDiscount:true,totalDP:true,amountFinanced:true,monthly5y:true,loanTerm:true,bankRate:true,estimated:true};
+
+  const LS_DET1='dl_gold_v17_detailed1';
+  const LS_SIMP1='dl_gold_v17_simple1';
+  const LS_DET2='dl_gold_v17_detailed2';
+  const LS_SIMP2='dl_gold_v17_simple2';
+  const LS_DET3='dl_gold_v17_detailed3';
+  const LS_SIMP3='dl_gold_v17_simple3';
+  const LS_TRUE_DET='dl_gold_v17_true_detailed';
+  const LS_TRUE_SIMP='dl_gold_v17_true_simple';
 
   function loadSettings(){
     try{
-      const d=localStorage.getItem(LS_DET);
-      const s=localStorage.getItem(LS_SIMP);
-      return {detailed:d?JSON.parse(d):{...DETAILED_DEFAULT},simple:s?JSON.parse(s):{...SIMPLE_DEFAULT}};
-    }catch(e){return {detailed:{...DETAILED_DEFAULT},simple:{...SIMPLE_DEFAULT}};}
+      return {
+        detailed1: JSON.parse(localStorage.getItem(LS_DET1)||'null') || {...DETAILED_DEFAULT_CAL1},
+        simple1: JSON.parse(localStorage.getItem(LS_SIMP1)||'null') || {...SIMPLE_DEFAULT_CAL1},
+        detailed2: JSON.parse(localStorage.getItem(LS_DET2)||'null') || {...DETAILED_DEFAULT_CAL2},
+        simple2: JSON.parse(localStorage.getItem(LS_SIMP2)||'null') || {...SIMPLE_DEFAULT_CAL2},
+        detailed3: JSON.parse(localStorage.getItem(LS_DET3)||'null') || {...DETAILED_DEFAULT_CAL3},
+        simple3: JSON.parse(localStorage.getItem(LS_SIMP3)||'null') || {...SIMPLE_DEFAULT_CAL3}
+      };
+    }catch(e){
+      return {detailed1:{...DETAILED_DEFAULT_CAL1},simple1:{...SIMPLE_DEFAULT_CAL1},detailed2:{...DETAILED_DEFAULT_CAL2},simple2:{...SIMPLE_DEFAULT_CAL2},detailed3:{...DETAILED_DEFAULT_CAL3},simple3:{...SIMPLE_DEFAULT_CAL3}};
+    }
   }
-  function saveSettings(det,simp){
-    localStorage.setItem(LS_DET,JSON.stringify(det));
-    localStorage.setItem(LS_SIMP,JSON.stringify(simp));
+  function saveSettings(o){
+    localStorage.setItem(LS_DET1,JSON.stringify(o.detailed1));
+    localStorage.setItem(LS_SIMP1,JSON.stringify(o.simple1));
+    localStorage.setItem(LS_DET2,JSON.stringify(o.detailed2));
+    localStorage.setItem(LS_SIMP2,JSON.stringify(o.simple2));
+    localStorage.setItem(LS_DET3,JSON.stringify(o.detailed3));
+    localStorage.setItem(LS_SIMP3,JSON.stringify(o.simple3));
   }
 
   function getCalcType(){
-    const titleEl=document.querySelector('div.text-\\[13px\\].font-bold.tracking-\\[0\\.12em\\]');
-    if(titleEl){
-      const t=titleEl.textContent||'';
-      if(t.includes('DOWN PAYMENT AMOUNT →')) return 'calc1';
-      if(t.includes('DOWN PAYMENT % →')) return 'calc2';
-      if(t.includes('MONTHLY AMORTIZATION →')) return 'calc3';
+    const btns = Array.from(document.querySelectorAll('button'));
+    for(let b of btns){
+      const t = (b.textContent||'').trim();
+      if(t!=='1' && t!=='2' && t!=='3') continue;
+      const cls = String(b.className||'');
+      if(cls.includes('bg-[#7ee0a0]') || cls.includes('bg-[#86efac]') || cls.includes('bg-[#12261a]')) return 'calc1';
+      if(cls.includes('bg-[#5aa8ff]') || cls.includes('bg-[#93c5fd]') || cls.includes('bg-[#0d2138]')) return 'calc2';
+      if(cls.includes('bg-[#f59e0b]') || cls.includes('bg-[#fdba74]') || cls.includes('bg-[#2a1b10]')) return 'calc3';
     }
-    const monos=document.querySelectorAll('div.font-mono.whitespace-pre-wrap');
-    for(let m of monos){
-      const txt=m.textContent||'';
-      if(txt.includes("Client's Desired Monthly")||txt.includes("Client Desired Monthly:")) return 'calc3';
-      if(txt.includes("Client Desired DP Percentage:")) return 'calc2';
-      if(txt.includes("Client Desired DP Amount:")&&!txt.includes("Percentage")) return 'calc1';
-    }
+    const txt = document.body.innerText||'';
+    if(txt.includes('Client Desired DP Percentage:')) return 'calc2';
+    if(txt.includes("Client's Desired Monthly") || txt.includes('Client Required DP Amount')) return 'calc3';
     return 'calc1';
   }
 
-  function matchDetailed(line){
-    const l=line.trim();
-    if(l.startsWith('Client Desired DP Amount:')) return 'clientDesired';
-    if(l.startsWith('Base Down Payment')) return 'baseDown';
-    if(l.startsWith('Official Promo DP:')) return 'officialPromo';
-    if(l.startsWith('Client Net DP')) return 'clientNet';
-    if(l.startsWith('Client Discount:')) return 'clientDiscount';
-    if(l.startsWith('Total DP Deductible')) return 'totalDP';
-    if(l.startsWith('Amount Financed:')) return 'amountFinanced';
-    if(l.startsWith('Bank Interest Rate:')) return 'bankRate';
-    if(l.startsWith('Estimated computation')) return 'estimated';
-    return null;
-  }
-  function matchSimple(line){
-    const l=line.trim();
-    if(l.startsWith('Client Desired DP Amount:')) return 'clientDesired';
-    if(l.startsWith('Official Promo DP:')) return 'officialPromo';
-    if(l.startsWith('Client Net DP')) return 'clientNet';
-    if(l.startsWith('Client Discount:')) return 'clientDiscount';
-    if(l.startsWith('Total DP Deductible')) return 'totalDP';
-    if(l.startsWith('Amount Financed:')) return 'amountFinanced';
-    if(l.startsWith('Bank Interest Rate:')) return 'bankRate';
-    if(l.startsWith('Estimated computation')) return 'estimated';
-    return null;
-  }
-  function filterText(original,settings,matcher){
-    if(!original) return '';
-    const lines=original.split('\n');
-    const out=[];
-    for(let line of lines){
-      if(line.trim()===''){out.push(line);continue;}
-      const key=matcher(line);
-      if(key){if(settings[key]) out.push(line);}else{out.push(line);}
-    }
-    return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
-  }
-  function isFreshDetailed(text){
-    return text.includes('Client Desired DP Amount:')&&text.includes('Base Down Payment')&&text.includes('Official Promo DP:')&&text.includes('Client Net DP')&&text.includes('Client Discount:')&&text.includes('Total DP Deductible')&&text.includes('Amount Financed:')&&text.includes('Bank Interest Rate:')&&text.includes('Estimated computation');
-  }
-  function isFreshSimple(text){
-    return text.includes('Client Desired DP Amount:')&&text.includes('Official Promo DP:')&&text.includes('Client Net DP')&&text.includes('Client Discount:')&&text.includes('Total DP Deductible')&&text.includes('Amount Financed:')&&text.includes('Bank Interest Rate:')&&text.includes('Estimated computation');
-  }
   function findBoxes(){
-    const allDivs=document.querySelectorAll('div');
-    let dHead=null,sHead=null;
-    for(let d of allDivs){
-      if(d.textContent==='DETAILED CLIPBOARD • DARK MIRROR') dHead=d;
-      if(d.textContent==='SIMPLE CLIPBOARD • DARK MIRROR') sHead=d;
-    }
-    let dBox=null,sBox=null,dCopy=null,sCopy=null;
-    if(dHead){
-      const card=dHead.closest('div.bg-\\[\\#0a0f1e\\]');
-      if(card){
-        dBox=card.querySelector('div.font-mono');
-        dCopy=Array.from(card.querySelectorAll('button')).find(b=>b.textContent.trim()==='COPY DETAILED COMPUTATION');
+    const allBtns = Array.from(document.querySelectorAll('button'));
+    let dCopy = allBtns.find(b=> (b.textContent||'').includes('COPY DETAILED'));
+    let sCopy = allBtns.find(b=> (b.textContent||'').includes('COPY SIMPLE'));
+    let dBox=null, sBox=null;
+    if(dCopy){
+      let p=dCopy.parentElement;
+      for(let i=0;i<8 && p;i++){
+        const mono=p.querySelector('div.font-mono');
+        if(mono){ dBox=mono; break; }
+        p=p.parentElement;
       }
     }
-    if(sHead){
-      const card=sHead.closest('div.bg-\\[\\#0a0f1e\\]');
-      if(card){
-        sBox=card.querySelector('div.font-mono');
-        sCopy=Array.from(card.querySelectorAll('button')).find(b=>b.textContent.trim()==='COPY SIMPLE COMPUTATION');
+    if(sCopy){
+      let p=sCopy.parentElement;
+      for(let i=0;i<8 && p;i++){
+        const mono=p.querySelector('div.font-mono');
+        if(mono){ sBox=mono; break; }
+        p=p.parentElement;
+      }
+    }
+    if(!dBox || !sBox){
+      const monos = Array.from(document.querySelectorAll('div.font-mono')).filter(m=>(m.textContent||'').includes('Unit:'));
+      if(monos.length>=2){
+        dBox = dBox || monos[0];
+        sBox = sBox || monos[1];
       }
     }
     return {dBox,sBox,dCopy,sCopy};
   }
+
   function getAccent(){
-    const {dCopy}=findBoxes();
-    if(dCopy){
-      const bg=dCopy.style.backgroundColor||window.getComputedStyle(dCopy).backgroundColor;
-      if(bg&&bg!=='rgba(0, 0, 0, 0)') return bg;
-    }
+    const ct=getCalcType();
+    if(ct==='calc2') return '#93c5fd';
+    if(ct==='calc3') return '#fdba74';
     return '#86efac';
   }
 
-  // CLIPBOARD OVERRIDE - PRODUCTION
+  function filterText(original, settings, matcher){
+    const lines=original.split('\n');
+    const out=[];
+    for(const line of lines){
+      const k=matcher(line);
+      if(k===null){ out.push(line); continue; }
+      if(settings[k]) out.push(line);
+    }
+    return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+  }
+
+  function matchDetailed1(line){
+    if(line.includes('Client Desired DP Amount:')) return 'clientDesired';
+    if(line.includes('Base Down Payment')) return 'baseDown';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+  function matchSimple1(line){
+    if(line.includes('Client Desired DP Amount:')) return 'clientDesired';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+  function matchDetailed2(line){
+    if(line.includes('Client Desired DP Percentage:')) return 'clientDesiredPct';
+    if(line.includes('Client Desired DP Amount:')) return 'clientDesiredAmt';
+    if(line.includes('Base Down Payment')) return 'baseDown';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible to Unit SRP:')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+  function matchSimple2(line){
+    if(line.includes('Client Desired DP Percentage:')) return 'clientDesiredPct';
+    if(line.includes('Client Desired DP Amount:')) return 'clientDesiredAmt';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible to Unit SRP')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+  function matchDetailed3(line){
+    if(line.includes("Desired Monthly")) return 'desiredMonthly';
+    if(line.includes('Base Down Payment')) return 'baseDown';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Client Required DP Amount') || line.includes('Required DP Amount:')) return 'requiredDP';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible to Unit SRP')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+  function matchSimple3(line){
+    if(line.includes('Client Desired Monthly') || line.includes("Client's Desired Monthly") || line.includes('Desired Monthly:')) return 'desiredMonthly';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Client Required DP Amount') || line.includes('Required DP Amount:')) return 'requiredDP';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible to Unit SRP')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Monthly (') && line.includes('Years)')) return 'monthly5y';
+    if(line.includes('Loan Term:')) return 'loanTerm';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+
+  // ULTIMATE ANTI-HYPERLINK FIX FOR iOS
+  function makePlainTextNoLink(text){
+    // 1. Add BOM at start to break first-line detection
+    let t = '\uFEFF' + text;
+    // 2. Break colon pattern that iOS detects as label - add ZWSP inside
+    // Replace ": " with ":\u200B " - invisible break after colon
+    t = t.replace(/: /g, ':\u200B ');
+    // 3. Break "Unit:" and "Unit SRP:" specifically which triggers address detection
+    t = t.replace(/Unit:/g, 'Unit\u200B:');
+    t = t.replace(/Unit SRP:/g, 'Unit SRP\u200B:');
+    t = t.replace(/XPANDER CROSS/g, 'XPANDER\u200B CROSS');
+    // 4. Break peso amounts that could be detected as phone numbers
+    // Add ZWSP inside the amount formatting
+    // 5. Ensure no line starts with detectable pattern - prefix each line with ZWSP
+    t = t.split('\n').map(line => {
+      if(line.trim().length>0) return '\u200B' + line;
+      return line;
+    }).join('\n');
+    return t;
+  }
+
   const originalWriteText = navigator.clipboard.writeText.bind(navigator.clipboard);
   navigator.clipboard.writeText = async function(text){
     try{
       const calcType = getCalcType();
-      if(calcType === 'calc1' && (text.includes('Client Desired DP Amount:') || text.includes('Unit:'))){
+      if(text.includes('Client')||text.includes('Unit:')){
         const settings = loadSettings();
-        const {dBox,sBox} = findBoxes();
-        let isDetailed = text.includes('Base Down Payment');
-        let matcher = isDetailed ? matchDetailed : matchSimple;
-        let settingObj = isDetailed ? settings.detailed : settings.simple;
-        let originalBox = isDetailed ? dBox : sBox;
-        let originalText = text;
-        if(originalBox){
-          const stored = originalBox.getAttribute('data-original-v8');
-          if(stored) originalText = stored;
+        const {dBox,sBox}=findBoxes();
+        const isDetailed = text.includes('Base Down Payment');
+        let matcher, settingObj, box;
+        if(calcType==='calc1'){
+          matcher=isDetailed?matchDetailed1:matchSimple1;
+          settingObj=isDetailed?settings.detailed1:settings.simple1;
+          box=isDetailed?dBox:sBox;
+        }else if(calcType==='calc2'){
+          matcher=isDetailed?matchDetailed2:matchSimple2;
+          settingObj=isDetailed?settings.detailed2:settings.simple2;
+          box=isDetailed?dBox:sBox;
+        }else{
+          matcher=isDetailed?matchDetailed3:matchSimple3;
+          settingObj=isDetailed?settings.detailed3:settings.simple3;
+          box=isDetailed?dBox:sBox;
         }
-        const filtered = filterText(originalText, settingObj, matcher);
-        if(filtered !== originalText || (originalBox && originalBox.textContent !== originalText)){
-          const finalText = originalBox ? originalBox.textContent : filtered;
-          return originalWriteText(finalText);
+        let originalText=text;
+        if(box){
+          const storedTrue = box.getAttribute('data-true-original-v17');
+          const storedV = box.getAttribute('data-original-v17');
+          if(storedTrue && storedTrue.length > text.length) originalText=storedTrue;
+          else if(storedV && storedV.length > text.length) originalText=storedV;
         }
+        let filtered=filterText(originalText,settingObj,matcher);
+        // APPLY ANTI-HYPERLINK FIX
+        let finalText = makePlainTextNoLink(filtered);
+        if(finalText.length>0) return originalWriteText(finalText);
       }
     }catch(e){}
     return originalWriteText(text);
@@ -488,103 +591,92 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
   function ensureButtons(){
     const {dCopy,sCopy}=findBoxes();
     if(!dCopy||!sCopy) return;
-    const calcType=getCalcType();
     const accent=getAccent();
-    if(calcType!=='calc1'){
-      const dBtn=document.getElementById('dl-detailed-settings-btn');
-      const sBtn=document.getElementById('dl-simple-settings-btn');
-      if(dBtn) dBtn.style.display='none';
-      if(sBtn) sBtn.style.display='none';
-      return;
-    }
+
     let dBtn=document.getElementById('dl-detailed-settings-btn');
     if(!dBtn){
       dBtn=document.createElement('button');
       dBtn.id='dl-detailed-settings-btn';
-      dBtn.textContent='⚙️ DETAILED COMPUTATION SETTINGS';
-      dBtn.className='w-full font-black rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3';
-      dBtn.style.backgroundColor=accent;
-      dBtn.style.color='#000';
-      dBtn.style.marginTop='8px';
-      dBtn.style.display='block';
       dBtn.onclick=()=>openModal('detailed');
       dCopy.insertAdjacentElement('afterend',dBtn);
-    }else{
-      dBtn.style.display='block';
-      dBtn.style.backgroundColor=accent;
-      dBtn.style.color='#000';
     }
+    dBtn.textContent='⚙️ DETAILED COMPUTATION SETTINGS';
+    dBtn.style.cssText=`width:100%;font-weight:800;border-radius:0;padding:10px 4px;margin-top:10px;border:none;cursor:pointer;display:block;background:transparent;color:${accent};font-size:11px;letter-spacing:0.14em;text-align:center;`;
+
     let sBtn=document.getElementById('dl-simple-settings-btn');
     if(!sBtn){
       sBtn=document.createElement('button');
       sBtn.id='dl-simple-settings-btn';
-      sBtn.textContent='⚙️ SIMPLE COMPUTATION SETTINGS';
-      sBtn.className='w-full font-black rounded-2xl py-2.5 text-[11px] tracking-[0.12em] mt-3';
-      sBtn.style.backgroundColor=accent;
-      sBtn.style.color='#000';
-      sBtn.style.marginTop='8px';
-      sBtn.style.display='block';
       sBtn.onclick=()=>openModal('simple');
       sCopy.insertAdjacentElement('afterend',sBtn);
-    }else{
-      sBtn.style.display='block';
-      sBtn.style.backgroundColor=accent;
-      sBtn.style.color='#000';
     }
+    sBtn.textContent='⚙️ SIMPLE COMPUTATION SETTINGS';
+    sBtn.style.cssText=`width:100%;font-weight:800;border-radius:0;padding:10px 4px;margin-top:10px;border:none;cursor:pointer;display:block;background:transparent;color:${accent};font-size:11px;letter-spacing:0.14em;text-align:center;`;
   }
 
-  function updateOriginalStorage(){
+  function updateTrueOriginal(){
     const {dBox,sBox}=findBoxes();
-    const calcType=getCalcType();
     if(dBox){
-      const cur=dBox.textContent;
-      const stored=dBox.getAttribute('data-original-v8');
-      const storedType=dBox.getAttribute('data-calc-type-v8');
-      if(!stored){dBox.setAttribute('data-original-v8',cur);dBox.setAttribute('data-calc-type-v8',calcType);}
-      else if(storedType!==calcType){dBox.setAttribute('data-original-v8',cur);dBox.setAttribute('data-calc-type-v8',calcType);}
-      else if(calcType==='calc1'&&isFreshDetailed(cur)){dBox.setAttribute('data-original-v8',cur);}
-      else if(calcType!=='calc1'){dBox.setAttribute('data-original-v8',cur);}
+      const cur = dBox.getAttribute('data-true-original-v17');
+      const txt = dBox.textContent||'';
+      if(!cur || txt.length > cur.length || txt.includes('Client Desired')){
+        if(txt.includes('Amount Financed:') || txt.length > 300){
+          dBox.setAttribute('data-true-original-v17', txt);
+          dBox.setAttribute('data-original-v17', txt);
+          try{ localStorage.setItem(LS_TRUE_DET, txt); }catch(e){}
+        }
+      }
     }
     if(sBox){
-      const cur=sBox.textContent;
-      const stored=sBox.getAttribute('data-original-v8');
-      const storedType=sBox.getAttribute('data-calc-type-v8');
-      if(!stored){sBox.setAttribute('data-original-v8',cur);sBox.setAttribute('data-calc-type-v8',calcType);}
-      else if(storedType!==calcType){sBox.setAttribute('data-original-v8',cur);sBox.setAttribute('data-calc-type-v8',calcType);}
-      else if(calcType==='calc1'&&isFreshSimple(cur)){sBox.setAttribute('data-original-v8',cur);}
-      else if(calcType!=='calc1'){sBox.setAttribute('data-original-v8',cur);}
+      const cur = sBox.getAttribute('data-true-original-v17');
+      const txt = sBox.textContent||'';
+      if(!cur || txt.length > cur.length){
+        if(txt.includes('Monthly (') || txt.length > 200){
+          sBox.setAttribute('data-true-original-v17', txt);
+          sBox.setAttribute('data-original-v17', txt);
+          try{ localStorage.setItem(LS_TRUE_SIMP, txt); }catch(e){}
+        }
+      }
+    }
+    if(dBox && !dBox.getAttribute('data-true-original-v17')){
+      const ls = localStorage.getItem(LS_TRUE_DET);
+      if(ls) dBox.setAttribute('data-true-original-v17', ls);
+    }
+    if(sBox && !sBox.getAttribute('data-true-original-v17')){
+      const ls = localStorage.getItem(LS_TRUE_SIMP);
+      if(ls) sBox.setAttribute('data-true-original-v17', ls);
     }
   }
 
   function applyFilter(){
-    updateOriginalStorage();
+    updateTrueOriginal();
     const calcType=getCalcType();
     const {dBox,sBox}=findBoxes();
     const settings=loadSettings();
-    if(calcType!=='calc1'){
-      if(dBox){const orig=dBox.getAttribute('data-original-v8');if(orig&&dBox.textContent!==orig)dBox.textContent=orig;}
-      if(sBox){const orig=sBox.getAttribute('data-original-v8');if(orig&&sBox.textContent!==orig)sBox.textContent=orig;}
-      return;
-    }
-    if(dBox){
-      const original=dBox.getAttribute('data-original-v8')||dBox.textContent;
-      const filtered=filterText(original,settings.detailed,matchDetailed);
-      if(dBox.textContent!==filtered) dBox.textContent=filtered;
-    }
-    if(sBox){
-      const original=sBox.getAttribute('data-original-v8')||sBox.textContent;
-      const filtered=filterText(original,settings.simple,matchSimple);
-      if(sBox.textContent!==filtered) sBox.textContent=filtered;
-    }
+    if(!dBox || !sBox) return;
+    try{
+      let origD = dBox.getAttribute('data-true-original-v17') || dBox.getAttribute('data-original-v17') || dBox.textContent;
+      let filteredD;
+      if(calcType==='calc1') filteredD=filterText(origD,settings.detailed1,matchDetailed1);
+      else if(calcType==='calc2') filteredD=filterText(origD,settings.detailed2,matchDetailed2);
+      else filteredD=filterText(origD,settings.detailed3,matchDetailed3);
+      if(dBox.textContent!==filteredD) dBox.textContent=filteredD;
+
+      let origS = sBox.getAttribute('data-true-original-v17') || sBox.getAttribute('data-original-v17') || sBox.textContent;
+      let filteredS;
+      if(calcType==='calc1') filteredS=filterText(origS,settings.simple1,matchSimple1);
+      else if(calcType==='calc2') filteredS=filterText(origS,settings.simple2,matchSimple2);
+      else filteredS=filterText(origS,settings.simple3,matchSimple3);
+      if(sBox.textContent!==filteredS) sBox.textContent=filteredS;
+    }catch(e){}
   }
 
   function openModal(type){
-    if(getCalcType()!=='calc1'){alert('Settings available only for Calculator 1');return;}
     let modal=document.getElementById('dl-settings-modal');
     if(!modal){
       modal=document.createElement('div');
       modal.id='dl-settings-modal';
-      modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:12px;';
+      modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:12px;';
       modal.innerHTML='<div id="dl-modal-inner" style="background:#131c31;border:1px solid #2a3655;border-radius:20px;width:100%;max-width:520px;max-height:85vh;overflow:auto;padding:16px;"></div>';
       modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});
       document.body.appendChild(modal);
@@ -597,19 +689,19 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
     const inner=document.getElementById('dl-modal-inner');
     if(!inner) return;
     const settings=loadSettings();
+    const calcType=getCalcType();
     const isDet=type==='detailed';
     const accent=getAccent();
-    const title=isDet?'DETAILED COMPUTATION SETTINGS (CAL1 ONLY)':'SIMPLE COMPUTATION SETTINGS (CAL1 ONLY)';
+    let title=isDet?'DETAILED COMPUTATION SETTINGS':'SIMPLE COMPUTATION SETTINGS';
+
     inner.innerHTML=`
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <div><div style="font-size:14px;font-weight:900;color:${accent};">⚙️ ${title}</div><div style="font-size:10px;color:#8a96b5;margin-top:4px;">Cal1 lang • Filtered ang ma COPY gyud</div></div>
+        <div><div style="font-size:14px;font-weight:900;color:${accent};">⚙️ ${title}</div></div>
         <button id="dl-close" style="width:32px;height:32px;border-radius:999px;background:#0f172a;border:1px solid #2a3655;color:#8a96b5;">✕</button>
       </div>
       <div style="background:#0a0f1e;border:1px solid #1e293b;border-radius:16px;padding:12px;margin-bottom:16px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;color:#8a96b5;margin-bottom:12px;">${isDet?'DETAILED - 9 ITEMS':'SIMPLE - 8 ITEMS'} (CAL1 ONLY)</div>
         <div id="dl-list" style="display:flex;flex-direction:column;gap:8px;"></div>
       </div>
-      <div style="font-size:10px;color:#5b6786;background:#080c18;border-radius:12px;padding:12px;border:1px solid #1a233a;margin-bottom:12px;">• Naka-check = makita + ma COPY<br>• Dili check = dili makita + dili ma COPY<br>• Unit, SRP, Monthly = automatic apil</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <button id="dl-reset" style="border-radius:999px;padding:12px;font-size:11px;font-weight:700;border:1px solid #2a3655;color:#8a96b5;background:#0f172a;">RESET TO DEFAULT</button>
         <button id="dl-save" style="border-radius:999px;padding:12px;font-size:11px;font-weight:900;background:${accent};color:#000;">SAVE & CLOSE</button>
@@ -618,33 +710,118 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
     document.getElementById('dl-close').onclick=()=>{document.getElementById('dl-settings-modal').style.display='none';};
     document.getElementById('dl-save').onclick=()=>{document.getElementById('dl-settings-modal').style.display='none';};
     document.getElementById('dl-reset').onclick=()=>{
-      if(isDet){const s=loadSettings();saveSettings({...DETAILED_DEFAULT},s.simple);}
-      else{const s=loadSettings();saveSettings(s.detailed,{...SIMPLE_DEFAULT});}
-      renderModal(type);setTimeout(applyFilter,100);
+      const cur=loadSettings();
+      if(calcType==='calc1'){
+        if(isDet) cur.detailed1={...DETAILED_DEFAULT_CAL1};
+        else cur.simple1={...SIMPLE_DEFAULT_CAL1};
+      }else if(calcType==='calc2'){
+        if(isDet) cur.detailed2={...DETAILED_DEFAULT_CAL2};
+        else cur.simple2={...SIMPLE_DEFAULT_CAL2};
+      }else{
+        if(isDet) cur.detailed3={...DETAILED_DEFAULT_CAL3};
+        else cur.simple3={...SIMPLE_DEFAULT_CAL3};
+      }
+      saveSettings(cur);
+      renderModal(type);
+      setTimeout(()=>{
+        const {dBox,sBox}=findBoxes();
+        const trueDet = localStorage.getItem(LS_TRUE_DET);
+        const trueSimp = localStorage.getItem(LS_TRUE_SIMP);
+        if(dBox && trueDet) dBox.setAttribute('data-true-original-v17', trueDet);
+        if(sBox && trueSimp) sBox.setAttribute('data-true-original-v17', trueSimp);
+        applyFilter();
+      },100);
     };
-    const detailedItems=[
-      {k:'clientDesired',label:'1.) Client Desired DP Amount'},
-      {k:'baseDown',label:'2.) Base Down Payment (20.00%)'},
-      {k:'officialPromo',label:'3.) Official Promo DP'},
-      {k:'clientNet',label:'4.) Client Net DP (Actual Client Cashout)'},
-      {k:'clientDiscount',label:'5.) Client Discount'},
-      {k:'totalDP',label:'6.) Total DP Deductible to Unit SRP'},
-      {k:'amountFinanced',label:'7.) Amount Financed'},
-      {k:'bankRate',label:'8.) Bank Interest Rate'},
-      {k:'estimated',label:'9.) Estimated computation only.'}
-    ];
-    const simpleItems=[
-      {k:'clientDesired',label:'1.) Client Desired DP Amount'},
-      {k:'officialPromo',label:'2.) Official Promo DP'},
-      {k:'clientNet',label:'3.) Client Net DP (Actual Client Cashout)'},
-      {k:'clientDiscount',label:'4.) Client Discount'},
-      {k:'totalDP',label:'5.) Total DP Deductible to Unit SRP'},
-      {k:'amountFinanced',label:'6.) Amount Financed'},
-      {k:'bankRate',label:'7.) Bank Interest Rate'},
-      {k:'estimated',label:'8.) Estimated computation only.'}
-    ];
-    const items=isDet?detailedItems:simpleItems;
-    const obj=isDet?settings.detailed:settings.simple;
+
+    let items=[];
+    if(calcType==='calc1'){
+      if(isDet){
+        items=[
+          {k:'clientDesired',label:'1.) Client Desired DP Amount'},
+          {k:'baseDown',label:'2.) Base Down Payment'},
+          {k:'officialPromo',label:'3.) Official Promo DP'},
+          {k:'clientNet',label:'4.) Client Net DP (Actual Client Cashout)'},
+          {k:'clientDiscount',label:'5.) Client Discount'},
+          {k:'totalDP',label:'6.) Total DP Deductible to Unit SRP'},
+          {k:'amountFinanced',label:'7.) Amount Financed'},
+          {k:'bankRate',label:'8.) Bank Interest Rate'},
+          {k:'estimated',label:'9.) Estimated computation only. Subject to change without prior notice.'}
+        ];
+      }else{
+        items=[
+          {k:'clientDesired',label:'1.) Client Desired DP Amount'},
+          {k:'officialPromo',label:'2.) Official Promo DP'},
+          {k:'clientNet',label:'3.) Client Net DP (Actual Client Cashout)'},
+          {k:'clientDiscount',label:'4.) Client Discount'},
+          {k:'totalDP',label:'5.) Total DP Deductible to Unit SRP'},
+          {k:'amountFinanced',label:'6.) Amount Financed'},
+          {k:'bankRate',label:'7.) Bank Interest Rate'},
+          {k:'estimated',label:'8.) Estimated computation only. Subject to change without prior notice.'}
+        ];
+      }
+    }else if(calcType==='calc2'){
+      if(isDet){
+        items=[
+          {k:'clientDesiredPct',label:'1.) Client Desired DP Percentage'},
+          {k:'clientDesiredAmt',label:'2.) Client Desired DP Amount'},
+          {k:'baseDown',label:'3.) Base Down Payment'},
+          {k:'officialPromo',label:'4.) Official Promo DP'},
+          {k:'clientNet',label:'5.) Client Net DP (Actual Client Cashout)'},
+          {k:'clientDiscount',label:'6.) Client Discount'},
+          {k:'totalDP',label:'7.) Total DP Deductible to Unit SRP'},
+          {k:'amountFinanced',label:'8.) Amount Financed'},
+          {k:'bankRate',label:'9.) Bank Interest Rate'},
+          {k:'estimated',label:'10.) Estimated computation only. Subject to change without prior notice.'}
+        ];
+      }else{
+        items=[
+          {k:'clientDesiredPct',label:'1.) Client Desired DP Percentage'},
+          {k:'clientDesiredAmt',label:'2.) Client Desired DP Amount'},
+          {k:'officialPromo',label:'3.) Official Promo DP'},
+          {k:'clientNet',label:'4.) Client Net DP (Actual Client Cashout)'},
+          {k:'clientDiscount',label:'5.) Client Discount'},
+          {k:'totalDP',label:'6.) Total DP Deductible to Unit SRP'},
+          {k:'amountFinanced',label:'7.) Amount Financed'},
+          {k:'bankRate',label:'8.) Bank Interest Rate'},
+          {k:'estimated',label:'9.) Estimated computation only. Subject to change without prior notice.'}
+        ];
+      }
+    }else{
+      if(isDet){
+        items=[
+          {k:'desiredMonthly',label:'1.) Client\'s Desired Monthly'},
+          {k:'baseDown',label:'2.) Base Down Payment'},
+          {k:'officialPromo',label:'3.) Official Promo DP'},
+          {k:'requiredDP',label:'4.) Client Required DP Amount'},
+          {k:'clientNet',label:'5.) Client Net DP (Actual Client Cashout)'},
+          {k:'clientDiscount',label:'6.) Client Discount'},
+          {k:'totalDP',label:'7.) Total DP Deductible to Unit SRP'},
+          {k:'amountFinanced',label:'8.) Amount Financed'},
+          {k:'bankRate',label:'9.) Bank Interest Rate'},
+          {k:'estimated',label:'10.) Estimated computation only. Subject to change without prior notice.'}
+        ];
+      }else{
+        items=[
+          {k:'desiredMonthly',label:'1.) Client Desired Monthly'},
+          {k:'officialPromo',label:'2.) Official Promo DP'},
+          {k:'requiredDP',label:'3.) Client Required DP Amount'},
+          {k:'clientNet',label:'4.) Client Net DP (Actual Client Cashout)'},
+          {k:'clientDiscount',label:'5.) Client Discount'},
+          {k:'totalDP',label:'6.) Total DP Deductible to Unit SRP'},
+          {k:'amountFinanced',label:'7.) Amount Financed'},
+          {k:'monthly5y',label:'8.) Monthly (5 Years)'},
+          {k:'loanTerm',label:'9.) Loan Term'},
+          {k:'bankRate',label:'10.) Bank Interest Rate'},
+          {k:'estimated',label:'11.) Estimated computation only. Subject to change without prior notice.'}
+        ];
+      }
+    }
+
+    let obj;
+    if(calcType==='calc1') obj=isDet?settings.detailed1:settings.simple1;
+    else if(calcType==='calc2') obj=isDet?settings.detailed2:settings.simple2;
+    else obj=isDet?settings.detailed3:settings.simple3;
+
     const list=document.getElementById('dl-list');
     items.forEach(it=>{
       const checked=obj[it.k];
@@ -653,9 +830,17 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
       row.innerHTML=`<div style="width:20px;height:20px;border-radius:6px;border:1px solid ${checked?accent:'#3a455f'};background:${checked?accent:'transparent'};display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:12px;">${checked?'✓':''}</div><span style="font-size:11px;font-weight:600;color:${checked?'#fff':'#5b6786'};">${it.label}</span>`;
       row.onclick=()=>{
         const cur=loadSettings();
-        if(isDet) cur.detailed[it.k]=!cur.detailed[it.k];
-        else cur.simple[it.k]=!cur.simple[it.k];
-        saveSettings(cur.detailed,cur.simple);
+        if(calcType==='calc1'){
+          if(isDet) cur.detailed1[it.k]=!cur.detailed1[it.k];
+          else cur.simple1[it.k]=!cur.simple1[it.k];
+        }else if(calcType==='calc2'){
+          if(isDet) cur.detailed2[it.k]=!cur.detailed2[it.k];
+          else cur.simple2[it.k]=!cur.simple2[it.k];
+        }else{
+          if(isDet) cur.detailed3[it.k]=!cur.detailed3[it.k];
+          else cur.simple3[it.k]=!cur.simple3[it.k];
+        }
+        saveSettings(cur);
         renderModal(type);
         setTimeout(applyFilter,100);
       };
@@ -665,20 +850,28 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
 
   function boot(){
     ensureButtons();
+    const {dBox,sBox}=findBoxes();
+    if(dBox){
+      const ls = localStorage.getItem(LS_TRUE_DET);
+      if(ls) dBox.setAttribute('data-true-original-v17', ls);
+    }
+    if(sBox){
+      const ls = localStorage.getItem(LS_TRUE_SIMP);
+      if(ls) sBox.setAttribute('data-true-original-v17', ls);
+    }
     setTimeout(()=>{
-      const {dBox,sBox}=findBoxes();
-      if(dBox){dBox.setAttribute('data-original-v8',dBox.textContent);dBox.setAttribute('data-calc-type-v8',getCalcType());}
-      if(sBox){sBox.setAttribute('data-original-v8',sBox.textContent);sBox.setAttribute('data-calc-type-v8',getCalcType());}
+      updateTrueOriginal();
       applyFilter();
-    },1000);
-    setInterval(()=>{ensureButtons();applyFilter();},1200);
+    },600);
+    setInterval(()=>{ensureButtons();updateTrueOriginal();applyFilter();},1000);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();
 </script>
 <style>
-#dl-detailed-settings-btn, #dl-simple-settings-btn { color:#000 !important; font-weight:900 !important; }
+#dl-detailed-settings-btn, #dl-simple-settings-btn { background:transparent !important; border:none !important; }
 </style>
+
 </body>
 </html>
