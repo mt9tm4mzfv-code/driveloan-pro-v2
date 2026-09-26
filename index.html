@@ -192,15 +192,12 @@ input[type=range]{accent-color:var(--dl-accent,#5aa8ff);}
 </script>
 
 
-<style id="rollback-clean-capsule">
-/* Hide debug UI if any */
+<style id="rollback-clean-capsule-v3">
 div.text-\[10px\].text-\[\#5b6786\].px-1.-mt-1{ display:none !important; }
 div.text-\[10px\].text-\[\#5b6786\].px-1{ display:none !important; }
 div.text-\[10px\].text-\[\#5b6786\].mt-1{ display:none !important; }
 div.mt-2.text-\[10px\].bg-\[\#12261a\]{ display:none !important; }
 div.text-\[9px\].tracking-\[0\.14em\].text-\[\#64748b\]{ display:none !important; }
-div.flex.items-center.justify-between:has(div.text-\[10px\].tracking-\[0\.14em\].text-\[\#8a96b5\]){ display:none !important; }
-/* Capsule fix - safe */
 @media (max-width: 480px){
   div.bg-\[\#0f172a\].border.border-\[\#2a3655\].rounded-xl{ min-width: 108px !important; max-width: 112px !important; padding-left: 10px !important; padding-right: 8px !important; }
   div.bg-\[\#0f172a\].border.border-\[\#2a3655\].rounded-xl input{ width: 60px !important; font-size: 12px !important; }
@@ -365,5 +362,319 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
 </script>
   <script>(function(){function m(a){var h=a.getAttribute("href");if(!h)return;try{var u=new URL(h,document.baseURI);if((u.protocol==="http:"||u.protocol==="https:")&&u.host!==location.host){a.target="_blank";a.rel="noopener noreferrer";}}catch(e){}}function s(){document.querySelectorAll("a[href]").forEach(m);}if(document.readyState!=="loading"){s();}else{document.addEventListener("DOMContentLoaded",s);}document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(a){m(a);}},true);})();</script>
   
-<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+<script id="safe-settings-v2-copy-only">
+(() => {
+  const LS_KEY = 'dl-settings-v2';
+  const defaultSettings = {
+    detailed1: { clientDesired:true, baseDown:true, officialPromo:true, clientNet:true, clientDiscount:true, totalDP:true, amountFinanced:true, bankRate:true, estimated:true },
+    simple1: { clientDesired:true, officialPromo:true, clientNet:true, clientDiscount:true, totalDP:true, amountFinanced:true, bankRate:true, estimated:true },
+    detailed2: { clientDesiredPct:true, clientDesiredAmt:true, baseDown:true, officialPromo:true, clientNet:true, clientDiscount:true, totalDP:true, amountFinanced:true, bankRate:true, estimated:true },
+    simple2: { clientDesiredPct:true, clientDesiredAmt:true, officialPromo:true, clientNet:true, clientDiscount:true, totalDP:true, amountFinanced:true, bankRate:true, estimated:true },
+    detailed3: { desiredMonthly:true, baseDown:true, officialPromo:true, requiredDP:true, clientNet:true, clientDiscount:true, totalDP:true, amountFinanced:true, bankRate:true, estimated:true, monthly5y:true, loanTerm:true },
+    simple3: { desiredMonthly:true, officialPromo:true, requiredDP:true, clientNet:true, clientDiscount:true, totalDP:true, amountFinanced:true, monthly5y:true, loanTerm:true, bankRate:true, estimated:true }
+  };
+
+  function loadSettings(){
+    try{
+      const s = JSON.parse(localStorage.getItem(LS_KEY)||'{}');
+      return {
+        detailed1: {...defaultSettings.detailed1, ...(s.detailed1||{})},
+        simple1: {...defaultSettings.simple1, ...(s.simple1||{})},
+        detailed2: {...defaultSettings.detailed2, ...(s.detailed2||{})},
+        simple2: {...defaultSettings.simple2, ...(s.simple2||{})},
+        detailed3: {...defaultSettings.detailed3, ...(s.detailed3||{})},
+        simple3: {...defaultSettings.simple3, ...(s.simple3||{})},
+      };
+    }catch(e){ return JSON.parse(JSON.stringify(defaultSettings)); }
+  }
+  function saveSettings(s){ try{ localStorage.setItem(LS_KEY, JSON.stringify(s)); }catch(e){} }
+
+  function getCalcType(){
+    const bodyText = document.body.innerText||'';
+    if(bodyText.includes('Client Desired DP Percentage:')) return 'calc2';
+    if(bodyText.includes("Client's Desired Monthly") || bodyText.includes('Desired Monthly:') || bodyText.includes('Client Required DP Amount')) return 'calc3';
+    return 'calc1';
+  }
+
+  function matchDetailed1(line){
+    if(line.includes('Client Desired DP Amount:')) return 'clientDesired';
+    if(line.includes('Base Down Payment')) return 'baseDown';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+  function matchSimple1(line){ 
+    if(line.includes('Client Desired DP Amount:')) return 'clientDesired';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+  function matchDetailed2(line){
+    if(line.includes('Client Desired DP Percentage:')) return 'clientDesiredPct';
+    if(line.includes('Client Desired DP Amount:')) return 'clientDesiredAmt';
+    if(line.includes('Base Down Payment')) return 'baseDown';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+  function matchSimple2(line){
+    if(line.includes('Client Desired DP Percentage:')) return 'clientDesiredPct';
+    if(line.includes('Client Desired DP Amount:')) return 'clientDesiredAmt';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+  function matchDetailed3(line){
+    if(line.includes('Desired Monthly:') || line.includes("Desired Monthly")) return 'desiredMonthly';
+    if(line.includes('Base Down Payment')) return 'baseDown';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Required DP Amount') || line.includes('Client Required DP Amount')) return 'requiredDP';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Monthly (5 Years):')) return 'monthly5y';
+    if(line.includes('Loan Term:')) return 'loanTerm';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+  function matchSimple3(line){
+    if(line.includes('Desired Monthly:') || line.includes("Desired Monthly")) return 'desiredMonthly';
+    if(line.includes('Official Promo DP:')) return 'officialPromo';
+    if(line.includes('Required DP Amount') || line.includes('Client Required DP Amount')) return 'requiredDP';
+    if(line.includes('Client Net DP')) return 'clientNet';
+    if(line.includes('Client Discount:')) return 'clientDiscount';
+    if(line.includes('Total DP Deductible')) return 'totalDP';
+    if(line.includes('Amount Financed:')) return 'amountFinanced';
+    if(line.includes('Monthly (5 Years):')) return 'monthly5y';
+    if(line.includes('Loan Term:')) return 'loanTerm';
+    if(line.includes('Bank Interest Rate:')) return 'bankRate';
+    if(line.includes('Estimated computation only')) return 'estimated';
+    return null;
+  }
+
+  function filterText(original, settings, matcher){
+    if(!original) return original;
+    const lines = original.split('\n');
+    const out = [];
+    for(const line of lines){
+      const k = matcher(line);
+      if(k===null){ out.push(line); continue; }
+      if(settings[k]) out.push(line);
+    }
+    return out.join('\n');
+  }
+
+  function getAccent(){
+    const t = getCalcType();
+    if(t==='calc2') return '#3b82f6';
+    if(t==='calc3') return '#f59e0b';
+    return '#10b981';
+  }
+
+  function findBoxes(){
+    const allBtns = Array.from(document.querySelectorAll('button'));
+    let dCopy = allBtns.filter(b=> b.offsetParent!==null).find(b=> (b.textContent||'').includes('COPY DETAILED')) || allBtns.find(b=> (b.textContent||'').includes('COPY DETAILED'));
+    let sCopy = allBtns.filter(b=> b.offsetParent!==null).find(b=> (b.textContent||'').includes('COPY SIMPLE')) || allBtns.find(b=> (b.textContent||'').includes('COPY SIMPLE'));
+    return {dCopy,sCopy};
+  }
+
+  function ensureButtons(){
+    const {dCopy,sCopy}=findBoxes();
+    const accent=getAccent();
+    let dBtn=document.getElementById('dl-detailed-settings-btn');
+    if(!dBtn){
+      dBtn=document.createElement('button');
+      dBtn.id='dl-detailed-settings-btn';
+      dBtn.onclick=()=>openModal('detailed');
+      if(dCopy) dCopy.insertAdjacentElement('afterend',dBtn);
+    }
+    if(dBtn){
+      dBtn.textContent='⚙️ DETAILED COMPUTATION SETTINGS';
+      dBtn.style.cssText=`width:100%;font-weight:800;border-radius:0;padding:10px 4px;margin-top:10px;border:none;cursor:pointer;display:block;background:transparent;color:${accent};font-size:11px;letter-spacing:0.14em;text-align:center;`;
+    }
+    let sBtn=document.getElementById('dl-simple-settings-btn');
+    if(!sBtn){
+      sBtn=document.createElement('button');
+      sBtn.id='dl-simple-settings-btn';
+      sBtn.onclick=()=>openModal('simple');
+      if(sCopy) sCopy.insertAdjacentElement('afterend',sBtn);
+    }
+    if(sBtn){
+      sBtn.textContent='⚙️ SIMPLE COMPUTATION SETTINGS';
+      sBtn.style.cssText=`width:100%;font-weight:800;border-radius:0;padding:10px 4px;margin-top:10px;border:none;cursor:pointer;display:block;background:transparent;color:${accent};font-size:11px;letter-spacing:0.14em;text-align:center;`;
+    }
+  }
+
+  function openModal(type){
+    let modal=document.getElementById('dl-settings-modal');
+    if(!modal){
+      modal=document.createElement('div');
+      modal.id='dl-settings-modal';
+      modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:12px;';
+      modal.innerHTML='<div id="dl-modal-inner" style="background:#131c31;border:1px solid #2a3655;border-radius:20px;width:100%;max-width:520px;max-height:85vh;overflow:auto;padding:16px;"></div>';
+      modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});
+      document.body.appendChild(modal);
+    }
+    modal.style.display='flex';
+    renderModal(type);
+  }
+
+  function renderModal(type){
+    const inner=document.getElementById('dl-modal-inner');
+    const calcType=getCalcType();
+    const settings=loadSettings();
+    const isDetailed = type==='detailed';
+    let current;
+    if(calcType==='calc1') current = isDetailed ? settings.detailed1 : settings.simple1;
+    else if(calcType==='calc2') current = isDetailed ? settings.detailed2 : settings.simple2;
+    else current = isDetailed ? settings.detailed3 : settings.simple3;
+
+    const accent=getAccent();
+    const title = isDetailed ? 'DETAILED COMPUTATION SETTINGS' : 'SIMPLE COMPUTATION SETTINGS';
+    const calcName = calcType==='calc1' ? 'CAL 1 - DP Amount' : calcType==='calc2' ? 'CAL 2 - DP Percentage' : 'CAL 3 - Monthly';
+
+    let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div><div style="font-weight:800;color:${accent};font-size:12px;letter-spacing:0.1em;">${title}</div><div style="font-size:10px;color:#8a96b5;margin-top:2px;">${calcName} - Applies to COPY only</div></div><button onclick="document.getElementById('dl-settings-modal').style.display='none'" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:8px;padding:6px 12px;cursor:pointer;">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;">`;
+    
+    const labels = {
+      clientDesired:'Client Desired DP Amount', baseDown:'Base Down Payment', officialPromo:'Official Promo DP', clientNet:'Client Net DP (Actual Client Cashout)', clientDiscount:'Client Discount', totalDP:'Total DP Deductible to Unit SRP', amountFinanced:'Amount Financed', bankRate:'Bank Interest Rate', estimated:'Estimated computation only. Subject to change without prior notice.',
+      clientDesiredPct:'Client Desired DP Percentage', clientDesiredAmt:'Client Desired DP Amount', desiredMonthly:"Client\'s Desired Monthly", requiredDP:'Client Required DP Amount', monthly5y:'Monthly (5 Years)', loanTerm:'Loan Term'
+    };
+
+    for(const [key,val] of Object.entries(current)){
+      const label = labels[key]||key;
+      const checked = val ? 'checked' : '';
+      html += `<label style="display:flex;align-items:center;gap:12px;background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:10px 12px;cursor:pointer;"><input type="checkbox" data-key="${key}" ${checked} style="width:18px;height:18px;accent-color:${accent};flex-shrink:0;"><span style="font-size:11px;color:#e2e8f0;font-weight:600;flex:1;line-height:1.3;">${label}</span></label>`;
+    }
+    html += `</div><div style="margin-top:14px;display:flex;gap:8px;"><button id="dl-reset" style="flex:1;background:#1e293b;border:1px solid #334155;color:#e2e8f0;font-weight:700;border-radius:10px;padding:10px;cursor:pointer;">RESET TO DEFAULT</button><button id="dl-save" style="flex:1;background:${accent};color:#000;font-weight:800;border:none;border-radius:10px;padding:10px;cursor:pointer;">SAVE</button></div>`;
+    inner.innerHTML=html;
+
+    inner.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+      cb.addEventListener('change',()=>{
+        const k=cb.getAttribute('data-key');
+        current[k]=cb.checked;
+      });
+    });
+    document.getElementById('dl-save').onclick=()=>{
+      const all=loadSettings();
+      if(calcType==='calc1'){
+        if(isDetailed){ all.detailed1=current; }
+        else { all.simple1=current; }
+      } else if(calcType==='calc2'){
+        if(isDetailed){ all.detailed2=current; }
+        else { all.simple2=current; }
+      } else {
+        if(isDetailed){ all.detailed3=current; }
+        else { all.simple3=current; }
+      }
+      // Mirror: when detailed changes, also update simple for same keys
+      if(isDetailed){
+        if(calcType==='calc1'){ for(const k in current){ if(k in all.simple1) all.simple1[k]=current[k]; } }
+        if(calcType==='calc2'){ for(const k in current){ if(k in all.simple2) all.simple2[k]=current[k]; } }
+        if(calcType==='calc3'){ for(const k in current){ if(k in all.simple3) all.simple3[k]=current[k]; } }
+      }
+      saveSettings(all);
+      document.getElementById('dl-settings-modal').style.display='none';
+    };
+    document.getElementById('dl-reset').onclick=()=>{
+      localStorage.removeItem(LS_KEY);
+      document.getElementById('dl-settings-modal').style.display='none';
+      setTimeout(()=>{ location.reload(); },200);
+    };
+  }
+
+  // Intercept COPY - filter at copy time only, don't touch display
+  function interceptCopy(){
+    const origClipboardWrite = navigator.clipboard.writeText.bind(navigator.clipboard);
+    navigator.clipboard.writeText = async (text) => {
+      try{
+        const calcType = getCalcType();
+        const settings = loadSettings();
+        // Check if this is our computation text (contains Unit SRP etc)
+        if(text && text.includes('Unit:') && text.includes('Unit SRP:')){
+          let filtered = text;
+          const isDetailed = text.includes('(%)') || text.includes('(100%)');
+          if(calcType==='calc1'){
+            if(isDetailed) filtered = filterText(text, settings.detailed1, matchDetailed1);
+            else filtered = filterText(text, settings.simple1, matchSimple1);
+          } else if(calcType==='calc2'){
+            if(isDetailed) filtered = filterText(text, settings.detailed2, matchDetailed2);
+            else filtered = filterText(text, settings.simple2, matchSimple2);
+          } else {
+            if(isDetailed) filtered = filterText(text, settings.detailed3, matchDetailed3);
+            else filtered = filterText(text, settings.simple3, matchSimple3);
+          }
+          return await origClipboardWrite(filtered);
+        }
+      }catch(e){}
+      return await origClipboardWrite(text);
+    };
+
+    // Also intercept textarea fallback
+    const origExec = document.execCommand;
+    document.execCommand = function(cmd){
+      if(cmd==='copy'){
+        try{
+          const active = document.activeElement;
+          const sel = window.getSelection()?.toString() || '';
+          // If copying computation, filter it
+          if(sel && sel.includes('Unit:') && sel.includes('Unit SRP:')){
+            const calcType = getCalcType();
+            const settings = loadSettings();
+            const isDetailed = sel.includes('(%)');
+            let filtered = sel;
+            if(calcType==='calc1'){
+              if(isDetailed) filtered = filterText(sel, settings.detailed1, matchDetailed1);
+              else filtered = filterText(sel, settings.simple1, matchSimple1);
+            } else if(calcType==='calc2'){
+              if(isDetailed) filtered = filterText(sel, settings.detailed2, matchDetailed2);
+              else filtered = filterText(sel, settings.simple2, matchSimple2);
+            } else {
+              if(isDetailed) filtered = filterText(sel, settings.detailed3, matchDetailed3);
+              else filtered = filterText(sel, settings.simple3, matchSimple3);
+            }
+            // Replace textarea value if exists
+            const ta = document.querySelector('textarea');
+            if(ta) ta.value = filtered;
+          }
+        }catch(e){}
+      }
+      return origExec.apply(document, arguments);
+    };
+  }
+
+  function boot(){
+    interceptCopy();
+    ensureButtons();
+    setInterval(ensureButtons, 1500);
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
+</body>
 </html>
