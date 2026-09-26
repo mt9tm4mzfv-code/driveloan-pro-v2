@@ -614,13 +614,18 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
     sBtn.style.cssText=`width:100%;font-weight:800;border-radius:0;padding:10px 4px;margin-top:10px;border:none;cursor:pointer;display:block;background:transparent;color:${accent};font-size:11px;letter-spacing:0.14em;text-align:center;`;
   }
 
+  let dl_isOurUpdate=false;
+  function dl_isFull(txt){
+    return txt && txt.includes('Unit:') && txt.length>100;
+  }
   function updateTrueOriginal(){
+    if(dl_isOurUpdate) return;
     const {dBox,sBox}=findBoxes();
     if(dBox){
-      const cur = dBox.getAttribute('data-true-original-v17');
       const txt = dBox.textContent||'';
-      if(!cur || txt.length > cur.length || txt.includes('Client Desired')){
-        if(txt.includes('Amount Financed:') || txt.length > 300){
+      if(dl_isFull(txt)){
+        const cur = dBox.getAttribute('data-true-original-v17')||'';
+        if(txt!==cur){
           dBox.setAttribute('data-true-original-v17', txt);
           dBox.setAttribute('data-original-v17', txt);
           try{ localStorage.setItem(LS_TRUE_DET, txt); }catch(e){}
@@ -628,10 +633,10 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
       }
     }
     if(sBox){
-      const cur = sBox.getAttribute('data-true-original-v17');
       const txt = sBox.textContent||'';
-      if(!cur || txt.length > cur.length){
-        if(txt.includes('Monthly (') || txt.length > 200){
+      if(dl_isFull(txt)){
+        const cur = sBox.getAttribute('data-true-original-v17')||'';
+        if(txt!==cur){
           sBox.setAttribute('data-true-original-v17', txt);
           sBox.setAttribute('data-original-v17', txt);
           try{ localStorage.setItem(LS_TRUE_SIMP, txt); }catch(e){}
@@ -649,25 +654,32 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
   }
 
   function applyFilter(){
-    updateTrueOriginal();
-    const calcType=getCalcType();
     const {dBox,sBox}=findBoxes();
-    const settings=loadSettings();
     if(!dBox || !sBox) return;
+    const calcType=getCalcType();
+    const settings=loadSettings();
     try{
       let origD = dBox.getAttribute('data-true-original-v17') || dBox.getAttribute('data-original-v17') || dBox.textContent;
       let filteredD;
       if(calcType==='calc1') filteredD=filterText(origD,settings.detailed1,matchDetailed1);
       else if(calcType==='calc2') filteredD=filterText(origD,settings.detailed2,matchDetailed2);
       else filteredD=filterText(origD,settings.detailed3,matchDetailed3);
-      if(dBox.textContent!==filteredD) dBox.textContent=filteredD;
+      if(dBox.textContent!==filteredD){
+        dl_isOurUpdate=true;
+        dBox.textContent=filteredD;
+        setTimeout(()=>{dl_isOurUpdate=false;},100);
+      }
 
       let origS = sBox.getAttribute('data-true-original-v17') || sBox.getAttribute('data-original-v17') || sBox.textContent;
       let filteredS;
       if(calcType==='calc1') filteredS=filterText(origS,settings.simple1,matchSimple1);
       else if(calcType==='calc2') filteredS=filterText(origS,settings.simple2,matchSimple2);
       else filteredS=filterText(origS,settings.simple3,matchSimple3);
-      if(sBox.textContent!==filteredS) sBox.textContent=filteredS;
+      if(sBox.textContent!==filteredS){
+        dl_isOurUpdate=true;
+        sBox.textContent=filteredS;
+        setTimeout(()=>{dl_isOurUpdate=false;},100);
+      }
     }catch(e){}
   }
 
@@ -863,7 +875,37 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
       updateTrueOriginal();
       applyFilter();
     },600);
-    setInterval(()=>{ensureButtons();updateTrueOriginal();applyFilter();},1000);
+
+    // V20: Reactive - when React updates boxes after input change, capture new true original
+    let bootObserver = new MutationObserver((muts)=>{
+      if(dl_isOurUpdate) return;
+      let hasUnit=false;
+      for(let m of muts){
+        let el=m.target;
+        if(el && el.textContent && el.textContent.includes('Unit:')){ hasUnit=true; break; }
+        if(el && el.parentElement && el.parentElement.textContent && el.parentElement.textContent.includes('Unit:')){ hasUnit=true; break; }
+      }
+      if(hasUnit){
+        setTimeout(()=>{
+          if(dl_isOurUpdate) return;
+          updateTrueOriginal();
+          applyFilter();
+        },80);
+      }
+    });
+    bootObserver.observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+
+    // When user types in any input, React will recalc after ~100-300ms, then we update
+    document.addEventListener('input',()=>{
+      setTimeout(()=>{ updateTrueOriginal(); applyFilter(); },350);
+      setTimeout(()=>{ updateTrueOriginal(); applyFilter(); },700);
+    },{passive:true});
+    document.addEventListener('change',()=>{
+      setTimeout(()=>{ updateTrueOriginal(); applyFilter(); },350);
+    },{passive:true});
+
+    setInterval(()=>{ensureButtons();},1000);
+    setInterval(()=>{ if(!dl_isOurUpdate){ updateTrueOriginal(); applyFilter(); } },1500);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
   else boot();
