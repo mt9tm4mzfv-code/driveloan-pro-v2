@@ -235,15 +235,15 @@ Monthly (${O} Years): ₱${N(au)}
 Bank Interest Rate: ${a.toFixed(2)}%
 
 Estimated computation only. Subject to change without prior notice.`:e===2?`Client Desired DP Percentage: ${P.toFixed(2)}%
-Client Desired DP Amount: ₱${N(on)} (${Vo.toFixed(2)}%)
+Client Desired DP Amount: ₱${N(Zn)} (${Ao.toFixed(2)}%)
 Unit: ${t}
 Unit SRP: ₱${N(R)} (100%)
 Base Down Payment (${g.toFixed(2)}%): ₱${N(ou)}
 Official Promo DP: ₱${N(se)}${h&&h.trim()?`
 Additional Cashout for ${h}: ${N(Ye)}`:``}
-Client Net DP (Actual Client Cashout): ₱${N(su)} (${Bo.toFixed(2)}%)
+Client Net DP (Actual Client Cashout): ₱${N(Zn+Ye)} (${((Zn+Ye)/R*100).toFixed(2)}%)
 Client Discount: ₱${N(Pr)} (${Ko.toFixed(2)}%)
-Total DP Deductible to Unit SRP: ₱${N(Jn)} (${Rr.toFixed(4)}%)
+Total DP Deductible to Unit SRP: ₱${N(Zn+Ye)} (${((Zn+Ye)/R*100).toFixed(4)}%)
 Amount Financed: ₱${N(Zn)} (${Ao.toFixed(2)}%)
 Monthly (${O} Years): ₱${N(au)}
 Bank Interest Rate: ${a.toFixed(2)}%
@@ -288,14 +288,14 @@ Monthly (${O} Years): ₱${N(au)}
 Bank Interest Rate: ${a.toFixed(2)}%
 
 Estimated computation only. Subject to change without prior notice.`:e===2?`Client Desired DP Percentage: ${P.toFixed(2)}%
-Client Desired DP Amount: ₱${N(on)}
+Client Desired DP Amount: ₱${N(Zn)}
 Unit: ${t}
 Unit SRP: ₱${N(R)}
 Official Promo DP: ₱${N(se)}${h&&h.trim()?`
 Additional Cashout for ${h}: ${N(Ye)}`:``}
-Client Net DP (Actual Client Cashout): ₱${N(su)}
+Client Net DP (Actual Client Cashout): ₱${N(Zn+Ye)}
 Client Discount: ₱${N(Pr)}
-Total DP Deductible to Unit SRP: ₱${N(Jn)}
+Total DP Deductible to Unit SRP: ₱${N(Zn+Ye)}
 Amount Financed: ₱${N(Zn)}
 Monthly (${O} Years): ₱${N(au)}
 Bank Interest Rate: ${a.toFixed(2)}%
@@ -730,12 +730,15 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
 
 
 
-<style id="cal4-final-v21">
+
+
+
+
+<style id="cal4-final-purple">
 .cal4-active input[type="range"]::-webkit-slider-thumb{
   background:#c084fc !important;
   background-color:#c084fc !important;
   border:4px solid #fff !important;
-  box-shadow:0 0 0 3px rgba(192,132,252,0.2) !important;
 }
 .cal4-active input[type="range"]::-moz-range-thumb{
   background:#c084fc !important;
@@ -743,7 +746,7 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
   border:4px solid #fff !important;
 }
 </style>
-<script id="DRIVELOAN-CAL4-FINAL-V21">
+<script id="DRIVELOAN-CAL4-BUGFIX-FINAL">
 (function(){
   function activeCalc(){
     var found=1;
@@ -765,14 +768,27 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
     }
     return null;
   }
-  function getCapsule(){ return document.getElementById('cal4-capsule-v21'); }
-  function fixCAL4(){
-    var cur=activeCalc(), isCal4=cur===4;
+  function getCapsule(){ return document.getElementById('cal4-capsule-final'); }
+  function fixAll(){
+    var cur=activeCalc();
+    var isCal4=cur===4;
+    var isCal2=cur===2;
     document.documentElement.classList.toggle('cal4-active', isCal4);
+    
+    // BUGFIX: Hide CAL4 capsule when NOT in CAL4 (especially in CAL2)
+    var cap=getCapsule();
+    if(cap){
+      if(isCal4){
+        cap.style.display='block';
+      }else{
+        cap.style.display='none';
+      }
+    }
+    
+    // Fix selector border ONLY for CAL4
     if(isCal4){
       document.querySelectorAll('div').forEach(function(el){
-        var txt=(el.textContent||'');
-        if(txt.indexOf('CALCULATOR')!==-1 && el.querySelectorAll('button').length>=4){
+        if((el.textContent||'').indexOf('CALCULATOR')!==-1 && el.querySelectorAll('button').length>=4){
           var parent=el.parentElement, isOuter=true;
           if(parent && (parent.textContent||'').indexOf('CALCULATOR')!==-1 && parent.querySelectorAll('button').length>=4 && parent!==el) isOuter=false;
           if(isOuter){
@@ -784,6 +800,8 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
         }
       });
     }
+    
+    // Button 4 visible
     document.querySelectorAll('button').forEach(function(b){
       var t=(b.textContent||'').trim();
       if(t==='4'){
@@ -795,16 +813,19 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
       }
       if(t==='1'||t==='2'||t==='3'){ b.style.opacity='1'; b.style.visibility='visible'; b.style.display='flex'; }
     });
+    
+    // Purple sliders ONLY for CAL4
     if(isCal4){
       document.querySelectorAll('input[type="range"]').forEach(function(sl){
         if(sl.closest && sl.closest('#root')){
-          sl.classList.add('cal4-purple'); sl.style.accentColor='#c084fc';
+          sl.style.accentColor='#c084fc';
           var min=Number(sl.min||0),max=Number(sl.max||100),val=Number(sl.value||0),pct=max===min?0:((val-min)/(max-min))*100;
           sl.style.background='linear-gradient(to right,#c084fc 0%,#c084fc '+pct+'%,#2b3446 '+pct+'%,#2b3446 100%)';
         }
       });
     }
   }
+  
   function syncCapsuleFromSlider(){
     if(activeCalc()!==4) return;
     var slider=getSlider(), cap=getCapsule();
@@ -814,19 +835,31 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
     var sVal=parseFloat(slider.value)||25;
     if(Math.abs(sVal-parseFloat(input.value||0))>0.001) input.value=sVal;
   }
+  
   function syncSliderFromCapsule(val){
     var slider=getSlider(); if(!slider) return;
     slider.value=val;
     slider.dispatchEvent(new Event('input',{bubbles:true}));
     slider.dispatchEvent(new Event('change',{bubbles:true}));
   }
+  
   function injectCapsule(){
     if(activeCalc()!==4) return;
-    if(getCapsule()) return;
+    if(getCapsule()){
+      getCapsule().style.display='block';
+      return;
+    }
+    // ONLY inject if we're in CAL4 AND there's a 21-95 slider
+    // Find the DP slider container - must be in CAL4 section
     var dpContainer=null;
-    document.querySelectorAll('input[type="range"]').forEach(function(el){
-      if(el.min==21 && el.max==95) dpContainer=el.closest('div.space-y-2')||el.parentNode.parentNode;
-    });
+    var sliders=document.querySelectorAll('input[type="range"]');
+    for(var i=0;i<sliders.length;i++){
+      if(sliders[i].min==21 && sliders[i].max==95){
+        // Check if this slider is near CAL4 label or in visible area
+        var cont=sliders[i].closest('div.space-y-2');
+        if(cont) dpContainer=cont;
+      }
+    }
     if(!dpContainer){
       document.querySelectorAll('span').forEach(function(sp){
         if(sp.textContent.trim()==='95%'){ var cont=sp.closest('div.space-y-2'); if(cont) dpContainer=cont; }
@@ -835,7 +868,7 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
     if(!dpContainer) return;
     var slider=getSlider(), curVal=slider?parseFloat(slider.value)||25:25;
     var capsule=document.createElement('div');
-    capsule.id='cal4-capsule-v21';
+    capsule.id='cal4-capsule-final';
     capsule.className='space-y-1.5';
     capsule.style.marginBottom='16px';
     capsule.innerHTML='<div class="flex items-center gap-2"><div class="text-[10px] tracking-[0.14em]" style="color:#c084fc!important;font-weight:700;">BANK\'S DP PERCENTAGE APPROVAL</div></div><div class="bg-[#0f172a] border border-[#c084fc] rounded-[16px] px-4 py-3 flex items-center justify-between gap-2" style="box-shadow:0 0 0 2px rgba(192,132,252,0.15);"><input type="number" step="0.01" min="21" max="95" value="'+curVal+'" style="background:transparent;outline:none;width:100%;text-align:right;font-size:13px;font-weight:bold;color:white;"><span style="color:#c084fc;font-size:13px;">%</span></div>';
@@ -847,12 +880,18 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
       inputEl.addEventListener('input', function(){ var v=parseFloat(this.value); if(!isNaN(v)&&v>=21&&v<=95) syncSliderFromCapsule(v); });
     }
   }
-  function tick(){ fixCAL4(); if(activeCalc()===4){ injectCapsule(); syncCapsuleFromSlider(); } }
+  
+  function tick(){
+    fixAll();
+    if(activeCalc()===4){ injectCapsule(); syncCapsuleFromSlider(); }
+  }
+  
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ tick(); setTimeout(tick,300); setTimeout(tick,800); });
   else{ tick(); setTimeout(tick,300); setTimeout(tick,800); }
-  setInterval(function(){ if(activeCalc()===4) syncCapsuleFromSlider(); fixCAL4(); }, 250);
-  document.addEventListener('click', function(){ setTimeout(tick,80); setTimeout(tick,350); }, {passive:true});
-  document.addEventListener('input', function(e){ if(e.target&&e.target.type==='range'&&e.target.min==21&&e.target.max==95){ setTimeout(syncCapsuleFromSlider,10); setTimeout(fixCAL4,10); } }, {passive:true});
+  
+  setInterval(function(){ tick(); }, 400);
+  document.addEventListener('click', function(){ setTimeout(tick,80); setTimeout(tick,400); }, {passive:true});
+  document.addEventListener('input', function(e){ if(e.target&&e.target.type==='range'&&e.target.min==21&&e.target.max==95){ setTimeout(syncCapsuleFromSlider,10); setTimeout(fixAll,10); } }, {passive:true});
 })();
 </script>
 
