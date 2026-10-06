@@ -270,7 +270,7 @@ Official Promo DP: ₱${N(se)}${h&&h.trim()?`
 Additional Cashout for ${h}: ${N(Ye)}`:``}
 Client Net DP (Actual Client Cashout): ₱${N(su)} (${Bo.toFixed(2)}%)
 Client Discount: ₱${N(Pr)} (${Ko.toFixed(2)}%)
-Total DP Deductible to Unit SRP: ₱${N(Jn)} (${Rr.toFixed(4)}%)
+Total DP Deductible to Unit SRP: ₱${N(R*P/100)} (${P.toFixed(2)}%)
 Amount Financed: ₱${N(Zn)} (${Ao.toFixed(2)}%)
 Monthly (${O} Years): ₱${N(au)}
 Bank Interest Rate: ${a.toFixed(2)}%
@@ -730,8 +730,7 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
 
 
 
-<style id="cal4-final-v19">
-/* ONLY CAL4 purple thumb - when cal4-active class present */
+<style id="cal4-final-v21">
 .cal4-active input[type="range"]::-webkit-slider-thumb{
   background:#c084fc !important;
   background-color:#c084fc !important;
@@ -742,10 +741,9 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
   background:#c084fc !important;
   background-color:#c084fc !important;
   border:4px solid #fff !important;
-  box-shadow:0 0 0 3px rgba(192,132,252,0.2) !important;
 }
 </style>
-<script id="DRIVELOAN-CAL4-FINAL-V19">
+<script id="DRIVELOAN-CAL4-FINAL-V21">
 (function(){
   function activeCalc(){
     var found=1;
@@ -760,7 +758,6 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
     });
     return found;
   }
-  
   function getSlider(){
     var sliders=document.querySelectorAll('input[type="range"]');
     for(var i=0;i<sliders.length;i++){
@@ -768,208 +765,94 @@ Estimated computation only. Subject to change without prior notice.`,simpleClipb
     }
     return null;
   }
-  
-  function getCapsule(){
-    return document.getElementById('cal4-capsule-v19');
-  }
-  
-  function fixColors(){
-    var cur=activeCalc();
-    var isCal4=cur===4;
+  function getCapsule(){ return document.getElementById('cal4-capsule-v21'); }
+  function fixCAL4(){
+    var cur=activeCalc(), isCal4=cur===4;
     document.documentElement.classList.toggle('cal4-active', isCal4);
-    
-    // Fix calculator selector border - ONLY when CAL4
     if(isCal4){
-      // Find outer pill - the div that contains CALCULATOR and 4 buttons
-      var outerPill=null;
-      var allDivs=document.querySelectorAll('div');
-      for(var i=0;i<allDivs.length;i++){
-        var el=allDivs[i];
+      document.querySelectorAll('div').forEach(function(el){
         var txt=(el.textContent||'');
         if(txt.indexOf('CALCULATOR')!==-1 && el.querySelectorAll('button').length>=4){
-          // Check if parent also has CALCULATOR - if yes, this is inner, skip
-          var parent=el.parentElement;
-          var isOuter=true;
-          if(parent){
-            var pTxt=parent.textContent||'';
-            if(pTxt.indexOf('CALCULATOR')!==-1 && parent.querySelectorAll('button').length>=4 && parent!==el){
-              isOuter=false;
-            }
-          }
+          var parent=el.parentElement, isOuter=true;
+          if(parent && (parent.textContent||'').indexOf('CALCULATOR')!==-1 && parent.querySelectorAll('button').length>=4 && parent!==el) isOuter=false;
           if(isOuter){
-            outerPill=el;
-            break;
+            el.style.borderColor='#c084fc'; el.style.borderWidth='2px';
+            el.querySelectorAll('div').forEach(function(inner){
+              if(inner!==el && inner.querySelectorAll('button').length>=4){ inner.style.border='none'; inner.style.boxShadow='none'; }
+            });
           }
         }
-      }
-      if(outerPill){
-        outerPill.style.borderColor='#c084fc';
-        outerPill.style.borderWidth='2px';
-        // Remove inner blurred border
-        var innerDivs=outerPill.querySelectorAll('div');
-        for(var j=0;j<innerDivs.length;j++){
-          var inner=innerDivs[j];
-          if(inner!==outerPill && inner.querySelectorAll('button').length>=4){
-            inner.style.border='none';
-            inner.style.boxShadow='none';
-          }
-        }
-      }
+      });
     }
-    
-    // Fix button 4 visibility - make it always visible
     document.querySelectorAll('button').forEach(function(b){
       var t=(b.textContent||'').trim();
       if(t==='4'){
-        b.style.opacity='1';
-        b.style.visibility='visible';
-        b.style.display='flex';
-        b.style.width='40px';
-        b.style.height='40px';
-        b.style.borderRadius='50%';
-        b.style.alignItems='center';
-        b.style.justifyContent='center';
-        b.style.fontWeight='bold';
-        if(isCal4){
-          b.style.backgroundColor='#c084fc';
-          b.style.color='#000';
-        }else{
-          b.style.backgroundColor='#2a3552';
-          b.style.color='#8a96b5';
-        }
+        b.style.opacity='1'; b.style.visibility='visible'; b.style.display='flex';
+        b.style.width='40px'; b.style.height='40px'; b.style.borderRadius='50%';
+        b.style.alignItems='center'; b.style.justifyContent='center'; b.style.fontWeight='bold';
+        if(isCal4){ b.style.backgroundColor='#c084fc'; b.style.color='#000'; }
+        else{ b.style.backgroundColor='#2a3552'; b.style.color='#8a96b5'; }
       }
-      if(t==='1'||t==='2'||t==='3'){
-        b.style.opacity='1';
-        b.style.visibility='visible';
-        b.style.display='flex';
-      }
+      if(t==='1'||t==='2'||t==='3'){ b.style.opacity='1'; b.style.visibility='visible'; b.style.display='flex'; }
     });
-    
-    // Fix sliders track - ONLY for CAL4
     if(isCal4){
-      var sliders=document.querySelectorAll('input[type="range"]');
-      for(var k=0;k<sliders.length;k++){
-        var sl=sliders[k];
+      document.querySelectorAll('input[type="range"]').forEach(function(sl){
         if(sl.closest && sl.closest('#root')){
-          sl.classList.add('cal4-purple');
-          sl.style.accentColor='#c084fc';
+          sl.classList.add('cal4-purple'); sl.style.accentColor='#c084fc';
           var min=Number(sl.min||0),max=Number(sl.max||100),val=Number(sl.value||0),pct=max===min?0:((val-min)/(max-min))*100;
           sl.style.background='linear-gradient(to right,#c084fc 0%,#c084fc '+pct+'%,#2b3446 '+pct+'%,#2b3446 100%)';
         }
-      }
+      });
     }
   }
-  
   function syncCapsuleFromSlider(){
     if(activeCalc()!==4) return;
-    var slider=getSlider();
-    var cap=getCapsule();
-    if(!slider || !cap) return;
+    var slider=getSlider(), cap=getCapsule();
+    if(!slider||!cap) return;
     var input=cap.querySelector('input');
-    if(!input) return;
-    if(document.activeElement===input) return; // Don't overwrite while typing
+    if(!input||document.activeElement===input) return;
     var sVal=parseFloat(slider.value)||25;
-    var cVal=parseFloat(input.value||0);
-    if(Math.abs(sVal-cVal)>0.001){
-      input.value=sVal;
-    }
+    if(Math.abs(sVal-parseFloat(input.value||0))>0.001) input.value=sVal;
   }
-  
   function syncSliderFromCapsule(val){
-    var slider=getSlider();
-    if(!slider) return;
+    var slider=getSlider(); if(!slider) return;
     slider.value=val;
     slider.dispatchEvent(new Event('input',{bubbles:true}));
     slider.dispatchEvent(new Event('change',{bubbles:true}));
   }
-  
   function injectCapsule(){
     if(activeCalc()!==4) return;
     if(getCapsule()) return;
-    
     var dpContainer=null;
-    var sliders=document.querySelectorAll('input[type="range"]');
-    for(var i=0;i<sliders.length;i++){
-      if(sliders[i].min==21 && sliders[i].max==95){
-        dpContainer=sliders[i].closest('div.space-y-2')||sliders[i].parentNode.parentNode;
-        break;
-      }
-    }
+    document.querySelectorAll('input[type="range"]').forEach(function(el){
+      if(el.min==21 && el.max==95) dpContainer=el.closest('div.space-y-2')||el.parentNode.parentNode;
+    });
     if(!dpContainer){
-      var spans=document.querySelectorAll('span');
-      for(var i=0;i<spans.length;i++){
-        if(spans[i].textContent.trim()==='95%'){
-          var cont=spans[i].closest('div.space-y-2');
-          if(cont){ dpContainer=cont; break; }
-        }
-      }
+      document.querySelectorAll('span').forEach(function(sp){
+        if(sp.textContent.trim()==='95%'){ var cont=sp.closest('div.space-y-2'); if(cont) dpContainer=cont; }
+      });
     }
     if(!dpContainer) return;
-    
-    var slider=getSlider();
-    var curVal=slider?parseFloat(slider.value)||25:25;
-    
+    var slider=getSlider(), curVal=slider?parseFloat(slider.value)||25:25;
     var capsule=document.createElement('div');
-    capsule.id='cal4-capsule-v19';
+    capsule.id='cal4-capsule-v21';
     capsule.className='space-y-1.5';
     capsule.style.marginBottom='16px';
     capsule.innerHTML='<div class="flex items-center gap-2"><div class="text-[10px] tracking-[0.14em]" style="color:#c084fc!important;font-weight:700;">BANK\'S DP PERCENTAGE APPROVAL</div></div><div class="bg-[#0f172a] border border-[#c084fc] rounded-[16px] px-4 py-3 flex items-center justify-between gap-2" style="box-shadow:0 0 0 2px rgba(192,132,252,0.15);"><input type="number" step="0.01" min="21" max="95" value="'+curVal+'" style="background:transparent;outline:none;width:100%;text-align:right;font-size:13px;font-weight:bold;color:white;"><span style="color:#c084fc;font-size:13px;">%</span></div>';
-    
     dpContainer.parentNode.insertBefore(capsule, dpContainer);
-    
     var inputEl=capsule.querySelector('input');
     if(inputEl){
-      // Capsule -> Slider
-      inputEl.addEventListener('blur', function(){
-        var v=parseFloat(this.value)||25;
-        if(v<21) v=21; if(v>95) v=95;
-        this.value=v;
-        syncSliderFromCapsule(v);
-      });
-      inputEl.addEventListener('keydown', function(e){ 
-        if(e.key==='Enter') this.blur(); 
-      });
-      // Live sync while typing
-      inputEl.addEventListener('input', function(){
-        var v=parseFloat(this.value);
-        if(!isNaN(v) && v>=21 && v<=95){
-          syncSliderFromCapsule(v);
-        }
-      });
+      inputEl.addEventListener('blur', function(){ var v=parseFloat(this.value)||25; if(v<21)v=21; if(v>95)v=95; this.value=v; syncSliderFromCapsule(v); });
+      inputEl.addEventListener('keydown', function(e){ if(e.key==='Enter') this.blur(); });
+      inputEl.addEventListener('input', function(){ var v=parseFloat(this.value); if(!isNaN(v)&&v>=21&&v<=95) syncSliderFromCapsule(v); });
     }
   }
-  
-  function tick(){
-    fixColors();
-    if(activeCalc()===4){
-      injectCapsule();
-      syncCapsuleFromSlider();
-    }
-  }
-  
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){ tick(); setTimeout(tick,300); setTimeout(tick,800); });
-  }else{
-    tick(); setTimeout(tick,300); setTimeout(tick,800);
-  }
-  
-  // Bidirectional sync - poll slider -> capsule
-  setInterval(function(){
-    if(activeCalc()===4){
-      syncCapsuleFromSlider();
-    }
-    fixColors();
-  }, 250);
-  
+  function tick(){ fixCAL4(); if(activeCalc()===4){ injectCapsule(); syncCapsuleFromSlider(); } }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ tick(); setTimeout(tick,300); setTimeout(tick,800); });
+  else{ tick(); setTimeout(tick,300); setTimeout(tick,800); }
+  setInterval(function(){ if(activeCalc()===4) syncCapsuleFromSlider(); fixCAL4(); }, 250);
   document.addEventListener('click', function(){ setTimeout(tick,80); setTimeout(tick,350); }, {passive:true});
-  
-  // Slider -> Capsule immediate
-  document.addEventListener('input', function(e){
-    if(e.target && e.target.type==='range' && e.target.min==21 && e.target.max==95){
-      setTimeout(syncCapsuleFromSlider,10);
-      setTimeout(fixColors,10);
-    }
-  }, {passive:true});
+  document.addEventListener('input', function(e){ if(e.target&&e.target.type==='range'&&e.target.min==21&&e.target.max==95){ setTimeout(syncCapsuleFromSlider,10); setTimeout(fixCAL4,10); } }, {passive:true});
 })();
 </script>
 
